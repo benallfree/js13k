@@ -1,0 +1,33 @@
+{
+  "name": "vite-project",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "size": "((rm -rf .build/*) || true) && vite build --outDir .build && ((rm out.zip) || true) && (cd .build && zip -9 -r ../out.zip .) && ./checksize.sh",
+    "size:watch": "chokidar src *.json *.html *.ts -c 'yarn size'",
+    "build": "(yarn size) && (rm -rf dist || true) && (mkdir dist) && (cp -r .build/* dist)",
+    "prebuild": "tsx scripts/prebuild.ts",
+    "postbuild": "tsx scripts/postbuild.ts",
+    "preview": "vite preview",
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "analyze": "vite-bundle-visualizer",
+    "serve": "http-server .build"
+  },
+  "devDependencies": {
+    "@tsconfig/node16": "^16.1.0",
+    "chokidar-cli": "^3.0.0",
+    "http-server": "^14.1.1",
+    "nanoid": "^4.0.2",
+    "prettier": "^2.8.8",
+    "prettier-plugin-organize-imports": "^3.2.2",
+    "sass": "^1.63.6",
+    "terser": "^5.18.2",
+    "tslib": "^2.5.0",
+    "type-fest": "^3.12.0",
+    "typescript": "^5.0.2",
+    "vite": "^4.3.9",
+    "vite-bundle-visualizer": "^0.8.0"
+  }
+}
