@@ -92,10 +92,13 @@ const saveBeat = (name: string) => {
   const now = Date.now()
 
   // If we're updating an existing beat with a different name
-  if (currentBeatId.val && name !== originalBeatName.val) {
-    tempBeatName.val = name
-    showRenameModal.val = true
-    return
+  if (currentBeatId.val) {
+    const storedBeat = beats.find((b) => b.id === currentBeatId.val)
+    if (storedBeat && name !== storedBeat.name) {
+      tempBeatName.val = name
+      showRenameModal.val = true
+      return
+    }
   }
 
   // Handle authors array
