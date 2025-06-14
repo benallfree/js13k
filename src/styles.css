@@ -97,37 +97,100 @@ body {
   border-color: #777;
 }
 
-.modal-buttons {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-}
-
-.modal button {
-  padding: 10px 20px;
+/* Button Base */
+.btn {
+  padding: 8px 16px;
   border: none;
-  border-radius: 4px;
-  font-family: monospace;
+  border-radius: 6px;
+  color: white;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  font-family: monospace;
 }
 
-.modal .primary {
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Button Variants */
+.btn-primary {
   background: #4a9eff;
-  color: white;
 }
 
-.modal .primary:hover {
+.btn-primary:hover {
   background: #3a8eef;
+  box-shadow: 0 4px 8px rgba(74, 158, 255, 0.4);
 }
 
-.modal .secondary {
-  background: #666;
-  color: white;
+.btn-danger {
+  background: #d44;
 }
 
-.modal .secondary:hover {
-  background: #777;
+.btn-danger:hover {
+  background: #e55;
+  box-shadow: 0 4px 8px rgba(221, 68, 68, 0.4);
+}
+
+.btn-secondary {
+  background: #444;
+}
+
+.btn-secondary:hover {
+  background: #555;
+}
+
+/* Button Sizes */
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+/* Button States */
+.btn-active {
+  background: #4a9eff !important;
+  color: white !important;
+  box-shadow: 0 2px 4px rgba(74, 158, 255, 0.3) !important;
+}
+
+.btn-active:hover {
+  background: #3a8eef !important;
+  box-shadow: 0 4px 8px rgba(74, 158, 255, 0.4) !important;
+}
+
+/* Layout Utilities */
+.flex {
+  display: flex;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.gap-1 {
+  gap: 4px;
+}
+
+.gap-2 {
+  gap: 8px;
+}
+
+.mb-4 {
+  margin-bottom: 16px;
+}
+
+.mt-2 {
+  margin-top: 8px;
+}
+
+.text-sm {
+  font-size: 12px;
+}
+
+.text-gray {
+  color: #999;
 }
 
 .beat-name {
@@ -147,13 +210,6 @@ body {
 
 .beat-name .modified {
   color: #ff6;
-}
-
-.library-controls {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 10px;
-  flex-wrap: wrap;
 }
 
 .library-panel {
@@ -189,16 +245,6 @@ body {
 
 .beat-info {
   flex: 1;
-}
-
-.beat-actions {
-  display: flex;
-  gap: 5px;
-}
-
-.beat-actions button {
-  padding: 3px 8px;
-  font-size: 12px;
 }
 
 .authors {
@@ -286,22 +332,4 @@ body {
 
 .cell.playing {
   background: #fff !important;
-}
-
-.controls {
-  margin: 10px 0;
-}
-
-.controls button {
-  margin: 5px;
-  padding: 10px;
-}
-
-.instruments button {
-  margin: 2px;
-  padding: 5px 10px;
-}
-
-.instruments button.active {
-  background: #555;
 }

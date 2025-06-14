@@ -1,7 +1,8 @@
 import van, { State } from 'vanjs-core'
 import { Beat } from '../storage'
+import { Button } from './Button'
 
-const { div, button, h3, a } = van.tags
+const { div, h3, a } = van.tags
 
 export const LibraryPanel =
   (
@@ -26,7 +27,7 @@ export const LibraryPanel =
                     div(
                       { class: 'beat-info' },
                       div(beat.name),
-                      div({ style: 'font-size: 12px; color: #999;' }, `Modified: ${formatDate(beat.modified)}`),
+                      div({ class: 'text-sm text-gray' }, `Modified: ${formatDate(beat.modified)}`),
                       beat.authors && beat.authors.length > 0
                         ? div(
                             { class: 'authors' },
@@ -48,15 +49,14 @@ export const LibraryPanel =
                         : ''
                     ),
                     div(
-                      { class: 'beat-actions' },
-                      button({ onclick: () => onLoad(beat) }, 'Load'),
-                      button(
-                        {
-                          onclick: () => onDelete(beat.id),
-                          style: 'background: #d44; color: white;',
-                        },
-                        'Delete'
-                      )
+                      { class: 'flex gap-1' },
+                      Button({ onClick: () => onLoad(beat), size: 'sm', children: 'Load' }),
+                      Button({
+                        onClick: () => onDelete(beat.id),
+                        variant: 'danger',
+                        size: 'sm',
+                        children: 'Delete',
+                      })
                     )
                   )
                 )

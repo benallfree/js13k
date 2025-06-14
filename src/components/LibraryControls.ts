@@ -1,6 +1,7 @@
 import van, { State } from 'vanjs-core'
+import { Button } from './Button'
 
-const { div, button } = van.tags
+const { div } = van.tags
 
 export const LibraryControls = (
   showLibrary: State<boolean>,
@@ -9,11 +10,12 @@ export const LibraryControls = (
   onShare: () => void
 ) =>
   div(
-    { class: 'library-controls' },
-    button({ onclick: onSave }, 'Save Beat'),
-    button({ onclick: onClear }, 'Clear Beat'),
-    button({ onclick: () => (showLibrary.val = !showLibrary.val) }, () =>
-      showLibrary.val ? 'Hide Library' : 'Show Library'
-    ),
-    button({ onclick: onShare }, 'Share Beat')
+    { class: 'flex flex-wrap gap-2 mb-4' },
+    Button({ onClick: onSave, variant: 'primary', children: 'Save Beat' }),
+    Button({ onClick: onClear, variant: 'danger', children: 'Clear Beat' }),
+    Button({
+      onClick: () => (showLibrary.val = !showLibrary.val),
+      children: () => (showLibrary.val ? 'Hide Library' : 'Show Library'),
+    }),
+    Button({ onClick: onShare, children: 'Share Beat' })
   )

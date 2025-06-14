@@ -1,7 +1,8 @@
 import van, { State } from 'vanjs-core'
 import { sampleMetadata } from '../sounds'
+import { Button } from './Button'
 
-const { div, button } = van.tags
+const { div } = van.tags
 
 export const MainControls = (
   playing: State<boolean>,
@@ -10,19 +11,21 @@ export const MainControls = (
   onSelectInstrument: (index: number) => void
 ) =>
   div(
-    { class: 'controls' },
-    button({ onclick: onTogglePlay }, () => (playing.val ? 'Stop' : 'Play')),
+    { class: 'mb-4' },
+    Button({
+      onClick: onTogglePlay,
+      variant: 'primary',
+      children: () => (playing.val ? 'Stop' : 'Play'),
+    }),
     div(
-      { class: 'instruments' },
+      { class: 'flex flex-wrap gap-1 mt-2' },
       ...Object.entries(sampleMetadata).map(([index, meta]) =>
-        button(
-          {
-            class: () => (selectedInstrument.val === Number(index) ? 'active' : ''),
-            onclick: () => onSelectInstrument(Number(index)),
-            title: `${meta.longName} - ${meta.description}`,
-          },
-          `${meta.emoji} ${meta.shortName}`
-        )
+        Button({
+          onClick: () => onSelectInstrument(Number(index)),
+          class: selectedInstrument.val === Number(index) ? 'btn-active' : '',
+          size: 'sm',
+          children: `${meta.emoji} ${meta.shortName}`,
+        })
       )
     )
   )
