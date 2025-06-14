@@ -46,7 +46,23 @@ export const sounds = {
     gain.gain.setValueAtTime(0.1, ctx.currentTime)
     gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1)
     noise.start()
+  },
+  3: () => {
+    // Cymbal Crash
+    const noise = ctx.createBufferSource()
+    const buffer = ctx.createBuffer(1, ctx.sampleRate * 0.5, ctx.sampleRate)
+    const data = buffer.getChannelData(0)
+    for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1
+    const filter = ctx.createBiquadFilter()
+    const gain = ctx.createGain()
+    noise.buffer = buffer
+    noise.connect(filter).connect(gain).connect(ctx.destination)
+    filter.type = 'highpass'
+    filter.frequency.value = 5000
+    gain.gain.setValueAtTime(0.4, ctx.currentTime)
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5)
+    noise.start()
   }
 }
 
-export const instruments = ['K', 'S', 'H'] // Kick, Snare, Hi-hat
+export const instruments = ['K', 'S', 'H', 'C'] // Kick, Snare, Hi-hat, Crash

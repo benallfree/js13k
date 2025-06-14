@@ -236,6 +236,10 @@ body {
   background: #44f; 
 }
 
+.cell.c { 
+  background: #f4f; 
+}
+
 .cell.trail-0 { 
   box-shadow: inset 0 0 0 3px rgba(255, 100, 100, 0.9), 0 0 8px rgba(255, 100, 100, 0.6); 
 }
