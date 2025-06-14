@@ -7,6 +7,7 @@ import {
   saveBeatsToStorage,
   saveXHandleToStorage
 } from './storage'
+import { shareBeat as createShareUrl, loadFromUrl, updateUrl } from './url'
 
 const { div, button, style, input, select, option, span, h3, a } = van.tags
 
@@ -119,7 +120,7 @@ const loadBeat = (beat: Beat) => {
   isModified.val = false
   sharedBeatAuthors.val = [] // Clear shared beat authors
   showLibrary.val = false
-  updateUrl()
+  updateUrl(grid.val)
   showStatus(`📂 Loaded "${beat.name}"`)
 }
 
@@ -144,7 +145,7 @@ const newBeat = () => {
   currentBeatName.val = 'Untitled Beat'
   isModified.val = false
   sharedBeatAuthors.val = [] // Clear shared beat authors
-  updateUrl()
+  updateUrl(grid.val)
   showStatus('📝 New beat created')
 }
 
@@ -153,120 +154,33 @@ savedBeats.val = loadBeatsFromStorage()
 
 // URL state management
 const encodeGrid = (gridData: number[][]) => {
-  return gridData
-    .flat()
-    .map((v) => v.toString(4))
-    .join('')
+  return gridData.flat().join('')
 }
 
 const decodeGrid = (encoded: string) => {
-  if (!encoded || encoded.length !== 256) return null
-  const flat = encoded.split('').map((c) => parseInt(c, 4) || 0)
-  const result = []
+  if (encoded.length !== 256) return null
+  const result: number[][] = []
   for (let i = 0; i < 16; i++) {
-    result.push(flat.slice(i * 16, (i + 1) * 16))
+    result.push(
+      encoded
+        .slice(i * 16, (i + 1) * 16)
+        .split('')
+        .map(Number)
+    )
   }
   return result
 }
 
-const updateUrl = () => {
-  const encoded = encodeGrid(grid.val)
-  if (encoded !== '0'.repeat(256)) {
-    window.location.hash = encoded
-  } else {
-    window.location.hash = ''
-  }
-}
-
-const loadFromUrl = () => {
-  const urlParams = new URLSearchParams(window.location.search)
-  const hash = window.location.hash.slice(1)
-
-  // Check for new base64 JSON format
-  const beatParam = urlParams.get('beat')
-
-  if (beatParam) {
-    try {
-      // Try to decode as base64 JSON (new format)
-      const beatJson = atob(beatParam)
-      const beatData = JSON.parse(beatJson)
-
-      if (beatData.grid && Array.isArray(beatData.grid)) {
-        // New format with complete beat data
-        grid.val = beatData.grid.map((row: number[]) => [...row]) // Deep copy
-        currentBeatName.val = beatData.name || 'Shared Beat'
-        isModified.val = true
-
-        // Store shared beat authors
-        sharedBeatAuthors.val = beatData.authors || []
-
-        const authorsText =
-          beatData.authors && beatData.authors.length > 0
-            ? ` by ${beatData.authors.map((a: string) => `@${a}`).join(', ')}`
-            : ''
-        showStatus(`🔗 Shared beat loaded${authorsText}`)
-        return
-      }
-    } catch (e) {
-      // If base64 decode fails, try old grid format
-      const gridData = decodeGrid(beatParam)
-      if (gridData) {
-        grid.val = gridData
-        currentBeatName.val = 'Shared Beat'
-        isModified.val = true
-        sharedBeatAuthors.val = []
-        showStatus('🔗 Shared beat loaded')
-        return
-      }
-    }
-  }
-
-  // Check for old URL format with separate author parameter
-  const authorParam = urlParams.get('author')
-  if (beatParam && authorParam) {
-    const gridData = decodeGrid(beatParam)
-    if (gridData) {
-      grid.val = gridData
-      currentBeatName.val = `Shared Beat by @${authorParam}`
-      isModified.val = true
-      sharedBeatAuthors.val = [authorParam]
-      showStatus(`🔗 Shared beat loaded by @${authorParam}`)
-      return
-    }
-  }
-
-  // Fallback to old hash format
-  if (hash) {
-    const gridData = decodeGrid(hash)
-    if (gridData) {
-      grid.val = gridData
-      currentBeatName.val = 'Shared Beat'
-      isModified.val = true
-      sharedBeatAuthors.val = []
-      showStatus('🔗 Shared beat loaded')
-    }
-  }
-}
-
 const shareBeat = () => {
-  // Create a complete beat object to share
-  const beatData = {
+  const beatData: Beat = {
     name: currentBeatName.val,
     grid: grid.val,
     authors: [...(savedBeats.val.find((b) => b.name === currentBeatName.val)?.authors || [])],
-    created: Date.now()
+    created: Date.now(),
+    modified: Date.now()
   }
 
-  // Add current user to authors if they have an X handle and aren't already in the list
-  if (xHandle.val && !beatData.authors.includes(xHandle.val)) {
-    beatData.authors.push(xHandle.val)
-  }
-
-  // Encode the complete beat data as base64 JSON
-  const beatJson = JSON.stringify(beatData)
-  const encodedBeat = btoa(beatJson)
-
-  const url = `${window.location.origin}${window.location.pathname}?beat=${encodedBeat}`
+  const url = createShareUrl(beatData, xHandle.val)
 
   navigator.clipboard
     .writeText(url)
@@ -332,7 +246,7 @@ const toggleCell = (row: number, col: number) => {
     newGrid[row][col] === selectedInstrument.val + 1 ? 0 : selectedInstrument.val + 1
   grid.val = newGrid
   isModified.val = true
-  updateUrl()
+  updateUrl(grid.val)
 }
 
 // Format date for display
@@ -365,7 +279,12 @@ const initializeApp = () => {
   savedBeats.val = loadBeatsFromStorage()
 
   // Load from URL
-  loadFromUrl()
+  loadFromUrl((gridData, name, authors) => {
+    grid.val = gridData
+    currentBeatName.val = name
+    isModified.val = true
+    sharedBeatAuthors.val = authors
+  }, showStatus)
 
   // Show X handle modal if not set
   if (!xHandle.val) {
@@ -774,5 +693,19 @@ van.add(
 initializeApp()
 
 // Listen for hash changes and URL parameter changes
-window.addEventListener('hashchange', loadFromUrl)
-window.addEventListener('popstate', loadFromUrl)
+window.addEventListener('hashchange', () => {
+  loadFromUrl((gridData, name, authors) => {
+    grid.val = gridData
+    currentBeatName.val = name
+    isModified.val = true
+    sharedBeatAuthors.val = authors
+  }, showStatus)
+})
+window.addEventListener('popstate', () => {
+  loadFromUrl((gridData, name, authors) => {
+    grid.val = gridData
+    currentBeatName.val = name
+    isModified.val = true
+    sharedBeatAuthors.val = authors
+  }, showStatus)
+})
