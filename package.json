@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev",
+    "pack:watch": "chokidar src -c 'bun run build && bun run pack'",
     "pack": "cd dist && zip -9 -r ../out.zip .",
     "postpack": "bun run scripts/postbuild.ts",
     "build": "vite build && bun run pack",

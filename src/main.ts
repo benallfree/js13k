@@ -15,6 +15,7 @@ const grid = van.state(
     .map(() => Array(16).fill(0))
 ) // 16x16 grid
 const playingCells = van.state(new Set<string>()) // Track cells currently playing animation
+const stepHistory = van.state<number[]>([]) // Track recent steps for fade trail
 let intervalId: ReturnType<typeof setInterval>
 
 // URL state management
@@ -120,10 +121,14 @@ const playStep = () => {
   // Update playing cells
   playingCells.val = newPlayingCells
 
+  // Update step history for trail effect
+  const newHistory = [step, ...stepHistory.val.slice(0, 3)]
+  stepHistory.val = newHistory
+
   // Clear playing animation after a short delay
   setTimeout(() => {
     playingCells.val = new Set()
-  }, 100)
+  }, 200)
 
   currentStep.val = (currentStep.val + 1) % 16
 }
@@ -133,6 +138,8 @@ const togglePlay = () => {
   if (playing.val) {
     clearInterval(intervalId)
     playing.val = false
+    playingCells.val = new Set() // Clear any playing animations
+    stepHistory.val = [] // Clear trail history
   } else {
     playing.val = true
     intervalId = setInterval(playStep, 120) // ~125 BPM
@@ -154,12 +161,15 @@ van.add(
   style(`
     body { font-family: monospace; background: #111; color: #fff; margin: 0; padding: 20px; }
     .grid { display: grid; grid-template-columns: repeat(16, 20px); gap: 2px; margin: 20px 0; }
-    .cell { width: 20px; height: 20px; border: 1px solid #333; cursor: pointer; transition: all 0.1s; }
+    .cell { width: 20px; height: 20px; border: 1px solid #333; cursor: pointer; transition: all 0.3s ease; position: relative; }
     .cell.k { background: #f44; }
     .cell.s { background: #4f4; }
     .cell.h { background: #44f; }
-    .cell.current { border: 2px solid #fff !important; }
-    .cell.playing { transform: scale(1.2); box-shadow: 0 0 10px currentColor; }
+    .cell.trail-0 { box-shadow: inset 0 0 0 3px rgba(255, 100, 100, 0.9), 0 0 8px rgba(255, 100, 100, 0.6); }
+    .cell.trail-1 { box-shadow: inset 0 0 0 2px rgba(255, 100, 100, 0.7), 0 0 6px rgba(255, 100, 100, 0.4); }
+    .cell.trail-2 { box-shadow: inset 0 0 0 2px rgba(255, 100, 100, 0.5), 0 0 4px rgba(255, 100, 100, 0.3); }
+    .cell.trail-3 { box-shadow: inset 0 0 0 1px rgba(255, 100, 100, 0.3); }
+    .cell.playing { background: #fff !important; }
     .controls { margin: 10px 0; }
     .controls button { margin: 5px; padding: 10px; }
     .instruments button { margin: 2px; padding: 5px 10px; }
@@ -196,12 +206,12 @@ van.add(
               class: () => {
                 const val = grid.val[row][col]
                 const cellKey = `${row}-${col}`
-                const isCurrent = playing.val && currentStep.val === col
                 const isPlaying = playingCells.val.has(cellKey)
+                const trailIndex = stepHistory.val.indexOf(col)
 
                 let classes = 'cell'
                 if (val) classes += ` ${['k', 's', 'h'][val - 1]}`
-                if (isCurrent) classes += ' current'
+                if (playing.val && trailIndex >= 0) classes += ` trail-${trailIndex}`
                 if (isPlaying) classes += ' playing'
 
                 return classes
