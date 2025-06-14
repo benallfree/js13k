@@ -31,6 +31,27 @@ const savedBeats = van.state<Beat[]>([])
 const showLibrary = van.state(false)
 const isModified = van.state(false)
 
+// Status bar state
+const statusMessage = van.state('')
+const statusVisible = van.state(false)
+let statusTimeoutId: ReturnType<typeof setTimeout>
+
+// Status bar functions
+const showStatus = (message: string, duration = 2000) => {
+  // Clear any existing timeout
+  if (statusTimeoutId) {
+    clearTimeout(statusTimeoutId)
+  }
+
+  statusMessage.val = message
+  statusVisible.val = true
+
+  // Auto-hide after duration
+  statusTimeoutId = setTimeout(() => {
+    statusVisible.val = false
+  }, duration)
+}
+
 let intervalId: ReturnType<typeof setInterval>
 
 // Beat library functions
@@ -50,19 +71,21 @@ const saveBeatsToStorage = (beats: Beat[]) => {
     localStorage.setItem(BEATS_STORAGE_KEY, JSON.stringify(beats))
   } catch (e) {
     console.error('Failed to save beats:', e)
+    showStatus('❌ Failed to save beat', 3000)
   }
 }
 
 const saveBeat = (name?: string) => {
   const beatName = name || currentBeatName.val
   if (!beatName.trim()) {
-    alert('Please enter a beat name')
+    showStatus('⚠️ Please enter a beat name', 3000)
     return
   }
 
   const beats = loadBeatsFromStorage()
   const existingIndex = beats.findIndex((b: Beat) => b.name === beatName)
   const now = Date.now()
+  const isUpdate = existingIndex >= 0
 
   const beat: Beat = {
     name: beatName,
@@ -81,6 +104,8 @@ const saveBeat = (name?: string) => {
   savedBeats.val = [...beats]
   currentBeatName.val = beatName
   isModified.val = false
+
+  showStatus(isUpdate ? `💾 Beat "${beatName}" updated` : `✅ Beat "${beatName}" saved`)
 }
 
 const loadBeat = (beat: Beat) => {
@@ -89,6 +114,7 @@ const loadBeat = (beat: Beat) => {
   isModified.val = false
   showLibrary.val = false
   updateUrl()
+  showStatus(`📂 Loaded "${beat.name}"`)
 }
 
 const deleteBeat = (beatName: string) => {
@@ -100,6 +126,8 @@ const deleteBeat = (beatName: string) => {
     if (currentBeatName.val === beatName) {
       newBeat()
     }
+
+    showStatus(`🗑️ Deleted "${beatName}"`)
   }
 }
 
@@ -110,6 +138,7 @@ const newBeat = () => {
   currentBeatName.val = 'Untitled Beat'
   isModified.val = false
   updateUrl()
+  showStatus('📝 New beat created')
 }
 
 // Initialize beats library
@@ -150,6 +179,7 @@ const loadFromUrl = () => {
       grid.val = decoded
       currentBeatName.val = 'Shared Beat'
       isModified.val = true
+      showStatus('🔗 Shared beat loaded')
     }
   }
 }
@@ -159,10 +189,11 @@ const shareBeat = () => {
   navigator.clipboard
     .writeText(url)
     .then(() => {
-      alert('Beat URL copied to clipboard!')
+      showStatus('📋 Beat URL copied to clipboard!')
     })
     .catch(() => {
       prompt('Copy this URL to share your beat:', url)
+      showStatus('🔗 Share URL generated')
     })
 }
 
@@ -251,9 +282,11 @@ const togglePlay = () => {
     playing.val = false
     playingCells.val = new Set() // Clear any playing animations
     stepHistory.val = [] // Clear trail history
+    showStatus('⏸️ Stopped')
   } else {
     playing.val = true
     intervalId = setInterval(playStep, 120) // ~125 BPM
+    showStatus('▶️ Playing')
   }
 }
 
@@ -277,6 +310,34 @@ van.add(
   document.getElementById('app')!,
   style(`
     body { font-family: monospace; background: #111; color: #fff; margin: 0; padding: 20px; }
+    .status-bar {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.9);
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 20px;
+      border: 1px solid #555;
+      font-family: monospace;
+      font-size: 14px;
+      z-index: 1000;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .status-bar.visible {
+      opacity: 1;
+      animation: statusFlash 0.3s ease-out;
+    }
+    @keyframes statusFlash {
+      0% { transform: translateX(-50%) scale(0.8); opacity: 0; }
+      50% { transform: translateX(-50%) scale(1.05); }
+      100% { transform: translateX(-50%) scale(1); opacity: 1; }
+    }
     .beat-name { 
       display: flex; 
       align-items: center; 
@@ -343,6 +404,14 @@ van.add(
     .instruments button { margin: 2px; padding: 5px 10px; }
     .instruments button.active { background: #555; }
   `),
+
+  // Status bar
+  div(
+    {
+      class: () => `status-bar ${statusVisible.val ? 'visible' : ''}`
+    },
+    () => statusMessage.val
+  ),
 
   // Beat name and save controls
   div(
