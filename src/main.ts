@@ -238,10 +238,10 @@ savedBeats.val = loadBeatsFromStorage()
 
 const shareBeat = () => {
   const beatData: Beat = {
-    id: generateGuid(),
+    id: currentBeatId.val || generateGuid(), // Only generate new GUID if no current ID
     name: currentBeatName.val,
     grid: grid.val,
-    authors: [...(savedBeats.val.find((b) => b.name === currentBeatName.val)?.authors || [])],
+    authors: [...(savedBeats.val.find((b) => b.id === currentBeatId.val)?.authors || [])],
     created: Date.now(),
     modified: Date.now()
   }
