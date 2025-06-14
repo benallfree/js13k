@@ -1,6 +1,7 @@
 import van, { State } from 'vanjs-core'
+import { Button } from './Button'
 
-const { div, button } = van.tags
+const { div } = van.tags
 
 export interface ModalProps {
   isOpen: State<boolean>
@@ -28,8 +29,10 @@ export const Modal =
             div({ class: 'modal-content' }, content()),
             div(
               { class: 'modal-buttons' },
-              primaryButton && button({ class: 'primary', onclick: primaryButton.onClick }, primaryButton.text),
-              secondaryButton && button({ class: 'secondary', onclick: secondaryButton.onClick }, secondaryButton.text)
+              primaryButton &&
+                Button({ onClick: primaryButton.onClick, variant: 'primary', children: primaryButton.text }),
+              secondaryButton &&
+                Button({ onClick: secondaryButton.onClick, variant: 'secondary', children: secondaryButton.text })
             )
           )
         )
