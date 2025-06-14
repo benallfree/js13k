@@ -1,5 +1,23 @@
 import van from 'vanjs-core'
 import {
+  currentBeatId,
+  currentBeatName,
+  currentStep,
+  deleteBeat,
+  grid,
+  isModified,
+  loadBeat,
+  newBeat,
+  originalBeatName,
+  playing,
+  playingCells,
+  saveBeat,
+  savedBeats,
+  selectedInstrument,
+  showLibrary,
+  stepHistory
+} from './beatState'
+import {
   AuthorsDisplay,
   BeatNameInput,
   Grid,
@@ -16,30 +34,11 @@ import {
   generateGuid,
   loadBeatsFromStorage,
   loadXHandleFromStorage,
-  saveBeatsToStorage,
   saveXHandleToStorage
 } from './storage'
 import { shareBeat as createShareUrl, loadFromUrl } from './url'
 
 const { div, button, style, input, select, option, span, h3, a } = van.tags
-
-// Beat maker state - using van.state for reactivity
-const playing = van.state(false)
-const currentStep = van.state(0)
-const selectedInstrument = van.state(0)
-const grid = van.state(
-  Array(16)
-    .fill(0)
-    .map(() => Array(16).fill(0))
-) // 16x16 grid
-const playingCells = van.state(new Set<string>()) // Track cells currently playing animation
-const stepHistory = van.state<number[]>([]) // Track recent steps for fade trail
-
-// Beat library state
-const currentBeatName = van.state('Untitled Beat')
-const savedBeats = van.state<Beat[]>([])
-const showLibrary = van.state(false)
-const isModified = van.state(false)
 
 // Status bar state
 const statusMessage = van.state('')
@@ -54,19 +53,12 @@ const tempXHandle = van.state('')
 // Shared beat authors state
 const sharedBeatAuthors = van.state<string[]>([])
 
-// Add current beat ID state
-const currentBeatId = van.state<string>('')
-
-// Add original beat name state
-const originalBeatName = van.state<string>('')
-
 // Add rename modal state
 const showRenameModal = van.state(false)
 const tempBeatName = van.state('')
 
 // Status bar functions
 const showStatus = (message: string, duration = 2000) => {
-  // Clear any existing timeout
   if (statusTimeoutId) {
     clearTimeout(statusTimeoutId)
   }
@@ -74,7 +66,6 @@ const showStatus = (message: string, duration = 2000) => {
   statusMessage.val = message
   statusVisible.val = true
 
-  // Auto-hide after duration
   statusTimeoutId = setTimeout(() => {
     statusVisible.val = false
   }, duration)
@@ -82,20 +73,18 @@ const showStatus = (message: string, duration = 2000) => {
 
 let intervalId: ReturnType<typeof setInterval>
 
-const saveBeat = (name: string) => {
-  if (!name.trim()) {
+const handleSaveBeat = () => {
+  if (!currentBeatName.val.trim()) {
     showStatus('⚠️ Please enter a beat name', 3000)
     return
   }
 
-  const beats = loadBeatsFromStorage()
-  const now = Date.now()
-
   // If we're updating an existing beat with a different name
   if (currentBeatId.val) {
+    const beats = loadBeatsFromStorage()
     const storedBeat = beats.find((b) => b.id === currentBeatId.val)
-    if (storedBeat && name !== storedBeat.name) {
-      tempBeatName.val = name
+    if (storedBeat && currentBeatName.val !== storedBeat.name) {
+      tempBeatName.val = currentBeatName.val
       showRenameModal.val = true
       return
     }
@@ -104,7 +93,7 @@ const saveBeat = (name: string) => {
   // Handle authors array
   let authors: string[] = []
   if (currentBeatId.val) {
-    // Beat exists, get current authors
+    const beats = loadBeatsFromStorage()
     const existingBeat = beats.find((b) => b.id === currentBeatId.val)
     authors = existingBeat?.authors || []
   }
@@ -117,44 +106,21 @@ const saveBeat = (name: string) => {
     authors.push(xHandle.val)
   }
 
-  const beat: Beat = {
-    id: currentBeatId.val || generateGuid(),
-    name: name,
-    grid: grid.val.map((row) => [...row]), // Deep copy
-    created: currentBeatId.val
-      ? beats.find((b) => b.id === currentBeatId.val)?.created || now
-      : now,
-    modified: now,
-    authors: authors
+  if (saveBeat(currentBeatName.val, authors)) {
+    showStatus(
+      currentBeatId.val
+        ? `💾 Beat "${currentBeatName.val}" updated`
+        : `✅ Beat "${currentBeatName.val}" saved`
+    )
   }
-
-  // Check if beat exists in storage
-  const existingIndex = beats.findIndex((b) => b.id === beat.id)
-  if (existingIndex !== -1) {
-    beats[existingIndex] = beat
-  } else {
-    beats.push(beat)
-  }
-
-  saveBeatsToStorage(beats)
-  savedBeats.val = [...beats]
-  currentBeatName.val = name
-  originalBeatName.val = name
-  currentBeatId.val = beat.id
-  isModified.val = false
-  // Keep authors in sharedBeatAuthors since they're now part of the saved beat
-  showStatus(currentBeatId.val ? `💾 Beat "${name}" updated` : `✅ Beat "${name}" saved`)
 }
 
 const confirmRename = () => {
   if (tempBeatName.val.trim()) {
-    const beats = loadBeatsFromStorage()
-    const now = Date.now()
-
     // Handle authors array
     let authors: string[] = []
     if (currentBeatId.val) {
-      // Beat exists, get current authors
+      const beats = loadBeatsFromStorage()
       const existingBeat = beats.find((b) => b.id === currentBeatId.val)
       authors = existingBeat?.authors || []
     }
@@ -164,29 +130,10 @@ const confirmRename = () => {
       authors.push(xHandle.val)
     }
 
-    const beat: Beat = {
-      id: currentBeatId.val,
-      name: tempBeatName.val,
-      grid: grid.val.map((row) => [...row]), // Deep copy
-      created: beats.find((b) => b.id === currentBeatId.val)?.created || now,
-      modified: now,
-      authors: authors
+    if (saveBeat(tempBeatName.val, authors)) {
+      showRenameModal.val = false
+      showStatus(`💾 Beat renamed to "${tempBeatName.val}"`)
     }
-
-    // Update the beat in storage
-    const existingIndex = beats.findIndex((b) => b.id === beat.id)
-    if (existingIndex !== -1) {
-      beats[existingIndex] = beat
-    }
-
-    saveBeatsToStorage(beats)
-    savedBeats.val = [...beats]
-    currentBeatName.val = tempBeatName.val
-    originalBeatName.val = tempBeatName.val
-    isModified.val = false
-    showRenameModal.val = false
-
-    showStatus(`💾 Beat renamed to "${tempBeatName.val}"`)
   }
 }
 
@@ -195,52 +142,9 @@ const cancelRename = () => {
   showRenameModal.val = false
 }
 
-const loadBeat = (beat: Beat) => {
-  grid.val = beat.grid.map((row) => [...row]) // Deep copy
-  currentBeatName.val = beat.name
-  originalBeatName.val = beat.name
-  currentBeatId.val = beat.id
-  isModified.val = false
-  sharedBeatAuthors.val = beat.authors // Set authors from loaded beat
-  showLibrary.val = false
-  showStatus(`📂 Loaded "${beat.name}"`)
-}
-
-const deleteBeat = (beatId: string) => {
-  const beat = savedBeats.val.find((b) => b.id === beatId)
-  if (!beat) return
-
-  if (confirm(`Delete beat "${beat.name}"?`)) {
-    const beats = loadBeatsFromStorage().filter((b: Beat) => b.id !== beatId)
-    saveBeatsToStorage(beats)
-    savedBeats.val = [...beats]
-
-    if (currentBeatName.val === beat.name) {
-      newBeat()
-    }
-
-    showStatus(`🗑️ Deleted "${beat.name}"`)
-  }
-}
-
-const newBeat = () => {
-  grid.val = Array(16)
-    .fill(0)
-    .map(() => Array(16).fill(0))
-  currentBeatName.val = 'Untitled Beat'
-  originalBeatName.val = 'Untitled Beat'
-  currentBeatId.val = ''
-  isModified.val = false
-  sharedBeatAuthors.val = [] // Clear shared beat authors
-  showStatus('📝 New beat created')
-}
-
-// Initialize beats library
-savedBeats.val = loadBeatsFromStorage()
-
 const shareBeat = () => {
   const beatData: Beat = {
-    id: currentBeatId.val || generateGuid(), // Only generate new GUID if no current ID
+    id: currentBeatId.val || generateGuid(),
     name: currentBeatName.val,
     grid: grid.val,
     authors: [
@@ -380,7 +284,7 @@ const App = () => {
       isModified.val = true
     }),
     AuthorsDisplay(sharedBeatAuthors),
-    LibraryControls(showLibrary, () => saveBeat(currentBeatName.val), newBeat, shareBeat),
+    LibraryControls(showLibrary, handleSaveBeat, newBeat, shareBeat),
     LibraryPanel(showLibrary, savedBeats, formatDate, loadBeat, deleteBeat),
     MainControls(playing, instruments, selectedInstrument, togglePlay, (index) => {
       selectedInstrument.val = index
