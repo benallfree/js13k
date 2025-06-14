@@ -1,6 +1,7 @@
 import van, { State } from 'vanjs-core'
+import { Modal } from './Modal'
 
-const { div, input, button, h3 } = van.tags
+const { div, input } = van.tags
 
 export const RenameBeatModal =
   (
@@ -11,30 +12,31 @@ export const RenameBeatModal =
     onCancel: () => void
   ) =>
   () =>
-    showRenameModal.val
-      ? div(
-          { class: 'modal-overlay' },
-          div(
-            { class: 'modal' },
-            h3('Rename Beat'),
-            div('Enter a new name for your beat:'),
-            input({
-              type: 'text',
-              value: () => newName.val,
-              oninput: (e: Event) => {
-                newName.val = (e.target as HTMLInputElement).value
-              },
-              onkeydown: (e: KeyboardEvent) => {
-                if (e.key === 'Enter') {
-                  onConfirm()
-                }
-              },
-            }),
-            div(
-              { class: 'modal-buttons' },
-              button({ class: 'primary', onclick: onConfirm }, 'Rename'),
-              button({ class: 'secondary', onclick: onCancel }, 'Cancel')
-            )
-          )
-        )
-      : ''
+    Modal({
+      isOpen: showRenameModal,
+      title: 'Rename Beat',
+      content: () =>
+        div(
+          div('Enter a new name for your beat:'),
+          input({
+            type: 'text',
+            value: () => newName.val,
+            oninput: (e: Event) => {
+              newName.val = (e.target as HTMLInputElement).value
+            },
+            onkeydown: (e: KeyboardEvent) => {
+              if (e.key === 'Enter') {
+                onConfirm()
+              }
+            },
+          })
+        ),
+      primaryButton: {
+        text: 'Rename',
+        onClick: onConfirm,
+      },
+      secondaryButton: {
+        text: 'Cancel',
+        onClick: onCancel,
+      },
+    })()
