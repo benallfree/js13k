@@ -31,11 +31,9 @@ export const saveBeat = (name: string, authors: string[]) => {
     id: currentBeatId.val || generateGuid(),
     name: name,
     grid: grid.val.map((row) => [...row]),
-    created: currentBeatId.val
-      ? beats.find((b) => b.id === currentBeatId.val)?.created || now
-      : now,
+    created: currentBeatId.val ? beats.find((b) => b.id === currentBeatId.val)?.created || now : now,
     modified: now,
-    authors: authors
+    authors: authors,
   }
 
   const existingIndex = beats.findIndex((b) => b.id === beat.id)

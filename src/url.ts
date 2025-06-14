@@ -37,9 +37,7 @@ export const loadFromUrl = (
         onLoad(beat.grid, beat.name || 'Shared Beat', beat.authors || [], guid)
 
         const authorsText =
-          beat.authors && beat.authors.length > 0
-            ? ` by ${beat.authors.map((a: string) => `@${a}`).join(', ')}`
-            : ''
+          beat.authors && beat.authors.length > 0 ? ` by ${beat.authors.map((a: string) => `@${a}`).join(', ')}` : ''
         showStatus(`🔗 Shared beat loaded${authorsText}`)
         return
       }
@@ -83,8 +81,8 @@ export const shareBeat = (beat: Beat, xHandle: string) => {
       name: beat.name,
       grid: beat.grid,
       authors: [...beat.authors],
-      created: Date.now()
-    }
+      created: Date.now(),
+    },
   }
 
   // Add current user to authors if they have an X handle and aren't already in the list

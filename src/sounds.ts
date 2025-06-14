@@ -108,7 +108,7 @@ export const sounds = {
     osc2.start()
     osc1.stop(ctx.currentTime + 0.3)
     osc2.stop(ctx.currentTime + 0.3)
-  }
+  },
 }
 
 export const instruments = ['K', 'S', 'H', 'C', 'T', 'P', 'B'] // Kick, Snare, Hi-hat, Crash, Tom, Clap, Bell

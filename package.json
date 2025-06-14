@@ -12,7 +12,8 @@
     "preview": "bun run build && vite preview",
     "deploy": "bun run build && wrangler deploy",
     "prebuild": "bun scripts/prebuild.ts",
-    "analyze": "vite-bundle-visualizer"
+    "analyze": "vite-bundle-visualizer",
+    "prettier": "prettier --write ."
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.6.0",
