@@ -107,10 +107,10 @@ const saveBeat = (name: string) => {
     // Beat exists, get current authors
     const existingBeat = beats.find((b) => b.id === currentBeatId.val)
     authors = existingBeat?.authors || []
-  } else {
-    // New beat, start with any shared beat authors
-    authors = [...sharedBeatAuthors.val]
   }
+
+  // Merge with shared beat authors from URL
+  authors = [...new Set([...authors, ...sharedBeatAuthors.val])]
 
   // Add current user to authors if they have an X handle and aren't already in the list
   if (xHandle.val && !authors.includes(xHandle.val)) {
@@ -142,8 +142,7 @@ const saveBeat = (name: string) => {
   originalBeatName.val = name
   currentBeatId.val = beat.id
   isModified.val = false
-  sharedBeatAuthors.val = [] // Clear shared beat authors after saving
-
+  // Keep authors in sharedBeatAuthors since they're now part of the saved beat
   showStatus(currentBeatId.val ? `💾 Beat "${name}" updated` : `✅ Beat "${name}" saved`)
 }
 
@@ -202,7 +201,7 @@ const loadBeat = (beat: Beat) => {
   originalBeatName.val = beat.name
   currentBeatId.val = beat.id
   isModified.val = false
-  sharedBeatAuthors.val = [] // Clear shared beat authors
+  sharedBeatAuthors.val = beat.authors // Set authors from loaded beat
   showLibrary.val = false
   showStatus(`📂 Loaded "${beat.name}"`)
 }
@@ -244,7 +243,12 @@ const shareBeat = () => {
     id: currentBeatId.val || generateGuid(), // Only generate new GUID if no current ID
     name: currentBeatName.val,
     grid: grid.val,
-    authors: [...(savedBeats.val.find((b) => b.id === currentBeatId.val)?.authors || [])],
+    authors: [
+      ...new Set([
+        ...(savedBeats.val.find((b) => b.id === currentBeatId.val)?.authors || []),
+        ...sharedBeatAuthors.val
+      ])
+    ],
     created: Date.now(),
     modified: Date.now()
   }
