@@ -15,7 +15,7 @@ export const MainControls = (
     Button({
       onClick: onTogglePlay,
       variant: 'primary',
-      children: () => (playing.val ? 'Stop' : 'Play'),
+      children: () => (playing.val ? '⏹️' : '▶️'),
     }),
     div(
       { class: 'flex flex-wrap gap-1 mt-2' },
