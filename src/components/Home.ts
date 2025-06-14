@@ -23,6 +23,7 @@ import { shareBeat as createShareUrl, loadFromUrl } from '../url'
 import {
   AuthorsDisplay,
   BeatNameInput,
+  ClearBeatModal,
   Grid,
   LibraryControls,
   LibraryPanel,
@@ -50,6 +51,9 @@ const sharedBeatAuthors = van.state<string[]>([])
 // Add rename modal state
 const showRenameModal = van.state(false)
 const tempBeatName = van.state('')
+
+// Add clear modal state
+const showClearModal = van.state(false)
 
 // Status bar functions
 const showStatus = (message: string, duration = 2000) => {
@@ -132,6 +136,24 @@ const confirmRename = () => {
 const cancelRename = () => {
   currentBeatName.val = originalBeatName.val
   showRenameModal.val = false
+}
+
+const handleClearBeat = () => {
+  if (isModified.val) {
+    showClearModal.val = true
+  } else {
+    confirmClearBeat()
+  }
+}
+
+const confirmClearBeat = () => {
+  newBeat()
+  showClearModal.val = false
+  showStatus('🧹 Beat cleared')
+}
+
+const cancelClearBeat = () => {
+  showClearModal.val = false
 }
 
 const shareBeat = () => {
@@ -288,12 +310,13 @@ export const Home = () => {
     StatusBar(statusMessage, statusVisible),
     XHandleModal(showXHandleModal, tempXHandle, saveXHandle, skipXHandle),
     RenameBeatModal(showRenameModal, currentBeatId, tempBeatName, confirmRename, cancelRename),
+    ClearBeatModal(showClearModal, confirmClearBeat, cancelClearBeat),
     BeatNameInput(currentBeatName, isModified, (value) => {
       currentBeatName.val = value
       isModified.val = true
     }),
     AuthorsDisplay(sharedBeatAuthors),
-    LibraryControls(showLibrary, handleSaveBeat, newBeat, shareBeat),
+    LibraryControls(showLibrary, handleSaveBeat, handleClearBeat, shareBeat),
     LibraryPanel(showLibrary, savedBeats, formatDate, loadBeat, deleteBeat),
     MainControls(playing, selectedInstrument, togglePlay, (index) => {
       selectedInstrument.val = index

@@ -1,5 +1,6 @@
 export { AuthorsDisplay } from './AuthorsDisplay'
 export { BeatNameInput } from './BeatNameInput'
+export { ClearBeatModal } from './ClearBeatModal'
 export { Grid } from './Grid'
 export { LibraryControls } from './LibraryControls'
 export { LibraryPanel } from './LibraryPanel'
