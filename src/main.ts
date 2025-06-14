@@ -6,6 +6,7 @@ import {
   LibraryControls,
   LibraryPanel,
   MainControls,
+  RenameBeatModal,
   StatusBar,
   XHandleModal
 } from './components'
@@ -59,6 +60,10 @@ const currentBeatId = van.state<string>('')
 // Add original beat name state
 const originalBeatName = van.state<string>('')
 
+// Add rename modal state
+const showRenameModal = van.state(false)
+const tempBeatName = van.state('')
+
 // Status bar functions
 const showStatus = (message: string, duration = 2000) => {
   // Clear any existing timeout
@@ -88,10 +93,9 @@ const saveBeat = (name: string) => {
 
   // If we're updating an existing beat with a different name
   if (currentBeatId.val && name !== originalBeatName.val) {
-    if (!confirm(`Rename beat from "${originalBeatName.val}" to "${name}"?`)) {
-      currentBeatName.val = originalBeatName.val // Reset the name to the original
-      return
-    }
+    tempBeatName.val = name
+    showRenameModal.val = true
+    return
   }
 
   // Handle authors array
@@ -121,9 +125,10 @@ const saveBeat = (name: string) => {
     authors: authors
   }
 
-  if (currentBeatId.val) {
-    const index = beats.findIndex((b) => b.id === currentBeatId.val)
-    beats[index] = beat
+  // Check if beat exists in storage
+  const existingIndex = beats.findIndex((b) => b.id === beat.id)
+  if (existingIndex !== -1) {
+    beats[existingIndex] = beat
   } else {
     beats.push(beat)
   }
@@ -137,6 +142,55 @@ const saveBeat = (name: string) => {
   sharedBeatAuthors.val = [] // Clear shared beat authors after saving
 
   showStatus(currentBeatId.val ? `💾 Beat "${name}" updated` : `✅ Beat "${name}" saved`)
+}
+
+const confirmRename = () => {
+  if (tempBeatName.val.trim()) {
+    const beats = loadBeatsFromStorage()
+    const now = Date.now()
+
+    // Handle authors array
+    let authors: string[] = []
+    if (currentBeatId.val) {
+      // Beat exists, get current authors
+      const existingBeat = beats.find((b) => b.id === currentBeatId.val)
+      authors = existingBeat?.authors || []
+    }
+
+    // Add current user to authors if they have an X handle and aren't already in the list
+    if (xHandle.val && !authors.includes(xHandle.val)) {
+      authors.push(xHandle.val)
+    }
+
+    const beat: Beat = {
+      id: currentBeatId.val,
+      name: tempBeatName.val,
+      grid: grid.val.map((row) => [...row]), // Deep copy
+      created: beats.find((b) => b.id === currentBeatId.val)?.created || now,
+      modified: now,
+      authors: authors
+    }
+
+    // Update the beat in storage
+    const existingIndex = beats.findIndex((b) => b.id === beat.id)
+    if (existingIndex !== -1) {
+      beats[existingIndex] = beat
+    }
+
+    saveBeatsToStorage(beats)
+    savedBeats.val = [...beats]
+    currentBeatName.val = tempBeatName.val
+    originalBeatName.val = tempBeatName.val
+    isModified.val = false
+    showRenameModal.val = false
+
+    showStatus(`💾 Beat renamed to "${tempBeatName.val}"`)
+  }
+}
+
+const cancelRename = () => {
+  currentBeatName.val = originalBeatName.val
+  showRenameModal.val = false
 }
 
 const loadBeat = (beat: Beat) => {
@@ -313,6 +367,7 @@ const App = () => {
   return div(
     StatusBar(statusMessage, statusVisible),
     XHandleModal(showXHandleModal, tempXHandle, saveXHandle, skipXHandle),
+    RenameBeatModal(showRenameModal, currentBeatId, tempBeatName, confirmRename, cancelRename),
     BeatNameInput(currentBeatName, isModified, (value) => {
       currentBeatName.val = value
       isModified.val = true
