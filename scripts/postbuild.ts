@@ -13,5 +13,8 @@ const newReadme = readme
 
 writeFileSync(`./README.md`, newReadme)
 
+console.log(`Build #${buildInfo.build}`)
+console.log(`Bytes: ${buildInfo.bytes}`)
+
 // execSync(`git commit -am 'v${buildInfo.build}'`)
 // execSync(`git tag 'v${buildInfo.build}'`)
