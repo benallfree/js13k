@@ -2,6 +2,68 @@
 const ctx = new AudioContext()
 export { ctx }
 
+// Sample metadata type
+export type SampleMetadata = {
+  guid: string
+  shortName: string
+  emoji: string
+  longName: string
+  description: string
+}
+
+// Sample metadata
+export const sampleMetadata: Record<number, SampleMetadata> = {
+  0: {
+    guid: 'kick-1',
+    shortName: 'K',
+    emoji: '🥁',
+    longName: 'Kick Drum',
+    description: 'Deep bass drum sound with pitch decay',
+  },
+  1: {
+    guid: 'snare-1',
+    shortName: 'S',
+    emoji: '🎯',
+    longName: 'Snare Drum',
+    description: 'Sharp snare with noise and filter',
+  },
+  2: {
+    guid: 'hihat-1',
+    shortName: 'H',
+    emoji: '🔔',
+    longName: 'Hi-Hat',
+    description: 'Bright high-frequency cymbal sound',
+  },
+  3: {
+    guid: 'crash-1',
+    shortName: 'C',
+    emoji: '💥',
+    longName: 'Crash Cymbal',
+    description: 'Loud, sustained cymbal crash',
+  },
+  4: {
+    guid: 'tom-1',
+    shortName: 'T',
+    emoji: '🥁',
+    longName: 'Tom-Tom',
+    description: 'Medium-pitched drum with pitch sweep',
+  },
+  5: {
+    guid: 'clap-1',
+    shortName: 'P',
+    emoji: '👏',
+    longName: 'Clap',
+    description: 'Sharp hand clap sound',
+  },
+  6: {
+    guid: 'bell-1',
+    shortName: 'B',
+    emoji: '🔔',
+    longName: 'Cowbell',
+    description: 'Metallic bell sound with two tones',
+  },
+}
+
 // Sound generators
 export const sounds = {
   0: () => {

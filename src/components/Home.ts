@@ -17,7 +17,7 @@ import {
   showLibrary,
   stepHistory,
 } from '../beatState'
-import { instruments, sounds } from '../sounds'
+import { sounds } from '../sounds'
 import { Beat, generateGuid, loadBeatsFromStorage, loadXHandleFromStorage, saveXHandleToStorage } from '../storage'
 import { shareBeat as createShareUrl, loadFromUrl } from '../url'
 import {
@@ -295,7 +295,7 @@ export const Home = () => {
     AuthorsDisplay(sharedBeatAuthors),
     LibraryControls(showLibrary, handleSaveBeat, newBeat, shareBeat),
     LibraryPanel(showLibrary, savedBeats, formatDate, loadBeat, deleteBeat),
-    MainControls(playing, instruments, selectedInstrument, togglePlay, (index) => {
+    MainControls(playing, selectedInstrument, togglePlay, (index) => {
       selectedInstrument.val = index
     }),
     Grid(grid, playing, playingCells, stepHistory, toggleCell),

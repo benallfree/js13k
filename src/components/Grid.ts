@@ -1,4 +1,5 @@
 import van, { State } from 'vanjs-core'
+import { sampleMetadata } from '../sounds'
 
 const { div } = van.tags
 
@@ -25,7 +26,10 @@ export const Grid = (
                 const trailIndex = stepHistory.val.indexOf(col)
 
                 let classes = 'cell'
-                if (val) classes += ` ${['k', 's', 'h', 'c', 't', 'p', 'b'][val - 1]}`
+                if (val) {
+                  const meta = sampleMetadata[val - 1]
+                  classes += ` ${meta.shortName.toLowerCase()}`
+                }
                 if (playing.val && trailIndex >= 0) classes += ` trail-${trailIndex}`
                 if (isPlaying) classes += ' playing'
 
