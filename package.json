@@ -1,33 +1,33 @@
 {
-  "name": "vite-project",
+  "name": "js13k-starter",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "size": "((rm -rf .build/*) || true) && vite build --outDir .build && ((rm out.zip) || true) && (cd .build && zip -9 -r ../out.zip .) && ./checksize.sh",
-    "size:watch": "chokidar src *.json *.html *.ts -c 'yarn size'",
-    "build": "(yarn size) && (rm -rf dist || true) && (mkdir dist) && (cp -r .build/* dist)",
-    "prebuild": "tsx scripts/prebuild.ts",
-    "postbuild": "tsx scripts/postbuild.ts",
+    "size:watch": "chokidar src *.json *.html *.ts -c 'bun size'",
+    "build": "(bun size) && (rm -rf dist || true) && (mkdir dist) && (cp -r .build/* dist)",
+    "prebuild": "bun scripts/prebuild.ts",
+    "postbuild": "bun scripts/postbuild.ts",
     "preview": "vite preview",
-    "check": "svelte-check --tsconfig ./tsconfig.json",
-    "analyze": "vite-bundle-visualizer",
-    "serve": "http-server .build"
+    "analyze": "vite-bundle-visualizer"
   },
   "devDependencies": {
-    "@tsconfig/node16": "^16.1.0",
+    "@tsconfig/node16": "^16.1.4",
+    "@types/node": "^24.0.1",
     "chokidar-cli": "^3.0.0",
     "http-server": "^14.1.1",
-    "nanoid": "^4.0.2",
-    "prettier": "^2.8.8",
-    "prettier-plugin-organize-imports": "^3.2.2",
-    "sass": "^1.63.6",
-    "terser": "^5.18.2",
-    "tslib": "^2.5.0",
-    "type-fest": "^3.12.0",
-    "typescript": "^5.0.2",
-    "vite": "^4.3.9",
-    "vite-bundle-visualizer": "^0.8.0"
+    "nanoid": "^5.1.5",
+    "prettier": "^3.5.3",
+    "prettier-plugin-organize-imports": "^4.1.0",
+    "sass": "^1.89.2",
+    "terser": "^5.42.0",
+    "tslib": "^2.8.1",
+    "type-fest": "^4.41.0",
+    "typescript": "^5.8.3",
+    "vanjs-core": "^1.5.5",
+    "vite": "^6.3.5",
+    "vite-bundle-visualizer": "^1.2.1"
   }
 }

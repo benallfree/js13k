@@ -1,5 +1,3 @@
-import { van } from '@/van'
-import './app.scss'
-import { App } from './components/App'
+import van from 'vanjs-core'
 
-van.add(document.getElementById('app')!, App())
+van.add(document.getElementById('app')!, () => `Hello JS13k`)

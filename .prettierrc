@@ -5,16 +5,6 @@
 	"trailingComma": "none",
 	"printWidth": 100,
 	"tabWidth": 2,
-	"plugins": [],
-	"pluginSearchDirs": [
-		"."
-	],
-	"overrides": [
-		{
-			"files": "*.svelte",
-			"options": {
-				"parser": "svelte"
-			}
-		}
-	]
+	"plugins": ["prettier-plugin-organize-imports"]
+	
 }

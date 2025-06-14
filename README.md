@@ -1,42 +1,84 @@
-# Get Connected
+# JS13K Starter Kit 🚀
 
-## --> [Discord](https://discord.gg/mD5Ms69J)
+A production-ready starter template for JS13K game development featuring modern tooling, aggressive optimization, and real-time size monitoring.
 
-## --> [awesome-worldforge](https://github.com/benallfree/awesome-worldforge)
+## ✨ Features
 
----
+### 🎯 **Ultra-Compact Framework**
+- **van.js** - Minimal reactive framework (~1.2KB gzipped)
+- Perfect for JS13K with minimal overhead
+- Simple, reactive UI updates without bloat
 
-# WorldForge
+### 🔧 **Optimized Build System**
+- **Vite** - Lightning-fast development server
+- **Terser** - Aggressive minification and mangling
+- Console stripping in production builds
+- Module preload polyfill disabled for smaller bundles
 
-WorldForge is a decentralized [js13k](https://js13kgames.com/)-compatible collaborative and sharable creative experience. Build and share worlds and assets with individuals, groups, or the Internet at large.
+### 📏 **Real-time Size Monitoring**
+- Automated 13KB limit checking after each build
+- Live file watching with `bun size:watch`
+- macOS notifications when approaching size limit
+- Build stats automatically updated in README
 
-WorldForge exists in hyperlinks and messaging. All states and assets are stored as sharable URL payloads.
+### 🛠️ **Developer Experience**
+- **TypeScript** - Full type safety and IntelliSense
+- **Path aliases** - Clean imports (`@/`, `$util/`, `$components/`)
+- **Prettier** - Consistent code formatting
+- **Bundle analyzer** - Visualize what's taking up space
 
-## Build Stats
+### 📦 **Automated Workflow**
+- Pre/post build scripts for version management
+- Automatic README updates with build stats
+- ZIP creation and size validation
+- Ready for contest submission
+
+### 🎮 **JS13K Optimizations**
+- Drop console statements in production
+- Toplevel variable mangling
+- Module preload polyfill removal
+- Aggressive compression settings
+
+## 🚀 Quick Start
+
+```bash
+# Install dependencies
+bun install
+
+# Start development server
+bun dev
+
+# Build and check size
+bun size
+
+# Watch for changes and auto-rebuild
+bun size:watch
+
+# Analyze bundle composition
+bun analyze
+```
+
+## 📊 Build Stats
 
 | Spec  | Info                |
 | ----- | ------------------- |
-| Build | <!-- BUILD -->14     |
-| Bytes | <!-- BYTES -->11282 |
+| Build | <!-- BUILD -->4     |
+| Bytes | <!-- BYTES -->1919 |
 
-## Getting Started
+## 🎯 Why This Starter?
 
-## Contributing
+**For JS13K Success:**
+- ⚡ **Fast iteration** - Hot reload during development
+- 📈 **Size awareness** - Constant feedback on bundle size
+- 🔍 **Bundle analysis** - Identify optimization opportunities
+- 🎨 **Modern DX** - TypeScript, path aliases, formatting
+- 📱 **Production ready** - Optimized builds with aggressive compression
 
-Contributing to WorldForge is simple. Here's how:
+**Perfect for:**
+- First-time JS13K participants
+- Developers wanting modern tooling
+- Teams needing size monitoring
+- Projects requiring reactive UI updates
 
-## Assets
+Start building your JS13K masterpiece with confidence! 🎮
 
-The easiest way to contribute to WorldForge is by creating an asset that can be shared with others. When you have created your own asset, submit it to [awesome-worldforge](https://github.com/benallfree/awesome-worldforge) as a pull request. We'll add it to the growing collection of assets that others can use in their worlds.
-
-## Worlds
-
-Creating a world in WorldForge is a big job, but you're a big person and we believe in you. When you have a world you'd like to share, submit a PR to [awesome-worldforge](https://github.com/benallfree/awesome-worldforge) to get an official entry in our directory of known worlds.
-
-## Docs
-
-You can also help maintain the docs for [awesome-worldforge](https://github.com/benallfree/awesome-worldforge) or [worldforge](https://github.com/benallfree/worldforge). This helps other players get started.
-
-## Code
-
-If you have coding chops, you can contribute to the [worldforge](https://github.com/benallfree/worldforge) engine. See [engine docs](./engine.md) for more details.
