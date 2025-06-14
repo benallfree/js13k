@@ -12,12 +12,13 @@ import {
 import { instruments, sounds } from './sounds'
 import {
   Beat,
+  generateGuid,
   loadBeatsFromStorage,
   loadXHandleFromStorage,
   saveBeatsToStorage,
   saveXHandleToStorage
 } from './storage'
-import { shareBeat as createShareUrl, loadFromUrl, updateUrl } from './url'
+import { shareBeat as createShareUrl, loadFromUrl } from './url'
 
 const { div, button, style, input, select, option, span, h3, a } = van.tags
 
@@ -70,23 +71,22 @@ const showStatus = (message: string, duration = 2000) => {
 
 let intervalId: ReturnType<typeof setInterval>
 
-const saveBeat = (name?: string) => {
-  const beatName = name || currentBeatName.val
-  if (!beatName.trim()) {
+const saveBeat = (name: string) => {
+  if (!name.trim()) {
     showStatus('⚠️ Please enter a beat name', 3000)
     return
   }
 
   const beats = loadBeatsFromStorage()
-  const existingIndex = beats.findIndex((b: Beat) => b.name === beatName)
+  const existingBeat = beats.find((b: Beat) => b.name === name)
   const now = Date.now()
-  const isUpdate = existingIndex >= 0
+  const isUpdate = existingBeat !== undefined
 
   // Handle authors array
   let authors: string[] = []
-  if (existingIndex >= 0) {
+  if (existingBeat) {
     // Beat exists, get current authors
-    authors = beats[existingIndex].authors || []
+    authors = existingBeat.authors || []
   } else {
     // New beat, start with any shared beat authors
     authors = [...sharedBeatAuthors.val]
@@ -98,26 +98,28 @@ const saveBeat = (name?: string) => {
   }
 
   const beat: Beat = {
-    name: beatName,
+    id: existingBeat?.id || generateGuid(),
+    name: name,
     grid: grid.val.map((row) => [...row]), // Deep copy
-    created: existingIndex >= 0 ? beats[existingIndex].created : now,
+    created: existingBeat?.created || now,
     modified: now,
     authors: authors
   }
 
-  if (existingIndex >= 0) {
-    beats[existingIndex] = beat
+  if (existingBeat) {
+    const index = beats.findIndex((b) => b.id === existingBeat.id)
+    beats[index] = beat
   } else {
     beats.push(beat)
   }
 
   saveBeatsToStorage(beats)
   savedBeats.val = [...beats]
-  currentBeatName.val = beatName
+  currentBeatName.val = name
   isModified.val = false
   sharedBeatAuthors.val = [] // Clear shared beat authors after saving
 
-  showStatus(isUpdate ? `💾 Beat "${beatName}" updated` : `✅ Beat "${beatName}" saved`)
+  showStatus(isUpdate ? `💾 Beat "${name}" updated` : `✅ Beat "${name}" saved`)
 }
 
 const loadBeat = (beat: Beat) => {
@@ -126,21 +128,23 @@ const loadBeat = (beat: Beat) => {
   isModified.val = false
   sharedBeatAuthors.val = [] // Clear shared beat authors
   showLibrary.val = false
-  updateUrl(grid.val)
   showStatus(`📂 Loaded "${beat.name}"`)
 }
 
-const deleteBeat = (beatName: string) => {
-  if (confirm(`Delete beat "${beatName}"?`)) {
-    const beats = loadBeatsFromStorage().filter((b: Beat) => b.name !== beatName)
+const deleteBeat = (beatId: string) => {
+  const beat = savedBeats.val.find((b) => b.id === beatId)
+  if (!beat) return
+
+  if (confirm(`Delete beat "${beat.name}"?`)) {
+    const beats = loadBeatsFromStorage().filter((b: Beat) => b.id !== beatId)
     saveBeatsToStorage(beats)
     savedBeats.val = [...beats]
 
-    if (currentBeatName.val === beatName) {
+    if (currentBeatName.val === beat.name) {
       newBeat()
     }
 
-    showStatus(`🗑️ Deleted "${beatName}"`)
+    showStatus(`🗑️ Deleted "${beat.name}"`)
   }
 }
 
@@ -151,7 +155,6 @@ const newBeat = () => {
   currentBeatName.val = 'Untitled Beat'
   isModified.val = false
   sharedBeatAuthors.val = [] // Clear shared beat authors
-  updateUrl(grid.val)
   showStatus('📝 New beat created')
 }
 
@@ -160,6 +163,7 @@ savedBeats.val = loadBeatsFromStorage()
 
 const shareBeat = () => {
   const beatData: Beat = {
+    id: generateGuid(),
     name: currentBeatName.val,
     grid: grid.val,
     authors: [...(savedBeats.val.find((b) => b.name === currentBeatName.val)?.authors || [])],
@@ -233,7 +237,6 @@ const toggleCell = (row: number, col: number) => {
     newGrid[row][col] === selectedInstrument.val + 1 ? 0 : selectedInstrument.val + 1
   grid.val = newGrid
   isModified.val = true
-  updateUrl(grid.val)
 }
 
 // Format date for display
@@ -291,8 +294,8 @@ const App = () => {
       currentBeatName.val = value
       isModified.val = true
     }),
-    AuthorsDisplay(sharedBeatAuthors.val),
-    LibraryControls(showLibrary, saveBeat, newBeat, shareBeat),
+    AuthorsDisplay(sharedBeatAuthors),
+    LibraryControls(showLibrary, () => saveBeat(currentBeatName.val), newBeat, shareBeat),
     LibraryPanel(showLibrary, savedBeats, formatDate, loadBeat, deleteBeat),
     MainControls(playing, instruments, selectedInstrument, togglePlay, (index) => {
       selectedInstrument.val = index
@@ -303,6 +306,7 @@ const App = () => {
 
 // Initialize app
 van.add(document.getElementById('app')!, App())
+initializeApp()
 
 // Listen for hash changes and URL parameter changes
 window.addEventListener('hashchange', () => {

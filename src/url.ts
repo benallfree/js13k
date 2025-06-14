@@ -21,9 +21,12 @@ export const loadFromUrl = (
 
   if (beatParam) {
     try {
+      console.log('Attempting to load beat from URL parameter:', beatParam)
       // Try to decode as base64 JSON (new format)
       const beatJson = atob(beatParam)
+      console.log('Decoded base64:', beatJson)
       const beatData = JSON.parse(beatJson)
+      console.log('Parsed beat data:', beatData)
 
       if (beatData.grid && Array.isArray(beatData.grid)) {
         // New format with complete beat data
@@ -37,6 +40,7 @@ export const loadFromUrl = (
         return
       }
     } catch (e) {
+      console.error('Error loading beat from URL:', e)
       // If base64 decode fails, try old grid format
       const gridData = decodeGrid(beatParam)
       if (gridData) {

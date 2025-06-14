@@ -76,15 +76,15 @@ export const BeatNameInput = (
   )
 
 // Authors display component
-export const AuthorsDisplay = (authors: string[]) =>
-  authors.length > 0
+export const AuthorsDisplay = (authors: State<string[]>) => () =>
+  authors.val.length > 0
     ? div(
         {
           class: 'current-beat-authors',
           style: 'margin-bottom: 10px; font-size: 12px; color: #888;'
         },
         'Authors: ',
-        ...authors
+        ...authors.val
           .map((author, index) => [
             a(
               {
@@ -95,7 +95,7 @@ export const AuthorsDisplay = (authors: string[]) =>
               },
               `@${author}`
             ),
-            index < authors.length - 1 ? ', ' : ''
+            index < authors.val.length - 1 ? ', ' : ''
           ])
           .flat()
       )
@@ -125,7 +125,7 @@ export const LibraryPanel =
     savedBeats: State<Beat[]>,
     formatDate: (timestamp: number) => string,
     onLoad: (beat: Beat) => void,
-    onDelete: (beatName: string) => void
+    onDelete: (beatId: string) => void
   ) =>
   () =>
     showLibrary.val
@@ -171,7 +171,7 @@ export const LibraryPanel =
                       button({ onclick: () => onLoad(beat) }, 'Load'),
                       button(
                         {
-                          onclick: () => onDelete(beat.name),
+                          onclick: () => onDelete(beat.id),
                           style: 'background: #d44; color: white;'
                         },
                         'Delete'
