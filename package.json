@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite dev",
     "pack:watch": "chokidar src -c 'bun run build && bun run pack'",
-    "pack": "cd dist && zip -9 -r ../out.zip .",
+    "pack": "rimraf out.zip && cd dist && zip -9 -r ../out.zip .",
     "postpack": "bun run scripts/postbuild.ts",
     "build": "vite build && bun run pack",
     "preview": "bun run build && vite preview",
@@ -23,6 +23,7 @@
     "nanoid": "^5.1.5",
     "prettier": "^3.5.3",
     "prettier-plugin-organize-imports": "^4.1.0",
+    "rimraf": "^6.0.1",
     "sass": "^1.89.2",
     "terser": "^5.42.0",
     "tslib": "^2.8.1",
