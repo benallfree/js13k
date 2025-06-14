@@ -1,9 +1,17 @@
 import van from 'vanjs-core'
 
-const { div, button, style } = van.tags
+const { div, button, style, input, select, option, span, h3 } = van.tags
 
 // Audio context
 const ctx = new AudioContext()
+
+// Beat library interface
+interface Beat {
+  name: string
+  grid: number[][]
+  created: number
+  modified: number
+}
 
 // Beat maker state - using van.state for reactivity
 const playing = van.state(false)
@@ -16,7 +24,96 @@ const grid = van.state(
 ) // 16x16 grid
 const playingCells = van.state(new Set<string>()) // Track cells currently playing animation
 const stepHistory = van.state<number[]>([]) // Track recent steps for fade trail
+
+// Beat library state
+const currentBeatName = van.state('Untitled Beat')
+const savedBeats = van.state<Beat[]>([])
+const showLibrary = van.state(false)
+const isModified = van.state(false)
+
 let intervalId: ReturnType<typeof setInterval>
+
+// Beat library functions
+const BEATS_STORAGE_KEY = 'js13k-beats-library'
+
+const loadBeatsFromStorage = () => {
+  try {
+    const stored = localStorage.getItem(BEATS_STORAGE_KEY)
+    return stored ? JSON.parse(stored) : []
+  } catch {
+    return []
+  }
+}
+
+const saveBeatsToStorage = (beats: Beat[]) => {
+  try {
+    localStorage.setItem(BEATS_STORAGE_KEY, JSON.stringify(beats))
+  } catch (e) {
+    console.error('Failed to save beats:', e)
+  }
+}
+
+const saveBeat = (name?: string) => {
+  const beatName = name || currentBeatName.val
+  if (!beatName.trim()) {
+    alert('Please enter a beat name')
+    return
+  }
+
+  const beats = loadBeatsFromStorage()
+  const existingIndex = beats.findIndex((b: Beat) => b.name === beatName)
+  const now = Date.now()
+
+  const beat: Beat = {
+    name: beatName,
+    grid: grid.val.map((row) => [...row]), // Deep copy
+    created: existingIndex >= 0 ? beats[existingIndex].created : now,
+    modified: now
+  }
+
+  if (existingIndex >= 0) {
+    beats[existingIndex] = beat
+  } else {
+    beats.push(beat)
+  }
+
+  saveBeatsToStorage(beats)
+  savedBeats.val = [...beats]
+  currentBeatName.val = beatName
+  isModified.val = false
+}
+
+const loadBeat = (beat: Beat) => {
+  grid.val = beat.grid.map((row) => [...row]) // Deep copy
+  currentBeatName.val = beat.name
+  isModified.val = false
+  showLibrary.val = false
+  updateUrl()
+}
+
+const deleteBeat = (beatName: string) => {
+  if (confirm(`Delete beat "${beatName}"?`)) {
+    const beats = loadBeatsFromStorage().filter((b: Beat) => b.name !== beatName)
+    saveBeatsToStorage(beats)
+    savedBeats.val = [...beats]
+
+    if (currentBeatName.val === beatName) {
+      newBeat()
+    }
+  }
+}
+
+const newBeat = () => {
+  grid.val = Array(16)
+    .fill(0)
+    .map(() => Array(16).fill(0))
+  currentBeatName.val = 'Untitled Beat'
+  isModified.val = false
+  updateUrl()
+}
+
+// Initialize beats library
+savedBeats.val = loadBeatsFromStorage()
 
 // URL state management
 const encodeGrid = (gridData: number[][]) => {
@@ -51,8 +148,22 @@ const loadFromUrl = () => {
     const decoded = decodeGrid(hash)
     if (decoded) {
       grid.val = decoded
+      currentBeatName.val = 'Shared Beat'
+      isModified.val = true
     }
   }
+}
+
+const shareBeat = () => {
+  const url = `${window.location.origin}${window.location.pathname}#${encodeGrid(grid.val)}`
+  navigator.clipboard
+    .writeText(url)
+    .then(() => {
+      alert('Beat URL copied to clipboard!')
+    })
+    .catch(() => {
+      prompt('Copy this URL to share your beat:', url)
+    })
 }
 
 const instruments = ['K', 'S', 'H'] // Kick, Snare, Hi-hat
@@ -152,7 +263,13 @@ const toggleCell = (row: number, col: number) => {
   newGrid[row][col] =
     newGrid[row][col] === selectedInstrument.val + 1 ? 0 : selectedInstrument.val + 1
   grid.val = newGrid
+  isModified.val = true
   updateUrl()
+}
+
+// Format date for display
+const formatDate = (timestamp: number) => {
+  return new Date(timestamp).toLocaleDateString()
 }
 
 // App component
@@ -160,6 +277,57 @@ van.add(
   document.getElementById('app')!,
   style(`
     body { font-family: monospace; background: #111; color: #fff; margin: 0; padding: 20px; }
+    .beat-name { 
+      display: flex; 
+      align-items: center; 
+      gap: 10px; 
+      margin-bottom: 10px; 
+    }
+    .beat-name input { 
+      background: #222; 
+      color: #fff; 
+      border: 1px solid #555; 
+      padding: 5px; 
+      font-family: monospace; 
+    }
+    .beat-name .modified { color: #ff6; }
+    .library-controls { 
+      display: flex; 
+      gap: 10px; 
+      margin-bottom: 10px; 
+      flex-wrap: wrap; 
+    }
+    .library-panel { 
+      background: #222; 
+      border: 1px solid #555; 
+      padding: 15px; 
+      margin: 10px 0; 
+      border-radius: 4px; 
+    }
+    .library-panel h3 { margin: 0 0 10px 0; }
+    .beat-list { 
+      max-height: 300px; 
+      overflow-y: auto; 
+    }
+    .beat-item { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      padding: 8px; 
+      margin: 4px 0; 
+      background: #333; 
+      border-radius: 3px; 
+    }
+    .beat-item:hover { background: #444; }
+    .beat-info { flex: 1; }
+    .beat-actions { 
+      display: flex; 
+      gap: 5px; 
+    }
+    .beat-actions button { 
+      padding: 3px 8px; 
+      font-size: 12px; 
+    }
     .grid { display: grid; grid-template-columns: repeat(16, 20px); gap: 2px; margin: 20px 0; }
     .cell { width: 20px; height: 20px; border: 1px solid #333; cursor: pointer; transition: all 0.3s ease; position: relative; }
     .cell.k { background: #f44; }
@@ -176,6 +344,70 @@ van.add(
     .instruments button.active { background: #555; }
   `),
 
+  // Beat name and save controls
+  div(
+    { class: 'beat-name' },
+    span('Beat Name:'),
+    input({
+      type: 'text',
+      value: () => currentBeatName.val,
+      oninput: (e: Event) => {
+        currentBeatName.val = (e.target as HTMLInputElement).value
+      }
+    }),
+    () => (isModified.val ? span({ class: 'modified' }, '*') : '')
+  ),
+
+  // Library controls
+  div(
+    { class: 'library-controls' },
+    button({ onclick: () => saveBeat() }, 'Save Beat'),
+    button({ onclick: newBeat }, 'New Beat'),
+    button({ onclick: () => (showLibrary.val = !showLibrary.val) }, () =>
+      showLibrary.val ? 'Hide Library' : 'Show Library'
+    ),
+    button({ onclick: shareBeat }, 'Share Beat')
+  ),
+
+  // Library panel
+  () =>
+    showLibrary.val
+      ? div(
+          { class: 'library-panel' },
+          h3(`Beat Library (${savedBeats.val.length} beats)`),
+          savedBeats.val.length === 0
+            ? div('No saved beats yet. Create and save your first beat!')
+            : div(
+                { class: 'beat-list' },
+                ...savedBeats.val.map((beat) =>
+                  div(
+                    { class: 'beat-item' },
+                    div(
+                      { class: 'beat-info' },
+                      div(beat.name),
+                      div(
+                        { style: 'font-size: 12px; color: #999;' },
+                        `Modified: ${formatDate(beat.modified)}`
+                      )
+                    ),
+                    div(
+                      { class: 'beat-actions' },
+                      button({ onclick: () => loadBeat(beat) }, 'Load'),
+                      button(
+                        {
+                          onclick: () => deleteBeat(beat.name),
+                          style: 'background: #d44; color: white;'
+                        },
+                        'Delete'
+                      )
+                    )
+                  )
+                )
+              )
+        )
+      : '',
+
+  // Main controls
   div(
     { class: 'controls' },
     button({ onclick: togglePlay }, () => (playing.val ? 'Stop' : 'Play'))
