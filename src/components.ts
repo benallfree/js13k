@@ -5,12 +5,7 @@ const { div, button, style, input, select, option, span, h3, a } = van.tags
 
 // Status bar component
 export const StatusBar = (statusMessage: State<string>, statusVisible: State<boolean>) =>
-  div(
-    {
-      class: () => `status-bar ${statusVisible.val ? 'visible' : ''}`
-    },
-    () => statusMessage.val
-  )
+  div({ class: 'status-bar' }, () => statusMessage.val)
 
 // X Handle Modal component
 export const XHandleModal =
