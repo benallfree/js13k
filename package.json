@@ -32,6 +32,18 @@
     "vanjs-core": "^1.5.5",
     "vite": "^6.3.5",
     "vite-bundle-visualizer": "^1.2.1",
-    "wrangler": "^4.20.0"
+    "wrangler": "^4.20.0",
+    "vanjs-routing": "^1.1.4"
+  },
+  "prettier": {
+    "useTabs": false,
+    "singleQuote": true,
+    "semi": false,
+    "trailingComma": "es5",
+    "printWidth": 120,
+    "tabWidth": 2,
+    "plugins": [
+      "prettier-plugin-organize-imports"
+    ]
   }
 }

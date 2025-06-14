@@ -3,6 +3,9 @@
   "workspaces": {
     "": {
       "name": "js13k-starter",
+      "dependencies": {
+        "vanjs-routing": "^1.1.4",
+      },
       "devDependencies": {
         "@cloudflare/vite-plugin": "^1.6.0",
         "@tsconfig/node16": "^16.1.4",
@@ -567,6 +570,8 @@
     "url-join": ["url-join@4.0.1", "", {}, "sha512-jk1+QP6ZJqyOiuEI9AEWQfju/nB2Pw466kbA0LEZljHwKeMgd9WrAEgEGxjPDD2+TNbbb37rTyhEfrCXfuKXnA=="],
 
     "vanjs-core": ["vanjs-core@1.5.5", "", {}, "sha512-BC9MjbXYIRqnwncXfacT6upJpVmIKyrV2MjZi8NuCK+yc9RP0hfdghTpmEuYswXOfkLarDPPcYK4X6q68T9e+g=="],
+
+    "vanjs-routing": ["vanjs-routing@1.1.4", "", { "peerDependencies": { "vanjs-core": "^1.2.7" } }, "sha512-peJcWL+RWRoELUVL/F5LdvvTYD2VoynBYYDX0+HNG3MHE6TBdZ6NxW9ZxG4z2zSZvTLOMbvzPct6iLHGY7qp+Q=="],
 
     "vite": ["vite@6.3.5", "", { "dependencies": { "esbuild": "^0.25.0", "fdir": "^6.4.4", "picomatch": "^4.0.2", "postcss": "^8.5.3", "rollup": "^4.34.9", "tinyglobby": "^0.2.13" }, "optionalDependencies": { "fsevents": "~2.3.3" }, "peerDependencies": { "@types/node": "^18.0.0 || ^20.0.0 || >=22.0.0", "jiti": ">=1.21.0", "less": "*", "lightningcss": "^1.21.0", "sass": "*", "sass-embedded": "*", "stylus": "*", "sugarss": "*", "terser": "^5.16.0", "tsx": "^4.8.1", "yaml": "^2.4.2" }, "optionalPeers": ["@types/node", "jiti", "less", "lightningcss", "sass", "sass-embedded", "stylus", "sugarss", "terser", "tsx", "yaml"], "bin": { "vite": "bin/vite.js" } }, "sha512-cZn6NDFE7wdTpINgs++ZJ4N49W2vRp8LCKrn3Ob1kYNtOo21vfDoaV5GzBfLU4MovSAB8uNRm4jgzVQZ+mBzPQ=="],
 
