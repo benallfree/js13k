@@ -36,6 +36,11 @@ const statusMessage = van.state('')
 const statusVisible = van.state(false)
 let statusTimeoutId: ReturnType<typeof setTimeout>
 
+// X Handle state and modal
+const xHandle = van.state('')
+const showXHandleModal = van.state(false)
+const tempXHandle = van.state('')
+
 // Status bar functions
 const showStatus = (message: string, duration = 2000) => {
   // Clear any existing timeout
@@ -56,6 +61,7 @@ let intervalId: ReturnType<typeof setInterval>
 
 // Beat library functions
 const BEATS_STORAGE_KEY = 'js13k-beats-library'
+const X_HANDLE_STORAGE_KEY = 'js13k-x-handle'
 
 const loadBeatsFromStorage = () => {
   try {
@@ -172,24 +178,47 @@ const updateUrl = () => {
 }
 
 const loadFromUrl = () => {
+  const urlParams = new URLSearchParams(window.location.search)
   const hash = window.location.hash.slice(1)
-  if (hash) {
-    const decoded = decodeGrid(hash)
-    if (decoded) {
-      grid.val = decoded
-      currentBeatName.val = 'Shared Beat'
-      isModified.val = true
-      showStatus('🔗 Shared beat loaded')
-    }
+
+  // Check for new URL format with parameters
+  const beatParam = urlParams.get('beat')
+  const authorParam = urlParams.get('author')
+
+  let gridData = null
+
+  if (beatParam) {
+    gridData = decodeGrid(beatParam)
+  } else if (hash) {
+    // Fallback to old hash format
+    gridData = decodeGrid(hash)
+  }
+
+  if (gridData) {
+    grid.val = gridData
+    const authorText = authorParam ? ` by @${authorParam}` : ''
+    currentBeatName.val = `Shared Beat${authorText}`
+    isModified.val = true
+    showStatus(`🔗 Shared beat loaded${authorText}`)
   }
 }
 
 const shareBeat = () => {
-  const url = `${window.location.origin}${window.location.pathname}#${encodeGrid(grid.val)}`
+  const encodedGrid = encodeGrid(grid.val)
+  const params = new URLSearchParams()
+  params.set('beat', encodedGrid)
+
+  if (xHandle.val) {
+    params.set('author', xHandle.val)
+  }
+
+  const url = `${window.location.origin}${window.location.pathname}?${params.toString()}`
+
   navigator.clipboard
     .writeText(url)
     .then(() => {
-      showStatus('📋 Beat URL copied to clipboard!')
+      const authorText = xHandle.val ? ` by @${xHandle.val}` : ''
+      showStatus(`📋 Beat URL copied to clipboard!${authorText}`)
     })
     .catch(() => {
       prompt('Copy this URL to share your beat:', url)
@@ -305,6 +334,55 @@ const formatDate = (timestamp: number) => {
   return new Date(timestamp).toLocaleDateString()
 }
 
+// X Handle functions
+const loadXHandleFromStorage = () => {
+  try {
+    return localStorage.getItem(X_HANDLE_STORAGE_KEY) || ''
+  } catch {
+    return ''
+  }
+}
+
+const saveXHandleToStorage = (handle: string) => {
+  try {
+    localStorage.setItem(X_HANDLE_STORAGE_KEY, handle)
+  } catch (e) {
+    console.error('Failed to save X handle:', e)
+  }
+}
+
+const saveXHandle = () => {
+  const handle = tempXHandle.val.trim()
+  if (handle) {
+    xHandle.val = handle
+    saveXHandleToStorage(handle)
+    showXHandleModal.val = false
+    showStatus(`✅ X handle "@${handle}" saved`)
+  }
+}
+
+const skipXHandle = () => {
+  showXHandleModal.val = false
+  showStatus('⏭️ X handle skipped')
+}
+
+// Initialize app
+const initializeApp = () => {
+  // Load X handle from storage
+  xHandle.val = loadXHandleFromStorage()
+
+  // Load beats library
+  savedBeats.val = loadBeatsFromStorage()
+
+  // Load from URL
+  loadFromUrl()
+
+  // Show X handle modal if not set
+  if (!xHandle.val) {
+    showXHandleModal.val = true
+  }
+}
+
 // App component
 van.add(
   document.getElementById('app')!,
@@ -337,6 +415,80 @@ van.add(
       0% { transform: translateX(-50%) scale(0.8); opacity: 0; }
       50% { transform: translateX(-50%) scale(1.05); }
       100% { transform: translateX(-50%) scale(1); opacity: 1; }
+    }
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      backdrop-filter: blur(5px);
+    }
+    .modal {
+      background: #222;
+      border: 2px solid #555;
+      border-radius: 8px;
+      padding: 30px;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    }
+    .modal h3 {
+      margin: 0 0 15px 0;
+      color: #fff;
+    }
+    .modal p {
+      margin: 0 0 20px 0;
+      color: #ccc;
+      line-height: 1.4;
+    }
+    .modal input {
+      width: 100%;
+      padding: 10px;
+      background: #333;
+      color: #fff;
+      border: 1px solid #555;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 14px;
+      margin-bottom: 20px;
+      box-sizing: border-box;
+    }
+    .modal input:focus {
+      outline: none;
+      border-color: #777;
+    }
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+    .modal button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      font-family: monospace;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .modal .primary {
+      background: #4a9eff;
+      color: white;
+    }
+    .modal .primary:hover {
+      background: #3a8eef;
+    }
+    .modal .secondary {
+      background: #666;
+      color: white;
+    }
+    .modal .secondary:hover {
+      background: #777;
     }
     .beat-name { 
       display: flex; 
@@ -412,6 +564,41 @@ van.add(
     },
     () => statusMessage.val
   ),
+
+  // X Handle Modal
+  () =>
+    showXHandleModal.val
+      ? div(
+          { class: 'modal-overlay' },
+          div(
+            { class: 'modal' },
+            h3('Welcome to Beat Maker! 🎵'),
+            div("What's your X (Twitter) handle?"),
+            div(
+              { style: 'color: #999; font-size: 12px; margin: 10px 0;' },
+              'This will be included when you share beats (optional)'
+            ),
+            input({
+              type: 'text',
+              placeholder: 'username (without @)',
+              value: () => tempXHandle.val,
+              oninput: (e: Event) => {
+                tempXHandle.val = (e.target as HTMLInputElement).value
+              },
+              onkeydown: (e: KeyboardEvent) => {
+                if (e.key === 'Enter') {
+                  saveXHandle()
+                }
+              }
+            }),
+            div(
+              { class: 'modal-buttons' },
+              button({ class: 'primary', onclick: saveXHandle }, 'Save'),
+              button({ class: 'secondary', onclick: skipXHandle }, 'Skip')
+            )
+          )
+        )
+      : '',
 
   // Beat name and save controls
   div(
@@ -524,8 +711,9 @@ van.add(
   )
 )
 
-// Initialize from URL on page load
-loadFromUrl()
+// Initialize app instead of individual components
+initializeApp()
 
-// Listen for hash changes
+// Listen for hash changes and URL parameter changes
 window.addEventListener('hashchange', loadFromUrl)
+window.addEventListener('popstate', loadFromUrl)
