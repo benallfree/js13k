@@ -62,8 +62,8 @@ bun analyze
 
 | Spec  | Info                |
 | ----- | ------------------- |
-| Build | <!-- BUILD -->4     |
-| Bytes | <!-- BYTES -->1919 |
+| Build | <!-- BUILD -->5     |
+| Bytes | <!-- BYTES -->2769 |
 
 ## 🎯 Why This Starter?
 
