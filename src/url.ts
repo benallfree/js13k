@@ -12,7 +12,7 @@ export const updateUrl = (grid: number[][]) => {
 }
 
 export const loadFromUrl = (
-  onLoad: (grid: number[][], name: string, authors: string[]) => void,
+  onLoad: (grid: number[][], name: string, authors: string[], id?: string) => void,
   showStatus: (message: string) => void
 ) => {
   const urlParams = new URLSearchParams(window.location.search)
@@ -28,13 +28,17 @@ export const loadFromUrl = (
       const beatData = JSON.parse(beatJson)
       console.log('Parsed beat data:', beatData)
 
-      if (beatData.grid && Array.isArray(beatData.grid)) {
+      // Get the first (and only) key which is the GUID
+      const guid = Object.keys(beatData)[0]
+      const beat = beatData[guid]
+
+      if (beat.grid && Array.isArray(beat.grid)) {
         // New format with complete beat data
-        onLoad(beatData.grid, beatData.name || 'Shared Beat', beatData.authors || [])
+        onLoad(beat.grid, beat.name || 'Shared Beat', beat.authors || [], guid)
 
         const authorsText =
-          beatData.authors && beatData.authors.length > 0
-            ? ` by ${beatData.authors.map((a: string) => `@${a}`).join(', ')}`
+          beat.authors && beat.authors.length > 0
+            ? ` by ${beat.authors.map((a: string) => `@${a}`).join(', ')}`
             : ''
         showStatus(`🔗 Shared beat loaded${authorsText}`)
         return
@@ -44,7 +48,7 @@ export const loadFromUrl = (
       // If base64 decode fails, try old grid format
       const gridData = decodeGrid(beatParam)
       if (gridData) {
-        onLoad(gridData, 'Shared Beat', [])
+        onLoad(gridData, 'Shared Beat', [], undefined)
         showStatus('🔗 Shared beat loaded')
         return
       }
@@ -56,7 +60,7 @@ export const loadFromUrl = (
   if (beatParam && authorParam) {
     const gridData = decodeGrid(beatParam)
     if (gridData) {
-      onLoad(gridData, `Shared Beat by @${authorParam}`, [authorParam])
+      onLoad(gridData, `Shared Beat by @${authorParam}`, [authorParam], undefined)
       showStatus(`🔗 Shared beat loaded by @${authorParam}`)
       return
     }
@@ -66,7 +70,7 @@ export const loadFromUrl = (
   if (hash) {
     const gridData = decodeGrid(hash)
     if (gridData) {
-      onLoad(gridData, 'Shared Beat', [])
+      onLoad(gridData, 'Shared Beat', [], undefined)
       showStatus('🔗 Shared beat loaded')
     }
   }
@@ -75,15 +79,17 @@ export const loadFromUrl = (
 export const shareBeat = (beat: Beat, xHandle: string) => {
   // Create a complete beat object to share
   const beatData = {
-    name: beat.name,
-    grid: beat.grid,
-    authors: [...beat.authors],
-    created: Date.now()
+    [beat.id]: {
+      name: beat.name,
+      grid: beat.grid,
+      authors: [...beat.authors],
+      created: Date.now()
+    }
   }
 
   // Add current user to authors if they have an X handle and aren't already in the list
-  if (xHandle && !beatData.authors.includes(xHandle)) {
-    beatData.authors.push(xHandle)
+  if (xHandle && !beatData[beat.id].authors.includes(xHandle)) {
+    beatData[beat.id].authors.push(xHandle)
   }
 
   // Encode the complete beat data as base64 JSON

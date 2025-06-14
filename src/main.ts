@@ -53,6 +53,12 @@ const tempXHandle = van.state('')
 // Shared beat authors state
 const sharedBeatAuthors = van.state<string[]>([])
 
+// Add current beat ID state
+const currentBeatId = van.state<string>('')
+
+// Add original beat name state
+const originalBeatName = van.state<string>('')
+
 // Status bar functions
 const showStatus = (message: string, duration = 2000) => {
   // Clear any existing timeout
@@ -78,15 +84,22 @@ const saveBeat = (name: string) => {
   }
 
   const beats = loadBeatsFromStorage()
-  const existingBeat = beats.find((b: Beat) => b.name === name)
   const now = Date.now()
-  const isUpdate = existingBeat !== undefined
+
+  // If we're updating an existing beat with a different name
+  if (currentBeatId.val && name !== originalBeatName.val) {
+    if (!confirm(`Rename beat from "${originalBeatName.val}" to "${name}"?`)) {
+      currentBeatName.val = originalBeatName.val // Reset the name to the original
+      return
+    }
+  }
 
   // Handle authors array
   let authors: string[] = []
-  if (existingBeat) {
+  if (currentBeatId.val) {
     // Beat exists, get current authors
-    authors = existingBeat.authors || []
+    const existingBeat = beats.find((b) => b.id === currentBeatId.val)
+    authors = existingBeat?.authors || []
   } else {
     // New beat, start with any shared beat authors
     authors = [...sharedBeatAuthors.val]
@@ -98,16 +111,18 @@ const saveBeat = (name: string) => {
   }
 
   const beat: Beat = {
-    id: existingBeat?.id || generateGuid(),
+    id: currentBeatId.val || generateGuid(),
     name: name,
     grid: grid.val.map((row) => [...row]), // Deep copy
-    created: existingBeat?.created || now,
+    created: currentBeatId.val
+      ? beats.find((b) => b.id === currentBeatId.val)?.created || now
+      : now,
     modified: now,
     authors: authors
   }
 
-  if (existingBeat) {
-    const index = beats.findIndex((b) => b.id === existingBeat.id)
+  if (currentBeatId.val) {
+    const index = beats.findIndex((b) => b.id === currentBeatId.val)
     beats[index] = beat
   } else {
     beats.push(beat)
@@ -116,15 +131,19 @@ const saveBeat = (name: string) => {
   saveBeatsToStorage(beats)
   savedBeats.val = [...beats]
   currentBeatName.val = name
+  originalBeatName.val = name
+  currentBeatId.val = beat.id
   isModified.val = false
   sharedBeatAuthors.val = [] // Clear shared beat authors after saving
 
-  showStatus(isUpdate ? `💾 Beat "${name}" updated` : `✅ Beat "${name}" saved`)
+  showStatus(currentBeatId.val ? `💾 Beat "${name}" updated` : `✅ Beat "${name}" saved`)
 }
 
 const loadBeat = (beat: Beat) => {
   grid.val = beat.grid.map((row) => [...row]) // Deep copy
   currentBeatName.val = beat.name
+  originalBeatName.val = beat.name
+  currentBeatId.val = beat.id
   isModified.val = false
   sharedBeatAuthors.val = [] // Clear shared beat authors
   showLibrary.val = false
@@ -153,6 +172,8 @@ const newBeat = () => {
     .fill(0)
     .map(() => Array(16).fill(0))
   currentBeatName.val = 'Untitled Beat'
+  originalBeatName.val = 'Untitled Beat'
+  currentBeatId.val = ''
   isModified.val = false
   sharedBeatAuthors.val = [] // Clear shared beat authors
   showStatus('📝 New beat created')
@@ -269,9 +290,11 @@ const initializeApp = () => {
   savedBeats.val = loadBeatsFromStorage()
 
   // Load from URL
-  loadFromUrl((gridData, name, authors) => {
+  loadFromUrl((gridData, name, authors, id) => {
     grid.val = gridData
     currentBeatName.val = name
+    originalBeatName.val = name
+    currentBeatId.val = id || generateGuid() // Use ID from URL if available
     isModified.val = true
     sharedBeatAuthors.val = authors
   }, showStatus)
@@ -300,7 +323,14 @@ const App = () => {
     MainControls(playing, instruments, selectedInstrument, togglePlay, (index) => {
       selectedInstrument.val = index
     }),
-    Grid(grid, playing, playingCells, stepHistory, toggleCell)
+    Grid(grid, playing, playingCells, stepHistory, toggleCell),
+    () =>
+      currentBeatId.val
+        ? div(
+            { style: 'color: #666; font-size: 11px; margin-top: 10px; font-family: monospace;' },
+            `ID: ${currentBeatId.val}`
+          )
+        : ''
   )
 }
 
