@@ -5,7 +5,7 @@ export default defineConfig({
   build: {
     minify: 'terser',
     modulePreload: {
-      polyfill: false
+      polyfill: false,
     },
     terserOptions: {
       compress: {
@@ -25,22 +25,22 @@ export default defineConfig({
         // Strip out specific debugging patterns
         global_defs: {
           DEBUG: false,
-          'process.env.NODE_ENV': '"production"'
-        }
+          'process.env.NODE_ENV': '"production"',
+        },
       },
       mangle: {
         eval: true,
         toplevel: true,
         // Also mangle property names for maximum compression
         properties: {
-          regex: /^_/
-        }
+          regex: /^_/,
+        },
       },
       format: {
         // Remove comments
-        comments: false
-      }
-    }
+        comments: false,
+      },
+    },
   },
-  plugins: []
+  plugins: [],
 })
