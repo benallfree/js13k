@@ -1,16 +1,14 @@
 import van from 'vanjs-core'
 import { instruments, sounds } from './sounds'
+import {
+  Beat,
+  loadBeatsFromStorage,
+  loadXHandleFromStorage,
+  saveBeatsToStorage,
+  saveXHandleToStorage
+} from './storage'
 
 const { div, button, style, input, select, option, span, h3, a } = van.tags
-
-// Beat library interface
-interface Beat {
-  name: string
-  grid: number[][]
-  created: number
-  modified: number
-  authors: string[] // Array of X handles who have edited this beat
-}
 
 // Beat maker state - using van.state for reactivity
 const playing = van.state(false)
@@ -64,30 +62,6 @@ let intervalId: ReturnType<typeof setInterval>
 // Beat library functions
 const BEATS_STORAGE_KEY = 'js13k-beats-library'
 const X_HANDLE_STORAGE_KEY = 'js13k-x-handle'
-
-const loadBeatsFromStorage = () => {
-  try {
-    const stored = localStorage.getItem(BEATS_STORAGE_KEY)
-    const beats = stored ? JSON.parse(stored) : []
-
-    // Ensure all beats have an authors array (for backward compatibility)
-    return beats.map((beat: any) => ({
-      ...beat,
-      authors: beat.authors || []
-    }))
-  } catch {
-    return []
-  }
-}
-
-const saveBeatsToStorage = (beats: Beat[]) => {
-  try {
-    localStorage.setItem(BEATS_STORAGE_KEY, JSON.stringify(beats))
-  } catch (e) {
-    console.error('Failed to save beats:', e)
-    showStatus('❌ Failed to save beat', 3000)
-  }
-}
 
 const saveBeat = (name?: string) => {
   const beatName = name || currentBeatName.val
@@ -367,22 +341,6 @@ const formatDate = (timestamp: number) => {
 }
 
 // X Handle functions
-const loadXHandleFromStorage = () => {
-  try {
-    return localStorage.getItem(X_HANDLE_STORAGE_KEY) || ''
-  } catch {
-    return ''
-  }
-}
-
-const saveXHandleToStorage = (handle: string) => {
-  try {
-    localStorage.setItem(X_HANDLE_STORAGE_KEY, handle)
-  } catch (e) {
-    console.error('Failed to save X handle:', e)
-  }
-}
-
 const saveXHandle = () => {
   const handle = tempXHandle.val.trim()
   if (handle) {
