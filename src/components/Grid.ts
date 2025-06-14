@@ -35,7 +35,11 @@ export const Grid = (
 
                 return classes
               },
-              onclick: () => onToggleCell(row, col),
+              ontouchstart: (e: TouchEvent) => {
+                e.preventDefault()
+                onToggleCell(row, col)
+              },
+              onmousedown: () => onToggleCell(row, col),
             })
           )
       )
