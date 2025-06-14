@@ -162,9 +162,7 @@ const shareBeat = () => {
   navigator.clipboard
     .writeText(url)
     .then(() => {
-      const authorsText =
-        beatData.authors.length > 0 ? ` by ${beatData.authors.map((a) => `@${a}`).join(', ')}` : ''
-      showStatus(`📋 Beat URL copied to clipboard!${authorsText}`)
+      showStatus(`📋 Beat URL copied to clipboard!`)
     })
     .catch(() => {
       prompt('Copy this URL to share your beat:', url)
