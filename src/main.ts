@@ -1,6 +1,6 @@
 import van from 'vanjs-core'
 
-const { div, button, style, input, select, option, span, h3 } = van.tags
+const { div, button, style, input, select, option, span, h3, a } = van.tags
 
 // Audio context
 const ctx = new AudioContext()
@@ -11,6 +11,7 @@ interface Beat {
   grid: number[][]
   created: number
   modified: number
+  authors: string[] // Array of X handles who have edited this beat
 }
 
 // Beat maker state - using van.state for reactivity
@@ -41,6 +42,9 @@ const xHandle = van.state('')
 const showXHandleModal = van.state(false)
 const tempXHandle = van.state('')
 
+// Shared beat authors state
+const sharedBeatAuthors = van.state<string[]>([])
+
 // Status bar functions
 const showStatus = (message: string, duration = 2000) => {
   // Clear any existing timeout
@@ -66,7 +70,13 @@ const X_HANDLE_STORAGE_KEY = 'js13k-x-handle'
 const loadBeatsFromStorage = () => {
   try {
     const stored = localStorage.getItem(BEATS_STORAGE_KEY)
-    return stored ? JSON.parse(stored) : []
+    const beats = stored ? JSON.parse(stored) : []
+
+    // Ensure all beats have an authors array (for backward compatibility)
+    return beats.map((beat: any) => ({
+      ...beat,
+      authors: beat.authors || []
+    }))
   } catch {
     return []
   }
@@ -93,11 +103,27 @@ const saveBeat = (name?: string) => {
   const now = Date.now()
   const isUpdate = existingIndex >= 0
 
+  // Handle authors array
+  let authors: string[] = []
+  if (existingIndex >= 0) {
+    // Beat exists, get current authors
+    authors = beats[existingIndex].authors || []
+  } else {
+    // New beat, start with any shared beat authors
+    authors = [...sharedBeatAuthors.val]
+  }
+
+  // Add current user to authors if they have an X handle and aren't already in the list
+  if (xHandle.val && !authors.includes(xHandle.val)) {
+    authors.push(xHandle.val)
+  }
+
   const beat: Beat = {
     name: beatName,
     grid: grid.val.map((row) => [...row]), // Deep copy
     created: existingIndex >= 0 ? beats[existingIndex].created : now,
-    modified: now
+    modified: now,
+    authors: authors
   }
 
   if (existingIndex >= 0) {
@@ -110,6 +136,7 @@ const saveBeat = (name?: string) => {
   savedBeats.val = [...beats]
   currentBeatName.val = beatName
   isModified.val = false
+  sharedBeatAuthors.val = [] // Clear shared beat authors after saving
 
   showStatus(isUpdate ? `💾 Beat "${beatName}" updated` : `✅ Beat "${beatName}" saved`)
 }
@@ -118,6 +145,7 @@ const loadBeat = (beat: Beat) => {
   grid.val = beat.grid.map((row) => [...row]) // Deep copy
   currentBeatName.val = beat.name
   isModified.val = false
+  sharedBeatAuthors.val = [] // Clear shared beat authors
   showLibrary.val = false
   updateUrl()
   showStatus(`📂 Loaded "${beat.name}"`)
@@ -143,6 +171,7 @@ const newBeat = () => {
     .map(() => Array(16).fill(0))
   currentBeatName.val = 'Untitled Beat'
   isModified.val = false
+  sharedBeatAuthors.val = [] // Clear shared beat authors
   updateUrl()
   showStatus('📝 New beat created')
 }
@@ -181,44 +210,98 @@ const loadFromUrl = () => {
   const urlParams = new URLSearchParams(window.location.search)
   const hash = window.location.hash.slice(1)
 
-  // Check for new URL format with parameters
+  // Check for new base64 JSON format
   const beatParam = urlParams.get('beat')
-  const authorParam = urlParams.get('author')
-
-  let gridData = null
 
   if (beatParam) {
-    gridData = decodeGrid(beatParam)
-  } else if (hash) {
-    // Fallback to old hash format
-    gridData = decodeGrid(hash)
+    try {
+      // Try to decode as base64 JSON (new format)
+      const beatJson = atob(beatParam)
+      const beatData = JSON.parse(beatJson)
+
+      if (beatData.grid && Array.isArray(beatData.grid)) {
+        // New format with complete beat data
+        grid.val = beatData.grid.map((row: number[]) => [...row]) // Deep copy
+        currentBeatName.val = beatData.name || 'Shared Beat'
+        isModified.val = true
+
+        // Store shared beat authors
+        sharedBeatAuthors.val = beatData.authors || []
+
+        const authorsText =
+          beatData.authors && beatData.authors.length > 0
+            ? ` by ${beatData.authors.map((a: string) => `@${a}`).join(', ')}`
+            : ''
+        showStatus(`🔗 Shared beat loaded${authorsText}`)
+        return
+      }
+    } catch (e) {
+      // If base64 decode fails, try old grid format
+      const gridData = decodeGrid(beatParam)
+      if (gridData) {
+        grid.val = gridData
+        currentBeatName.val = 'Shared Beat'
+        isModified.val = true
+        sharedBeatAuthors.val = []
+        showStatus('🔗 Shared beat loaded')
+        return
+      }
+    }
   }
 
-  if (gridData) {
-    grid.val = gridData
-    const authorText = authorParam ? ` by @${authorParam}` : ''
-    currentBeatName.val = `Shared Beat${authorText}`
-    isModified.val = true
-    showStatus(`🔗 Shared beat loaded${authorText}`)
+  // Check for old URL format with separate author parameter
+  const authorParam = urlParams.get('author')
+  if (beatParam && authorParam) {
+    const gridData = decodeGrid(beatParam)
+    if (gridData) {
+      grid.val = gridData
+      currentBeatName.val = `Shared Beat by @${authorParam}`
+      isModified.val = true
+      sharedBeatAuthors.val = [authorParam]
+      showStatus(`🔗 Shared beat loaded by @${authorParam}`)
+      return
+    }
+  }
+
+  // Fallback to old hash format
+  if (hash) {
+    const gridData = decodeGrid(hash)
+    if (gridData) {
+      grid.val = gridData
+      currentBeatName.val = 'Shared Beat'
+      isModified.val = true
+      sharedBeatAuthors.val = []
+      showStatus('🔗 Shared beat loaded')
+    }
   }
 }
 
 const shareBeat = () => {
-  const encodedGrid = encodeGrid(grid.val)
-  const params = new URLSearchParams()
-  params.set('beat', encodedGrid)
-
-  if (xHandle.val) {
-    params.set('author', xHandle.val)
+  // Create a complete beat object to share
+  const beatData = {
+    name: currentBeatName.val,
+    grid: grid.val,
+    authors: [...(savedBeats.val.find((b) => b.name === currentBeatName.val)?.authors || [])],
+    created: Date.now()
   }
 
-  const url = `${window.location.origin}${window.location.pathname}?${params.toString()}`
+  // Add current user to authors if they have an X handle and aren't already in the list
+  if (xHandle.val && !beatData.authors.includes(xHandle.val)) {
+    beatData.authors.push(xHandle.val)
+  }
+
+  // Encode the complete beat data as base64 JSON
+  const beatJson = JSON.stringify(beatData)
+  const encodedBeat = btoa(beatJson)
+
+  const url = `${window.location.origin}${window.location.pathname}?beat=${encodedBeat}`
 
   navigator.clipboard
     .writeText(url)
     .then(() => {
-      const authorText = xHandle.val ? ` by @${xHandle.val}` : ''
-      showStatus(`📋 Beat URL copied to clipboard!${authorText}`)
+      const authorsText =
+        beatData.authors.length > 0 ? ` by ${beatData.authors.map((a) => `@${a}`).join(', ')}` : ''
+      showStatus(`📋 Beat URL copied to clipboard!${authorsText}`)
     })
     .catch(() => {
       prompt('Copy this URL to share your beat:', url)
@@ -541,6 +624,20 @@ van.add(
       padding: 3px 8px; 
       font-size: 12px; 
     }
+    .authors { 
+      font-size: 11px; 
+      color: #888; 
+      margin-top: 2px; 
+    }
+    .authors a { 
+      color: #4a9eff; 
+      text-decoration: none; 
+      margin-right: 8px; 
+    }
+    .authors a:hover { 
+      color: #6bb1ff; 
+      text-decoration: underline; 
+    }
     .grid { display: grid; grid-template-columns: repeat(16, 20px); gap: 2px; margin: 20px 0; }
     .cell { width: 20px; height: 20px; border: 1px solid #333; cursor: pointer; transition: all 0.3s ease; position: relative; }
     .cell.k { background: #f44; }
@@ -614,6 +711,41 @@ van.add(
     () => (isModified.val ? span({ class: 'modified' }, '*') : '')
   ),
 
+  // Current beat authors display
+  () => {
+    const currentBeat = savedBeats.val.find((b) => b.name === currentBeatName.val)
+    const authors = currentBeat?.authors || sharedBeatAuthors.val || []
+
+    // Debug: Log authors info
+    if (currentBeat) {
+      console.log('Current beat:', currentBeat.name, 'Authors:', currentBeat.authors)
+    }
+
+    return authors.length > 0
+      ? div(
+          {
+            class: 'current-beat-authors',
+            style: 'margin-bottom: 10px; font-size: 12px; color: #888;'
+          },
+          'Authors: ',
+          ...authors
+            .map((author, index) => [
+              a(
+                {
+                  href: `https://twitter.com/${author}`,
+                  target: '_blank',
+                  rel: 'noopener noreferrer',
+                  style: 'color: #4a9eff; text-decoration: none; margin-right: 8px;'
+                },
+                `@${author}`
+              ),
+              index < authors.length - 1 ? ', ' : ''
+            ])
+            .flat()
+        )
+      : ''
+  },
+
   // Library controls
   div(
     { class: 'library-controls' },
@@ -644,7 +776,27 @@ van.add(
                       div(
                         { style: 'font-size: 12px; color: #999;' },
                         `Modified: ${formatDate(beat.modified)}`
-                      )
+                      ),
+                      // Show authors if they exist
+                      beat.authors && beat.authors.length > 0
+                        ? div(
+                            { class: 'authors' },
+                            'Authors: ',
+                            ...beat.authors
+                              .map((author, index) => [
+                                a(
+                                  {
+                                    href: `https://twitter.com/${author}`,
+                                    target: '_blank',
+                                    rel: 'noopener noreferrer'
+                                  },
+                                  `@${author}`
+                                ),
+                                index < beat.authors.length - 1 ? ', ' : ''
+                              ])
+                              .flat()
+                          )
+                        : ''
                     ),
                     div(
                       { class: 'beat-actions' },
