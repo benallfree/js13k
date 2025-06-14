@@ -1,5 +1,6 @@
 import { readFileSync, statSync, writeFileSync } from 'fs'
 // Bump the build number
+console.log(`Updating build info`)
 const BUILDINFO = './buildInfo.json'
 const buildInfo = JSON.parse(readFileSync(BUILDINFO).toString())
 buildInfo.bytes = statSync(`./out.zip`).size
