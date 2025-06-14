@@ -15,7 +15,7 @@ import {
   savedBeats,
   selectedInstrument,
   showLibrary,
-  stepHistory
+  stepHistory,
 } from './beatState'
 import {
   AuthorsDisplay,
@@ -26,16 +26,10 @@ import {
   MainControls,
   RenameBeatModal,
   StatusBar,
-  XHandleModal
+  XHandleModal,
 } from './components'
 import { instruments, sounds } from './sounds'
-import {
-  Beat,
-  generateGuid,
-  loadBeatsFromStorage,
-  loadXHandleFromStorage,
-  saveXHandleToStorage
-} from './storage'
+import { Beat, generateGuid, loadBeatsFromStorage, loadXHandleFromStorage, saveXHandleToStorage } from './storage'
 import { shareBeat as createShareUrl, loadFromUrl } from './url'
 
 const { div, button, style, input, select, option, span, h3, a } = van.tags
@@ -108,9 +102,7 @@ const handleSaveBeat = () => {
 
   if (saveBeat(currentBeatName.val, authors)) {
     showStatus(
-      currentBeatId.val
-        ? `💾 Beat "${currentBeatName.val}" updated`
-        : `✅ Beat "${currentBeatName.val}" saved`
+      currentBeatId.val ? `💾 Beat "${currentBeatName.val}" updated` : `✅ Beat "${currentBeatName.val}" saved`
     )
   }
 }
@@ -150,11 +142,11 @@ const shareBeat = () => {
     authors: [
       ...new Set([
         ...(savedBeats.val.find((b) => b.id === currentBeatId.val)?.authors || []),
-        ...sharedBeatAuthors.val
-      ])
+        ...sharedBeatAuthors.val,
+      ]),
     ],
     created: Date.now(),
-    modified: Date.now()
+    modified: Date.now(),
   }
 
   const url = createShareUrl(beatData, xHandle.val)
@@ -217,8 +209,7 @@ const togglePlay = () => {
 // Toggle cell
 const toggleCell = (row: number, col: number) => {
   const newGrid = grid.val.map((r) => [...r]) // Create deep copy
-  newGrid[row][col] =
-    newGrid[row][col] === selectedInstrument.val + 1 ? 0 : selectedInstrument.val + 1
+  newGrid[row][col] = newGrid[row][col] === selectedInstrument.val + 1 ? 0 : selectedInstrument.val + 1
   grid.val = newGrid
   isModified.val = true
 }
