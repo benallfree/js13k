@@ -4,7 +4,7 @@ export const X_HANDLE_STORAGE_KEY = 'js13k-x-handle'
 
 // Generate a 128-bit GUID
 export const generateGuid = () => {
-  return generateLongGuid()
+  return generateShortGuid()
 }
 
 // Generate a simple GUID
@@ -13,7 +13,7 @@ export const generateLongGuid = () => {
 }
 
 // Generate a shorter but still highly unique ID
-export const generateShortId = () => {
+export const generateShortGuid = () => {
   // Generate 8 random bytes and convert to base64
   const bytes = new Uint8Array(8)
   crypto.getRandomValues(bytes)
