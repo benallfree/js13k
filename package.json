@@ -4,13 +4,14 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "size": "((rm -rf .build/*) || true) && vite build --outDir .build && ((rm out.zip) || true) && (cd .build && zip -9 -r ../out.zip .) && ./checksize.sh",
-    "size:watch": "chokidar src *.json *.html *.ts -c 'bun size'",
-    "build": "(bun size) && (rm -rf dist || true) && (mkdir dist) && (cp -r .build/* dist)",
+    "dev": "vite dev",
+    "pack:watch": "chokidar src -c 'bun run build && bun run pack'",
+    "pack": "rimraf out.zip && cd dist && zip -9 -r ../out.zip .",
+    "postpack": "bun run scripts/postbuild.ts",
+    "build": "vite build && bun run pack",
+    "preview": "bun run build && vite preview",
+    "deploy": "bun run build && wrangler deploy",
     "prebuild": "bun scripts/prebuild.ts",
-    "postbuild": "bun scripts/postbuild.ts",
-    "preview": "vite preview",
     "analyze": "vite-bundle-visualizer"
   },
   "devDependencies": {
@@ -21,6 +22,7 @@
     "nanoid": "^5.1.5",
     "prettier": "^3.5.3",
     "prettier-plugin-organize-imports": "^4.1.0",
+    "rimraf": "^6.0.1",
     "sass": "^1.89.2",
     "terser": "^5.42.0",
     "tslib": "^2.8.1",
@@ -28,6 +30,7 @@
     "typescript": "^5.8.3",
     "vanjs-core": "^1.5.5",
     "vite": "^6.3.5",
-    "vite-bundle-visualizer": "^1.2.1"
+    "vite-bundle-visualizer": "^1.2.1",
+    "wrangler": "^4.20.0"
   }
 }
