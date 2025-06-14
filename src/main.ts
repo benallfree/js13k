@@ -7,7 +7,6 @@ import {
   LibraryPanel,
   MainControls,
   StatusBar,
-  styles,
   XHandleModal
 } from './components'
 import { instruments, sounds } from './sounds'
@@ -70,10 +69,6 @@ const showStatus = (message: string, duration = 2000) => {
 }
 
 let intervalId: ReturnType<typeof setInterval>
-
-// Beat library functions
-const BEATS_STORAGE_KEY = 'js13k-beats-library'
-const X_HANDLE_STORAGE_KEY = 'js13k-x-handle'
 
 const saveBeat = (name?: string) => {
   const beatName = name || currentBeatName.val
@@ -285,7 +280,7 @@ const initializeApp = () => {
 }
 
 // Add styles
-style(styles)
+import './styles.css'
 
 // Main app
 const App = () => {
