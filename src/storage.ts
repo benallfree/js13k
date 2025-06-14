@@ -2,13 +2,25 @@
 export const BEATS_STORAGE_KEY = 'js13k-beats-library'
 export const X_HANDLE_STORAGE_KEY = 'js13k-x-handle'
 
-// Generate a simple GUID
+// Generate a 128-bit GUID
 export const generateGuid = () => {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-    const r = (Math.random() * 16) | 0
-    const v = c === 'x' ? r : (r & 0x3) | 0x8
-    return v.toString(16)
-  })
+  return generateLongGuid()
+}
+
+// Generate a simple GUID
+export const generateLongGuid = () => {
+  return crypto.randomUUID()
+}
+
+// Generate a shorter but still highly unique ID
+export const generateShortId = () => {
+  // Generate 8 random bytes and convert to base64
+  const bytes = new Uint8Array(8)
+  crypto.getRandomValues(bytes)
+  return btoa(String.fromCharCode(...bytes))
+    .replace(/\+/g, '-') // URL-safe
+    .replace(/\//g, '_')
+    .replace(/=+$/, '') // Remove padding
 }
 
 // Beat interface
@@ -31,7 +43,7 @@ export const loadBeatsFromStorage = (): Beat[] => {
     return beats.map((beat: any) => ({
       ...beat,
       id: beat.id || generateGuid(),
-      authors: beat.authors || []
+      authors: beat.authors || [],
     }))
   } catch {
     return []
