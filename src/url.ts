@@ -1,22 +1,5 @@
+import { decodeGrid, encodeGrid } from './grid'
 import { Beat } from './storage'
-
-// Grid encoding/decoding
-export const encodeGrid = (gridData: number[][]) => {
-  return gridData
-    .flat()
-    .map((v) => v.toString(4))
-    .join('')
-}
-
-export const decodeGrid = (encoded: string) => {
-  if (!encoded || encoded.length !== 256) return null
-  const flat = encoded.split('').map((c) => parseInt(c, 4) || 0)
-  const result = []
-  for (let i = 0; i < 16; i++) {
-    result.push(flat.slice(i * 16, (i + 1) * 16))
-  }
-  return result
-}
 
 // URL state management
 export const updateUrl = (grid: number[][]) => {
