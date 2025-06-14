@@ -227,7 +227,7 @@ export const Grid = (
                 const trailIndex = stepHistory.val.indexOf(col)
 
                 let classes = 'cell'
-                if (val) classes += ` ${['k', 's', 'h', 'c'][val - 1]}`
+                if (val) classes += ` ${['k', 's', 'h', 'c', 't', 'p', 'b'][val - 1]}`
                 if (playing.val && trailIndex >= 0) classes += ` trail-${trailIndex}`
                 if (isPlaying) classes += ' playing'
 
