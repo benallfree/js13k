@@ -1,6 +1,6 @@
 import van, { State } from 'vanjs-core'
 
-const { div, input, span } = van.tags
+const { div, span } = van.tags
 
 export const BeatNameInput = (
   currentBeatName: State<string>,
@@ -9,15 +9,12 @@ export const BeatNameInput = (
 ) =>
   div(
     { class: 'beat-name' },
-    span('Beat Name:'),
-    input({
-      type: 'text',
-      value: () => currentBeatName.val,
-      oninput: (e: Event) => {
-        const value = (e.target as HTMLInputElement).value
-        currentBeatName.val = value
-        onInput(value)
+    span(
+      {
+        class: 'beat-name-text',
+        onclick: () => onInput(currentBeatName.val),
       },
-    }),
-    () => (isModified.val ? span({ class: 'modified' }, '*') : '')
+      () => currentBeatName.val,
+      () => (isModified.val ? span({ class: 'modified' }, ' *') : '')
+    )
   )

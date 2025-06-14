@@ -200,12 +200,16 @@ body {
   margin-bottom: 10px;
 }
 
-.beat-name input {
-  background: #222;
+.beat-name-text {
   color: #fff;
-  border: 1px solid #555;
+  cursor: pointer;
   padding: 5px;
-  font-family: monospace;
+  border-radius: 3px;
+  transition: background-color 0.2s;
+}
+
+.beat-name-text:hover {
+  background: #333;
 }
 
 .beat-name .modified {

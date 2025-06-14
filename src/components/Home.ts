@@ -311,9 +311,9 @@ export const Home = () => {
     XHandleModal(showXHandleModal, tempXHandle, saveXHandle, skipXHandle),
     RenameBeatModal(showRenameModal, currentBeatId, tempBeatName, confirmRename, cancelRename),
     ClearBeatModal(showClearModal, confirmClearBeat, cancelClearBeat),
-    BeatNameInput(currentBeatName, isModified, (value) => {
-      currentBeatName.val = value
-      isModified.val = true
+    BeatNameInput(currentBeatName, isModified, () => {
+      tempBeatName.val = currentBeatName.val
+      showRenameModal.val = true
     }),
     AuthorsDisplay(sharedBeatAuthors),
     LibraryControls(showLibrary, handleSaveBeat, handleClearBeat, shareBeat),
