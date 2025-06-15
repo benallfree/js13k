@@ -1,7 +1,6 @@
 import { navigate } from '@/common/router'
-import { flash } from '@/common/statusManager'
 import { formatDate } from '@/common/utils'
-import { deleteBeat, newBeat, savedBeats } from '../beatState'
+import { newBeat, savedBeats } from '../beatState'
 import { a, div, h1, h2, h3, p } from '../common/tags'
 import { Beat, generateGuid, loadBeatsFromStorage } from '../storage'
 import styles from './Home.module.css'
@@ -45,30 +44,7 @@ const BeatItem = (beat: Beat) => {
               ])
               .flat()
           )
-        : '',
-      p({ class: styles.beatId }, `ID: ${beat.id}`)
-    ),
-    div(
-      { class: styles.beatActions },
-      Button({
-        onClick: () => {
-          navigate(`/beats/${beat.id}`)
-        },
-        variant: 'primary',
-        size: 'sm',
-        children: 'Edit',
-      }),
-      Button({
-        onClick: () => {
-          if (confirm(`Are you sure you want to delete "${beat.name}"?`)) {
-            deleteBeat(beat.id)
-            flash(`🗑️ Beat "${beat.name}" deleted`)
-          }
-        },
-        variant: 'danger',
-        size: 'sm',
-        children: 'Delete',
-      })
+        : ''
     )
   )
 }

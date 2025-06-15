@@ -2,6 +2,7 @@ import {
   currentBeatId,
   currentBeatName,
   currentStep,
+  deleteBeat,
   grid,
   isModified,
   loadBeat,
@@ -28,6 +29,9 @@ import { AuthorsDisplay, BottomTray, ClearBeatModal, Grid, PatchModal, ShareModa
 
 // Add clear modal state
 const showClearModal = van.state(false)
+
+// Add delete modal state
+const showDeleteModal = van.state(false)
 
 // Beat name editing state
 const showBeatNameModal = van.state(false)
@@ -287,6 +291,25 @@ const handleCopyUrl = () => {
     })
 }
 
+const handleDeleteBeat = () => {
+  showDeleteModal.val = true
+}
+
+const confirmDeleteBeat = () => {
+  if (currentBeatId.val && currentBeatName.val) {
+    deleteBeat(currentBeatId.val)
+    flash(`🗑️ Beat "${currentBeatName.val}" deleted`)
+    showDeleteModal.val = false
+    // Navigate back to home
+    window.history.pushState({}, '', '/')
+    window.dispatchEvent(new PopStateEvent('popstate'))
+  }
+}
+
+const cancelDeleteBeat = () => {
+  showDeleteModal.val = false
+}
+
 interface BeatEditorProps {
   beatId: string
 }
@@ -349,6 +372,19 @@ export const BeatEditor = ({ beatId }: BeatEditorProps) => {
       ),
       ClearBeatModal(showClearModal, confirmClearBeat, cancelClearBeat),
       Modal({
+        isOpen: showDeleteModal,
+        title: 'Delete Beat',
+        content: () => div(`Are you sure you want to delete "${currentBeatName.val}"? This action cannot be undone.`),
+        primaryButton: {
+          text: 'Delete',
+          onClick: confirmDeleteBeat,
+        },
+        secondaryButton: {
+          text: 'Cancel',
+          onClick: cancelDeleteBeat,
+        },
+      }),
+      Modal({
         isOpen: showBeatNameModal,
         title: 'Rename Beat',
         content: () =>
@@ -389,11 +425,7 @@ export const BeatEditor = ({ beatId }: BeatEditorProps) => {
         onCopyUrl: handleCopyUrl,
       }),
       Grid(grid, playing, playingCells, stepHistory, toggleCell),
-      AuthorsDisplay(sharedBeatAuthors),
-      () => {
-        console.log('ID display check - currentBeatId.val:', currentBeatId.val, 'type:', typeof currentBeatId.val)
-        return currentBeatId.val ? div({ class: 'id-display' }, `ID: ${currentBeatId.val}`) : ''
-      }
+      AuthorsDisplay(sharedBeatAuthors)
     ),
     BottomTray({
       playing,
@@ -401,6 +433,7 @@ export const BeatEditor = ({ beatId }: BeatEditorProps) => {
       onTogglePlay: togglePlay,
       onShowPatchModal: handleShowPatchModal,
       onShowShareModal: handleShowShareModal,
+      onDeleteBeat: handleDeleteBeat,
     })
   )
 }
