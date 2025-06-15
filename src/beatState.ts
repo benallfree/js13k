@@ -5,12 +5,12 @@ import { Beat, generateGuid, loadBeatsFromStorage, saveBeatsToStorage } from './
 export const playing = van.state(false)
 export const currentStep = van.state(0)
 export const selectedInstrument = van.state(0)
-export const grid = van.state(
+export const grid = van.state<number[][]>(
   Array(16)
     .fill(0)
     .map(() => Array(16).fill(0))
 )
-export const playingCells = van.state(new Set<string>())
+export const playingCells = van.state<Set<string>>(new Set())
 export const stepHistory = van.state<number[]>([])
 
 // Beat library state
@@ -20,6 +20,9 @@ export const showLibrary = van.state(false)
 export const isModified = van.state(false)
 export const currentBeatId = van.state<string>('')
 export const originalBeatName = van.state<string>('')
+
+// Beat authors state (moved from Home.ts)
+export const sharedBeatAuthors = van.state<string[]>([])
 
 export const saveBeat = (name: string, authors: string[]) => {
   if (!name.trim()) return false
@@ -58,6 +61,7 @@ export const loadBeat = (beat: Beat) => {
   originalBeatName.val = beat.name
   currentBeatId.val = beat.id
   isModified.val = false
+  sharedBeatAuthors.val = beat.authors || []
 }
 
 export const newBeat = () => {
@@ -68,6 +72,7 @@ export const newBeat = () => {
   originalBeatName.val = 'Untitled Beat'
   currentBeatId.val = ''
   isModified.val = false
+  sharedBeatAuthors.val = []
 }
 
 export const deleteBeat = (beatId: string) => {

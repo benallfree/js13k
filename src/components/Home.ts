@@ -14,6 +14,7 @@ import {
   saveBeat,
   savedBeats,
   selectedInstrument,
+  sharedBeatAuthors,
   showLibrary,
   stepHistory,
 } from '../beatState'
@@ -45,9 +46,6 @@ let statusTimeoutId: ReturnType<typeof setTimeout>
 const xHandle = van.state('')
 const showXHandleModal = van.state(false)
 const tempXHandle = van.state('')
-
-// Shared beat authors state
-const sharedBeatAuthors = van.state<string[]>([])
 
 // Add rename modal state
 const showRenameModal = van.state(false)
