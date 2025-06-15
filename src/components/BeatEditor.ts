@@ -76,6 +76,31 @@ const stopPlayback = () => {
   stepHistory.val = []
 }
 
+// Auto-save function that saves silently without status messages
+const autoSave = () => {
+  if (!currentBeatName.val.trim()) {
+    return // Don't auto-save if no name is set
+  }
+
+  // Handle authors array
+  let authors: string[] = []
+  if (currentBeatId.val) {
+    const beats = loadBeatsFromStorage()
+    const existingBeat = beats.find((b) => b.id === currentBeatId.val)
+    authors = existingBeat?.authors || []
+  }
+
+  // Merge with shared beat authors from URL
+  authors = [...new Set([...authors, ...sharedBeatAuthors.val])]
+
+  // Add current user to authors if they have an X handle and aren't already in the list
+  if (xHandle.val && !authors.includes(xHandle.val)) {
+    authors.push(xHandle.val)
+  }
+
+  saveBeat(currentBeatName.val, authors)
+}
+
 const handleSaveBeat = () => {
   if (!currentBeatName.val.trim()) {
     showStatus('⚠️ Please enter a beat name', 3000)
@@ -209,6 +234,9 @@ const toggleCell = (row: number, col: number) => {
 
   grid.val = newGrid
   isModified.val = true
+
+  // Auto-save after each edit
+  autoSave()
 
   // Play sample immediately when placed
   if (newGrid[row][col]) {
@@ -389,14 +417,9 @@ export const BeatEditor = ({ beatId }: BeatEditorProps) => {
           onClick: cancelBeatNameModal,
         },
       }),
-      // Updated LibraryControls without the library button
+      // Controls - removed save button, kept share button
       div(
         { class: 'flex flex-wrap gap-2 mb-4' },
-        Button({
-          onClick: handleSaveBeat,
-          variant: 'primary',
-          children: '💾',
-        }),
         Button({
           onClick: shareBeat,
           variant: 'secondary',
