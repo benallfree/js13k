@@ -24,10 +24,11 @@ import { shareBeat as createShareUrl } from '@/url'
 import van from 'vanjs-core'
 import {
   AuthorsDisplay,
-  Button,
+  BottomTray,
   ClearBeatModal,
   Grid,
-  MainControls,
+  PatchModal,
+  ShareModal,
   SplashPage,
   StatusBar,
   XHandleModal,
@@ -49,6 +50,11 @@ const showClearModal = van.state(false)
 // Beat name editing state
 const showBeatNameModal = van.state(false)
 const tempBeatName = van.state('')
+
+// Modal states for bottom tray
+const showPatchModal = van.state(false)
+const showShareModal = van.state(false)
+const shareUrl = van.state('')
 
 // Status bar functions
 const showStatus = (message: string, duration = 2000) => {
@@ -196,34 +202,6 @@ const cancelClearBeat = () => {
   showClearModal.val = false
 }
 
-const shareBeat = () => {
-  const beatData: Beat = {
-    id: currentBeatId.val || generateGuid(),
-    name: currentBeatName.val,
-    grid: grid.val,
-    authors: [
-      ...new Set([
-        ...(savedBeats.val.find((b) => b.id === currentBeatId.val)?.authors || []),
-        ...sharedBeatAuthors.val,
-      ]),
-    ],
-    created: Date.now(),
-    modified: Date.now(),
-  }
-
-  const url = createShareUrl(beatData, xHandle.val)
-
-  navigator.clipboard
-    .writeText(url)
-    .then(() => {
-      showStatus(`📋 Beat URL copied to clipboard!`)
-    })
-    .catch(() => {
-      prompt('Copy this URL to share your beat:', url)
-      showStatus('🔗 Share URL generated')
-    })
-}
-
 // Cell interaction handling
 const toggleCell = (row: number, col: number) => {
   const newGrid = [...grid.val]
@@ -305,6 +283,57 @@ const togglePlay = () => {
     intervalId = setInterval(playStep, 120) // ~125 BPM
     showStatus('▶️ Playing')
   }
+}
+
+// Bottom tray handlers
+const handleShowPatchModal = () => {
+  showPatchModal.val = true
+}
+
+const handleClosePatchModal = () => {
+  showPatchModal.val = false
+}
+
+const handleSelectPatch = (index: number) => {
+  // Wrap state access in a nested function to limit reactivity scope
+  ;(() => {
+    selectedInstrument.val = index
+  })()
+}
+
+const handleShowShareModal = () => {
+  const beatData: Beat = {
+    id: currentBeatId.val || generateGuid(),
+    name: currentBeatName.val,
+    grid: grid.val,
+    authors: [
+      ...new Set([
+        ...(savedBeats.val.find((b) => b.id === currentBeatId.val)?.authors || []),
+        ...sharedBeatAuthors.val,
+      ]),
+    ],
+    created: Date.now(),
+    modified: Date.now(),
+  }
+
+  shareUrl.val = createShareUrl(beatData, xHandle.val)
+  showShareModal.val = true
+}
+
+const handleCloseShareModal = () => {
+  showShareModal.val = false
+}
+
+const handleCopyUrl = () => {
+  navigator.clipboard
+    .writeText(shareUrl.val)
+    .then(() => {
+      showStatus(`📋 Beat URL copied to clipboard!`)
+    })
+    .catch(() => {
+      prompt('Copy this URL to share your beat:', shareUrl.val)
+      showStatus('🔗 Share URL generated')
+    })
 }
 
 // Format date helper
@@ -417,25 +446,31 @@ export const BeatEditor = ({ beatId }: BeatEditorProps) => {
           onClick: cancelBeatNameModal,
         },
       }),
-      // Controls - removed save button, kept share button
-      div(
-        { class: 'flex flex-wrap gap-2 mb-4' },
-        Button({
-          onClick: shareBeat,
-          variant: 'secondary',
-          children: '🔗',
-        })
-      ),
-      () =>
-        MainControls(playing, selectedInstrument, togglePlay, (index) => {
-          selectedInstrument.val = index
-        }),
+      PatchModal({
+        isOpen: showPatchModal,
+        selectedInstrument,
+        onSelectPatch: handleSelectPatch,
+        onClose: handleClosePatchModal,
+      }),
+      ShareModal({
+        isOpen: showShareModal,
+        shareUrl: shareUrl.val,
+        onClose: handleCloseShareModal,
+        onCopyUrl: handleCopyUrl,
+      }),
       Grid(grid, playing, playingCells, stepHistory, toggleCell),
       AuthorsDisplay(sharedBeatAuthors),
       () => {
         console.log('ID display check - currentBeatId.val:', currentBeatId.val, 'type:', typeof currentBeatId.val)
         return currentBeatId.val ? div({ class: 'id-display' }, `ID: ${currentBeatId.val}`) : ''
       }
-    )
+    ),
+    BottomTray({
+      playing,
+      selectedInstrument,
+      onTogglePlay: togglePlay,
+      onShowPatchModal: handleShowPatchModal,
+      onShowShareModal: handleShowShareModal,
+    })
   )
 }
