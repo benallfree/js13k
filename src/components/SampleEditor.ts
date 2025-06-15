@@ -277,7 +277,7 @@ const handleShowShareModal = () => {
   }
 
   const sampleJson = JSON.stringify({ [sampleData.id]: sampleData })
-  shareUrl.val = `${window.location.origin}/share/${btoa(sampleJson)}`
+  shareUrl.val = `${window.location.origin}/share?sample=${btoa(sampleJson)}`
   shareModal.open()
 }
 

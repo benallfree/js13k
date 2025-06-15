@@ -8,7 +8,6 @@ import { BeatEditor } from './components/BeatEditor'
 import { Home } from './components/Home'
 import { XHandleModal } from './components/index'
 import { SampleEditor } from './components/SampleEditor'
-import { SampleShareHandler } from './components/SampleShareHandler'
 import { ShareHandler } from './components/ShareHandler'
 
 const App = () => {
@@ -22,26 +21,16 @@ const App = () => {
       routes: [
         { path: '/', component: Home },
         {
-          path: '/share/:payload',
+          path: '/share',
           component: () => {
             return div(() => {
-              const { payload } = getRouterParams()
-              if (!payload) {
+              const params = new URLSearchParams(window.location.search)
+              const beatPayload = params.get('beat') || undefined
+              const samplePayload = params.get('sample') || undefined
+              if (!beatPayload && !samplePayload) {
                 return div('Invalid share link')
               }
-              return ShareHandler({ payload })
-            })
-          },
-        },
-        {
-          path: '/share-sample/:payload',
-          component: () => {
-            return div(() => {
-              const { payload } = getRouterParams()
-              if (!payload) {
-                return div('Invalid sample share link')
-              }
-              return SampleShareHandler({ payload })
+              return ShareHandler({ beatPayload, samplePayload })
             })
           },
         },

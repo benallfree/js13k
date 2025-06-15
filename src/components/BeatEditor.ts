@@ -23,10 +23,8 @@ import { _routerPathname } from '@/common/router/_state'
 import { flash } from '@/common/statusManager'
 import { div, span } from '@/common/tags'
 import { mergeAuthors, useModal } from '@/common/utils'
-import { xHandle } from '@/common/xHandleManager'
 import { playSound, sampleMetadata } from '@/sounds'
 import { Beat, generateGuid, loadBeatsFromStorage } from '@/storage'
-import { shareBeat as createShareUrl } from '@/url'
 import van from 'vanjs-core'
 import { AuthorsDisplay, Grid, PatchModal, ShareModal, SplashPage } from './index'
 import sharedStyles from './Shared.module.css'
@@ -177,7 +175,8 @@ const handleShowShareModal = () => {
     modified: Date.now(),
   }
 
-  shareUrl.val = createShareUrl(beatData, xHandle.val)
+  const beatJson = JSON.stringify({ [beatData.id]: beatData })
+  shareUrl.val = `${window.location.origin}/share?beat=${btoa(beatJson)}`
   shareModal.open()
 }
 
