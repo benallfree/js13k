@@ -1,7 +1,8 @@
 import { State } from 'vanjs-core'
 import { Button } from '../common/Button'
-import { a, div, h3 } from '../common/tags'
+import { div, h3 } from '../common/tags'
 import { Beat } from '../storage'
+import { AuthorsDisplay } from './AuthorsDisplay'
 import styles from './LibraryPanel.module.css'
 
 export const LibraryPanel =
@@ -28,25 +29,10 @@ export const LibraryPanel =
                       { class: styles.beatInfo },
                       div(beat.name),
                       div({ class: 'text-sm text-gray' }, `Modified: ${formatDate(beat.modified)}`),
-                      beat.authors && beat.authors.length > 0
-                        ? div(
-                            { class: styles.authors },
-                            'Authors: ',
-                            ...beat.authors
-                              .map((author, index) => [
-                                a(
-                                  {
-                                    href: `https://twitter.com/${author}`,
-                                    target: '_blank',
-                                    rel: 'noopener noreferrer',
-                                  },
-                                  `@${author}`
-                                ),
-                                index < beat.authors.length - 1 ? ', ' : '',
-                              ])
-                              .flat()
-                          )
-                        : ''
+                      AuthorsDisplay({
+                        authors: beat.authors || [],
+                        className: styles.authors,
+                      })
                     ),
                     div(
                       { class: 'flex gap-1' },

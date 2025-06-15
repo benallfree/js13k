@@ -1,10 +1,10 @@
 import { navigate } from '@/common/router'
 import { formatDate } from '@/common/utils'
 import { savedBeats } from '../beatState'
-import { a, div, h1, h2, h3, p } from '../common/tags'
+import { div, h1, h2, h3, p } from '../common/tags'
 import { Beat, generateGuid, loadBeatsFromStorage } from '../storage'
 import styles from './Home.module.css'
-import { Button, SplashPage } from './index'
+import { AuthorsDisplay, Button, SplashPage } from './index'
 
 // Create new beat
 const createNewBeat = () => {
@@ -23,27 +23,11 @@ const BeatItem = (beat: Beat) => {
       { class: styles.beatInfo },
       h3({ class: styles.beatTitle }, beat.name),
       p({ class: styles.beatMeta }, `Modified: ${formatDate(beat.modified)}`),
-      beat.authors && beat.authors.length > 0
-        ? p(
-            { class: styles.beatAuthors },
-            'Authors: ',
-            ...beat.authors
-              .map((author, index) => [
-                a(
-                  {
-                    href: `https://twitter.com/${author}`,
-                    target: '_blank',
-                    rel: 'noopener noreferrer',
-                    class: 'text-link mr-2',
-                    onclick: (e: Event) => e.stopPropagation(),
-                  },
-                  `@${author}`
-                ),
-                index < beat.authors.length - 1 ? ', ' : '',
-              ])
-              .flat()
-          )
-        : ''
+      AuthorsDisplay({
+        authors: beat.authors || [],
+        className: styles.beatAuthors,
+        clickHandler: (e: Event) => e.stopPropagation(),
+      })
     )
   )
 }

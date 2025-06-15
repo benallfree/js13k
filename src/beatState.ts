@@ -1,6 +1,7 @@
 import van from 'vanjs-core'
+import { createBeatData, mergeAuthors } from './common/utils'
 import { xHandle } from './common/xHandleManager'
-import { Beat, generateGuid, loadBeatsFromStorage, saveBeatsToStorage } from './storage'
+import { Beat, loadBeatsFromStorage, saveBeatsToStorage } from './storage'
 
 // Beat maker state
 export const playing = van.state(false)
@@ -30,39 +31,26 @@ export const sharedBeatAuthors = van.state<string[]>([])
  * Combines existing beat authors, shared beat authors, and current user's handle
  */
 export const getAuthorsForCurrentBeat = (): string[] => {
-  // Start with existing authors from the current beat
-  let authors: string[] = []
-  if (currentBeatId.val) {
-    const beats = loadBeatsFromStorage()
-    const existingBeat = beats.find((b) => b.id === currentBeatId.val)
-    authors = existingBeat?.authors || []
-  }
-
-  // Merge with shared beat authors from URL (deduplicated)
-  authors = [...new Set([...authors, ...sharedBeatAuthors.val])]
-
-  // Add current user to authors if they have an X handle and aren't already in the list
-  if (xHandle.val && !authors.includes(xHandle.val)) {
-    authors.push(xHandle.val)
-  }
-
-  return authors
+  const beats = loadBeatsFromStorage()
+  const existingBeat = currentBeatId.val ? beats.find((b) => b.id === currentBeatId.val) : null
+  return mergeAuthors(existingBeat?.authors, sharedBeatAuthors.val, xHandle.val)
 }
 
 export const saveBeat = (name: string, authors: string[]) => {
   if (!name.trim()) return false
 
   const beats = loadBeatsFromStorage()
-  const now = Date.now()
+  const existingBeat = currentBeatId.val ? beats.find((b) => b.id === currentBeatId.val) : undefined
 
-  const beat: Beat = {
-    id: currentBeatId.val || generateGuid(),
-    name: name,
-    grid: grid.val.map((row) => [...row]),
-    created: currentBeatId.val ? beats.find((b) => b.id === currentBeatId.val)?.created || now : now,
-    modified: now,
-    authors: authors,
-  }
+  const beat = createBeatData(
+    {
+      id: currentBeatId.val,
+      name,
+      grid: grid.val,
+      authors,
+    },
+    existingBeat
+  )
 
   const existingIndex = beats.findIndex((b) => b.id === beat.id)
   if (existingIndex !== -1) {

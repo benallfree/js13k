@@ -2,18 +2,8 @@
 export const BEATS_STORAGE_KEY = 'js13k-beats-library'
 export const X_HANDLE_STORAGE_KEY = 'js13k-x-handle'
 
-// Generate a 128-bit GUID
+// Generate a shorter but still highly unique ID (used for JS13K size constraints)
 export const generateGuid = () => {
-  return generateShortGuid()
-}
-
-// Generate a simple GUID
-export const generateLongGuid = () => {
-  return crypto.randomUUID()
-}
-
-// Generate a shorter but still highly unique ID
-export const generateShortGuid = () => {
   // Generate 8 random bytes and convert to base64
   const bytes = new Uint8Array(8)
   crypto.getRandomValues(bytes)

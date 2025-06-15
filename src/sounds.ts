@@ -64,6 +64,38 @@ export const sampleMetadata: Record<number, SampleMetadata> = {
   },
 }
 
+// Shared noise generator
+const createNoise = (
+  duration: number,
+  filterType?: 'highpass' | 'bandpass',
+  frequency?: number,
+  Q?: number,
+  gain = 0.3
+) => {
+  const noise = ctx.createBufferSource()
+  const buffer = ctx.createBuffer(1, ctx.sampleRate * duration, ctx.sampleRate)
+  const data = buffer.getChannelData(0)
+  for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1
+
+  noise.buffer = buffer
+  const gainNode = ctx.createGain()
+
+  if (filterType && frequency) {
+    const filter = ctx.createBiquadFilter()
+    filter.type = filterType
+    filter.frequency.value = frequency
+    if (Q) filter.Q.value = Q
+    noise.connect(filter).connect(gainNode)
+  } else {
+    noise.connect(gainNode)
+  }
+
+  gainNode.connect(ctx.destination)
+  gainNode.gain.setValueAtTime(gain, ctx.currentTime)
+  gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration)
+  noise.start()
+}
+
 // Sound generators
 export const sounds = {
   0: () => {
@@ -78,53 +110,9 @@ export const sounds = {
     osc.start()
     osc.stop(ctx.currentTime + 0.3)
   },
-  1: () => {
-    // Snare
-    const noise = ctx.createBufferSource()
-    const buffer = ctx.createBuffer(1, ctx.sampleRate * 0.2, ctx.sampleRate)
-    const data = buffer.getChannelData(0)
-    for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1
-    const filter = ctx.createBiquadFilter()
-    const gain = ctx.createGain()
-    noise.buffer = buffer
-    noise.connect(filter).connect(gain).connect(ctx.destination)
-    filter.frequency.value = 1000
-    gain.gain.setValueAtTime(0.3, ctx.currentTime)
-    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2)
-    noise.start()
-  },
-  2: () => {
-    // Hi-hat
-    const noise = ctx.createBufferSource()
-    const buffer = ctx.createBuffer(1, ctx.sampleRate * 0.1, ctx.sampleRate)
-    const data = buffer.getChannelData(0)
-    for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1
-    const filter = ctx.createBiquadFilter()
-    const gain = ctx.createGain()
-    noise.buffer = buffer
-    noise.connect(filter).connect(gain).connect(ctx.destination)
-    filter.type = 'highpass'
-    filter.frequency.value = 7000
-    gain.gain.setValueAtTime(0.1, ctx.currentTime)
-    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1)
-    noise.start()
-  },
-  3: () => {
-    // Cymbal Crash
-    const noise = ctx.createBufferSource()
-    const buffer = ctx.createBuffer(1, ctx.sampleRate * 0.5, ctx.sampleRate)
-    const data = buffer.getChannelData(0)
-    for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1
-    const filter = ctx.createBiquadFilter()
-    const gain = ctx.createGain()
-    noise.buffer = buffer
-    noise.connect(filter).connect(gain).connect(ctx.destination)
-    filter.type = 'highpass'
-    filter.frequency.value = 5000
-    gain.gain.setValueAtTime(0.4, ctx.currentTime)
-    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5)
-    noise.start()
-  },
+  1: () => createNoise(0.2, undefined, 1000, undefined, 0.3), // Snare - simplified
+  2: () => createNoise(0.1, 'highpass', 7000, undefined, 0.1), // Hi-hat
+  3: () => createNoise(0.5, 'highpass', 5000, undefined, 0.4), // Cymbal Crash
   4: () => {
     // Tom-tom
     const osc = ctx.createOscillator()
@@ -137,23 +125,7 @@ export const sounds = {
     osc.start()
     osc.stop(ctx.currentTime + 0.2)
   },
-  5: () => {
-    // Clap
-    const noise = ctx.createBufferSource()
-    const buffer = ctx.createBuffer(1, ctx.sampleRate * 0.3, ctx.sampleRate)
-    const data = buffer.getChannelData(0)
-    for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1
-    const filter = ctx.createBiquadFilter()
-    const gain = ctx.createGain()
-    noise.buffer = buffer
-    noise.connect(filter).connect(gain).connect(ctx.destination)
-    filter.type = 'bandpass'
-    filter.frequency.value = 2000
-    filter.Q.value = 1
-    gain.gain.setValueAtTime(0.4, ctx.currentTime)
-    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3)
-    noise.start()
-  },
+  5: () => createNoise(0.3, 'bandpass', 2000, 1, 0.4), // Clap
   6: () => {
     // Cowbell
     const osc1 = ctx.createOscillator()

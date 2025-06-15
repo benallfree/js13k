@@ -1,3 +1,4 @@
+import { mergeAuthors } from './common/utils'
 import { encodeGrid } from './grid'
 import { Beat } from './storage'
 
@@ -12,19 +13,14 @@ export const updateUrl = (grid: number[][]) => {
 }
 
 export const shareBeat = (beat: Beat, xHandle: string) => {
-  // Create a complete beat object to share
+  // Create a complete beat object to share with merged authors
   const beatData = {
     [beat.id]: {
       name: beat.name,
       grid: beat.grid,
-      authors: [...beat.authors],
+      authors: mergeAuthors(beat.authors, [], xHandle),
       created: Date.now(),
     },
-  }
-
-  // Add current user to authors if they have an X handle and aren't already in the list
-  if (xHandle && !beatData[beat.id].authors.includes(xHandle)) {
-    beatData[beat.id].authors.push(xHandle)
   }
 
   // Encode the complete beat data as base64 JSON

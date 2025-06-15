@@ -1,4 +1,5 @@
 import van, { State } from 'vanjs-core'
+import { Beat, generateGuid } from '../storage'
 
 /**
  * Format a timestamp into a human-readable date string
@@ -13,6 +14,46 @@ export const formatDate = (timestamp: number) => {
     hour: '2-digit',
     minute: '2-digit',
   })
+}
+
+/**
+ * Merge and deduplicate author arrays with optional current user addition
+ * @param existingAuthors - Current beat authors
+ * @param sharedAuthors - Authors from shared beat
+ * @param currentUser - Current user handle to optionally add
+ * @returns Merged and deduplicated author array
+ */
+export const mergeAuthors = (
+  existingAuthors: string[] = [],
+  sharedAuthors: string[] = [],
+  currentUser?: string
+): string[] => {
+  let authors = [...new Set([...existingAuthors, ...sharedAuthors])]
+  if (currentUser && !authors.includes(currentUser)) {
+    authors.push(currentUser)
+  }
+  return authors
+}
+
+/**
+ * Create a complete Beat object with consistent timestamp handling
+ * @param partial - Partial beat data
+ * @param existingBeat - Existing beat for timestamp preservation
+ * @returns Complete Beat object
+ */
+export const createBeatData = (
+  partial: Partial<Beat> & { name: string; grid: number[][] },
+  existingBeat?: Beat
+): Beat => {
+  const now = Date.now()
+  return {
+    id: partial.id || generateGuid(),
+    name: partial.name,
+    grid: partial.grid.map((row) => [...row]), // Deep copy grid
+    authors: partial.authors || [],
+    created: existingBeat?.created || now,
+    modified: now,
+  }
 }
 
 /**

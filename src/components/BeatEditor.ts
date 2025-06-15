@@ -22,7 +22,7 @@ import { Link } from '@/common/router'
 import { _routerPathname } from '@/common/router/_state'
 import { flash } from '@/common/statusManager'
 import { div, span } from '@/common/tags'
-import { useModal } from '@/common/utils'
+import { mergeAuthors, useModal } from '@/common/utils'
 import { xHandle } from '@/common/xHandleManager'
 import { sampleMetadata, sounds } from '@/sounds'
 import { Beat, generateGuid, loadBeatsFromStorage } from '@/storage'
@@ -160,23 +160,16 @@ const handleClosePatchModal = () => {
 }
 
 const handleSelectPatch = (index: number) => {
-  // Wrap state access in a nested function to limit reactivity scope
-  ;(() => {
-    selectedInstrument.val = index
-  })()
+  selectedInstrument.val = index
 }
 
 const handleShowShareModal = () => {
+  const existingBeat = savedBeats.val.find((b) => b.id === currentBeatId.val)
   const beatData: Beat = {
     id: currentBeatId.val || generateGuid(),
     name: currentBeatName.val,
     grid: grid.val,
-    authors: [
-      ...new Set([
-        ...(savedBeats.val.find((b) => b.id === currentBeatId.val)?.authors || []),
-        ...sharedBeatAuthors.val,
-      ]),
-    ],
+    authors: mergeAuthors(existingBeat?.authors, sharedBeatAuthors.val),
     created: Date.now(),
     modified: Date.now(),
   }
@@ -309,7 +302,10 @@ export const BeatEditor = ({ beatId }: BeatEditorProps) => {
         onCopyUrl: handleCopyUrl,
       }),
       Grid(grid, playing, playingCells, stepHistory, toggleCell),
-      AuthorsDisplay(sharedBeatAuthors)
+      AuthorsDisplay({
+        authors: sharedBeatAuthors,
+        className: 'current-beat-authors text-sm text-gray mb-2',
+      })
     ),
     BottomTray({
       icons: [
