@@ -1,0 +1,62 @@
+/* Button Base */
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  font-family: monospace;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Button Variants */
+.btn-primary {
+  background: #4a9eff;
+}
+
+.btn-primary:hover {
+  background: #3a8eef;
+  box-shadow: 0 4px 8px rgba(74, 158, 255, 0.4);
+}
+
+.btn-danger {
+  background: #d44;
+}
+
+.btn-danger:hover {
+  background: #e55;
+  box-shadow: 0 4px 8px rgba(221, 68, 68, 0.4);
+}
+
+.btn-secondary {
+  background: #444;
+}
+
+.btn-secondary:hover {
+  background: #555;
+}
+
+/* Button Sizes */
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+/* Button States */
+.btn-active {
+  background: #4a9eff !important;
+  color: white !important;
+  box-shadow: 0 2px 4px rgba(74, 158, 255, 0.3) !important;
+}
+
+.btn-active:hover {
+  background: #3a8eef !important;
+  box-shadow: 0 4px 8px rgba(74, 158, 255, 0.4) !important;
+} 
