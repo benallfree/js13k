@@ -303,7 +303,7 @@ export const BeatEditor = ({ beatId }: BeatEditorProps) => {
       { class: 'main-content' },
       // Breadcrumb navigation
       div(
-        { class: 'breadcrumb', style: 'margin-bottom: 15px; padding: 10px 0; border-bottom: 1px solid #333;' },
+        { class: 'breadcrumb' },
         Link(
           {
             href: '/',
@@ -339,12 +339,7 @@ export const BeatEditor = ({ beatId }: BeatEditorProps) => {
       AuthorsDisplay(sharedBeatAuthors),
       () => {
         console.log('ID display check - currentBeatId.val:', currentBeatId.val, 'type:', typeof currentBeatId.val)
-        return currentBeatId.val
-          ? div(
-              { style: 'color: #666; font-size: 11px; margin-top: 10px; font-family: monospace;' },
-              `ID: ${currentBeatId.val}`
-            )
-          : ''
+        return currentBeatId.val ? div({ class: 'id-display' }, `ID: ${currentBeatId.val}`) : ''
       }
     )
   )

@@ -5,8 +5,7 @@ export const AuthorsDisplay = (authors: State<string[]>) => () =>
   authors.val.length > 0
     ? div(
         {
-          class: 'current-beat-authors',
-          style: 'margin-bottom: 10px; font-size: 12px; color: #888;',
+          class: 'current-beat-authors text-sm text-gray mb-2',
         },
         'Authors: ',
         ...authors.val
@@ -16,7 +15,7 @@ export const AuthorsDisplay = (authors: State<string[]>) => () =>
                 href: `https://x.com/${author}`,
                 target: '_blank',
                 rel: 'noopener noreferrer',
-                style: 'color: #4a9eff; text-decoration: none; margin-right: 8px;',
+                class: 'text-link mr-2',
               },
               `@${author}`
             ),

@@ -1,6 +1,7 @@
 import { State } from 'vanjs-core'
 import { Modal } from '../common/Modal'
 import { div, input } from '../common/tags'
+import sharedStyles from './Shared.module.css'
 
 export const XHandleModal =
   (showXHandleModal: State<boolean>, tempXHandle: State<string>, saveXHandle: () => void, skipXHandle: () => void) =>
@@ -11,10 +12,7 @@ export const XHandleModal =
       content: () =>
         div(
           div("What's your X (Twitter) handle?"),
-          div(
-            { style: 'color: #999; font-size: 12px; margin: 10px 0;' },
-            'This will be included when you share beats (optional)'
-          ),
+          div({ class: sharedStyles.modalHelpText }, 'This will be included when you share beats (optional)'),
           input({
             type: 'text',
             placeholder: 'username (without @)',

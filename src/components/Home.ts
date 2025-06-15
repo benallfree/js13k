@@ -3,6 +3,7 @@ import van from 'vanjs-core'
 import { deleteBeat, newBeat, savedBeats } from '../beatState'
 import { a, div, h1, h2, h3, p } from '../common/tags'
 import { Beat, generateGuid, loadBeatsFromStorage, loadXHandleFromStorage, saveXHandleToStorage } from '../storage'
+import styles from './Home.module.css'
 import { Button, SplashPage, StatusBar, XHandleModal } from './index'
 
 // Status bar state
@@ -66,31 +67,16 @@ const createNewBeat = () => {
 const BeatItem = (beat: Beat) => {
   return div(
     {
-      class: 'beat-item',
-      style: `
-        background: #333; 
-        border: 1px solid #555; 
-        padding: 15px; 
-        margin: 10px 0; 
-        border-radius: 4px; 
-        cursor: pointer;
-        transition: background 0.2s;
-      `,
-      onmouseover: (e: MouseEvent) => {
-        ;(e.target as HTMLElement).style.background = '#444'
-      },
-      onmouseout: (e: MouseEvent) => {
-        ;(e.target as HTMLElement).style.background = '#333'
-      },
+      class: styles.beatItem,
       onclick: () => navigate(`/beats/${beat.id}`),
     },
     div(
-      { class: 'beat-info', style: 'flex: 1;' },
-      h3({ style: 'margin: 0 0 8px 0; color: #fff;' }, beat.name),
-      p({ style: 'margin: 4px 0; color: #999; font-size: 12px;' }, `Modified: ${formatDate(beat.modified)}`),
+      { class: styles.beatInfo },
+      h3({ class: styles.beatTitle }, beat.name),
+      p({ class: styles.beatMeta }, `Modified: ${formatDate(beat.modified)}`),
       beat.authors && beat.authors.length > 0
         ? p(
-            { style: 'margin: 4px 0; font-size: 11px; color: #888;' },
+            { class: styles.beatAuthors },
             'Authors: ',
             ...beat.authors
               .map((author, index) => [
@@ -99,7 +85,7 @@ const BeatItem = (beat: Beat) => {
                     href: `https://twitter.com/${author}`,
                     target: '_blank',
                     rel: 'noopener noreferrer',
-                    style: 'color: #4a9eff; text-decoration: none; margin-right: 8px;',
+                    class: 'text-link mr-2',
                     onclick: (e: Event) => e.stopPropagation(),
                   },
                   `@${author}`
@@ -109,10 +95,10 @@ const BeatItem = (beat: Beat) => {
               .flat()
           )
         : '',
-      p({ style: 'margin: 4px 0; color: #666; font-size: 10px; font-family: monospace;' }, `ID: ${beat.id}`)
+      p({ class: styles.beatId }, `ID: ${beat.id}`)
     ),
     div(
-      { style: 'display: flex; gap: 8px; margin-top: 10px;' },
+      { class: styles.beatActions },
       Button({
         onClick: () => {
           navigate(`/beats/${beat.id}`)
@@ -158,20 +144,20 @@ export const Home = () => {
     { class: 'app' },
     SplashPage(),
     div(
-      { class: 'main-content', style: 'max-width: 800px; margin: 0 auto;' },
+      { class: 'main-content max-w-800 mx-auto' },
       StatusBar(statusMessage, statusVisible),
       XHandleModal(showXHandleModal, tempXHandle, saveXHandle, skipXHandle),
 
       // Header
       div(
-        { style: 'text-align: center; margin: 20px 0 30px 0; padding: 20px 0; border-bottom: 1px solid #333;' },
-        h1({ style: 'margin: 0 0 10px 0; color: #fff; font-size: 28px;' }, '🎵 Beat Threads'),
-        p({ style: 'margin: 0; color: #999; font-size: 14px;' }, 'Create, edit, and manage your beats')
+        { class: 'text-center my-7 py-5 border-b' },
+        h1({ class: styles.headerTitle }, '🎵 Beat Threads'),
+        p({ class: styles.headerSubtitle }, 'Create, edit, and manage your beats')
       ),
 
       // New Beat Button
       div(
-        { style: 'text-align: center; margin: 20px 0;' },
+        { class: 'text-center my-5' },
         Button({
           onClick: createNewBeat,
           variant: 'primary',
@@ -181,29 +167,17 @@ export const Home = () => {
 
       // Beat Library
       div(
-        { style: 'margin: 20px 0;' },
-        h2(
-          { style: 'margin: 0 0 15px 0; color: #fff; font-size: 20px;' },
-          () => `Your Beats (${savedBeats.val.length})`
-        ),
+        { class: 'my-5' },
+        h2({ class: styles.sectionTitle }, () => `Your Beats (${savedBeats.val.length})`),
         () =>
           savedBeats.val.length === 0
             ? div(
-                {
-                  style: `
-                  text-align: center; 
-                  padding: 40px 20px; 
-                  background: #222; 
-                  border: 2px dashed #555; 
-                  border-radius: 8px; 
-                  margin: 20px 0;
-                `,
-                },
-                p({ style: 'margin: 0 0 15px 0; color: #999; font-size: 16px;' }, '🎼 No beats yet'),
-                p({ style: 'margin: 0; color: #777; font-size: 14px;' }, 'Create your first beat to get started!')
+                { class: styles.emptyState },
+                p({ class: styles.emptyStateTitle }, '🎼 No beats yet'),
+                p({ class: styles.emptyStateSubtitle }, 'Create your first beat to get started!')
               )
             : div(
-                { style: 'margin-top: 15px;' },
+                { class: styles.beatsContainer },
                 ...savedBeats.val
                   .sort((a, b) => b.modified - a.modified) // Sort by most recently modified
                   .map((beat) => BeatItem(beat))

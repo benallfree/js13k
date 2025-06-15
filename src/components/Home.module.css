@@ -1,0 +1,90 @@
+.beatItem {
+  background: #333;
+  border: 1px solid #555;
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.beatItem:hover {
+  background: #444;
+}
+
+.beatInfo {
+  flex: 1;
+}
+
+.beatTitle {
+  margin: 0 0 8px 0;
+  color: #fff;
+}
+
+.beatMeta {
+  margin: 4px 0;
+  color: #999;
+  font-size: 12px;
+}
+
+.beatAuthors {
+  margin: 4px 0;
+  font-size: 11px;
+  color: #888;
+}
+
+.beatId {
+  margin: 4px 0;
+  color: #666;
+  font-size: 10px;
+  font-family: monospace;
+}
+
+.beatActions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 40px 20px;
+  background: #222;
+  border: 2px dashed #555;
+  border-radius: 8px;
+  margin: 20px 0;
+}
+
+.emptyStateTitle {
+  margin: 0 0 15px 0;
+  color: #999;
+  font-size: 16px;
+}
+
+.emptyStateSubtitle {
+  margin: 0;
+  color: #777;
+  font-size: 14px;
+}
+
+.headerTitle {
+  margin: 0 0 10px 0;
+  color: #fff;
+  font-size: 28px;
+}
+
+.headerSubtitle {
+  margin: 0;
+  color: #999;
+  font-size: 14px;
+}
+
+.sectionTitle {
+  margin: 0 0 15px 0;
+  color: #fff;
+  font-size: 20px;
+}
+
+.beatsContainer {
+  margin-top: 15px;
+} 

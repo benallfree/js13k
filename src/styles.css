@@ -6,8 +6,6 @@ body {
   padding: 20px;
 }
 
-
-
 /* Layout Utilities */
 .flex {
   display: flex;
@@ -41,7 +39,65 @@ body {
   color: #999;
 }
 
+/* Essential utility classes for common patterns */
+.max-w-800 {
+  max-width: 800px;
+}
 
+.mx-auto {
+  margin: 0 auto;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-link {
+  color: #4a9eff;
+  text-decoration: none;
+}
+
+.text-link:hover {
+  color: #6bb1ff;
+  text-decoration: underline;
+}
+
+.my-5 {
+  margin: 20px 0;
+}
+
+.my-7 {
+  margin: 30px 0;
+}
+
+.mb-2 {
+  margin-bottom: 8px;
+}
+
+.mr-2 {
+  margin-right: 8px;
+}
+
+.py-5 {
+  padding: 20px 0;
+}
+
+.border-b {
+  border-bottom: 1px solid #333;
+}
+
+.breadcrumb {
+  margin-bottom: 15px;
+  padding: 10px 0;
+  border-bottom: 1px solid #333;
+}
+
+.id-display {
+  color: #666;
+  font-size: 11px;
+  margin-top: 10px;
+  font-family: monospace;
+}
 
 .library-panel {
   background: #222;
