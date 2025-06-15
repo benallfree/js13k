@@ -32,5 +32,16 @@
     "vite": "^6.3.5",
     "vite-bundle-visualizer": "^1.2.1",
     "wrangler": "^4.20.0"
+  },
+  "prettier": {
+    "useTabs": false,
+    "singleQuote": true,
+    "semi": false,
+    "trailingComma": "es5",
+    "printWidth": 120,
+    "tabWidth": 2,
+    "plugins": [
+      "prettier-plugin-organize-imports"
+    ]
   }
 }
