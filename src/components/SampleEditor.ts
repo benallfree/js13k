@@ -73,7 +73,6 @@ const autoSave = () => {
 const handleSampleNameSave = (newName: string) => {
   const authors = getAuthorsForCurrentSample()
   if (saveSample(newName, authors)) {
-    flash(`💾 Sample renamed to "${newName}"`)
   }
 }
 
@@ -102,7 +101,7 @@ const handleFileUpload = async (event: Event) => {
   isProcessing.val = true
 
   try {
-    const { originalAudioData, downsampledAudioData, duration } = await processAudioFileWithOriginal(file)
+    const { originalAudioData, downsampledAudioData } = await processAudioFileWithOriginal(file)
 
     // Set file name as sample name (remove extension)
     const fileName = file.name.replace(/\.[^/.]+$/, '')
@@ -131,7 +130,6 @@ const handleFileUpload = async (event: Event) => {
       drawWaveform()
     }, 100)
 
-    flash(`📁 Audio file loaded: ${fileName}`)
     autoSave()
   } catch (error) {
     console.error('File processing error:', error)
@@ -290,12 +288,9 @@ const handleCloseShareModal = () => {
 const handleCopyUrl = () => {
   navigator.clipboard
     .writeText(shareUrl.val)
-    .then(() => {
-      flash(`📋 Sample URL copied to clipboard!`)
-    })
+    .then(() => {})
     .catch(() => {
       prompt('Copy this URL to share your sample:', shareUrl.val)
-      flash('🔗 Share URL generated')
     })
 }
 
@@ -360,9 +355,9 @@ interface SampleEditorProps {
 export const SampleEditor = ({ sampleId }: SampleEditorProps) => {
   // Initialize editor
   const initializeEditor = () => {
-    savedSamples.val = loadSamplesFromStorage()
-
     const samples = loadSamplesFromStorage()
+    savedSamples.val = samples
+
     const sample = samples.find((s) => s.id === sampleId)
     if (sample) {
       loadSample(sample)
@@ -374,25 +369,16 @@ export const SampleEditor = ({ sampleId }: SampleEditorProps) => {
 
       windowSizeInSamples.val = sample.windowSize
       windowPositionInSamples.val = sample.windowPosition || 0
-
-      flash(`📂 Loaded "${sample.name}"`)
-
-      setTimeout(() => {
-        drawWaveform()
-      }, 200)
     } else {
       newSample()
       currentSampleId.val = sampleId
-      flash(`✨ Created new sample`)
     }
   }
 
   // Watch for window changes and redraw
   van.derive(() => {
-    if (windowedSampleData.val && totalSampleCount.val > 0) {
-      setTimeout(() => {
-        drawWaveform()
-      }, 10)
+    if (windowedSampleData.val) {
+      drawWaveform()
     }
   })
 

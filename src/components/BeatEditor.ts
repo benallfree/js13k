@@ -147,11 +147,9 @@ const togglePlay = () => {
     playing.val = false
     playingCells.val = new Set() // Clear any playing animations
     stepHistory.val = [] // Clear trail history
-    flash('⏸️ Stopped')
   } else {
     playing.val = true
     intervalId = setInterval(playStep, 120) // ~125 BPM
-    flash('▶️ Playing')
   }
 }
 
@@ -188,15 +186,7 @@ const handleCloseShareModal = () => {
 }
 
 const handleCopyUrl = () => {
-  navigator.clipboard
-    .writeText(shareUrl.val)
-    .then(() => {
-      flash(`📋 Beat URL copied to clipboard!`)
-    })
-    .catch(() => {
-      prompt('Copy this URL to share your beat:', shareUrl.val)
-      flash('🔗 Share URL generated')
-    })
+  navigator.clipboard.writeText(shareUrl.val)
 }
 
 const handleDeleteBeat = () => {
@@ -232,12 +222,10 @@ export const BeatEditor = ({ beatId }: BeatEditorProps) => {
     const beat = beats.find((b) => b.id === beatId)
     if (beat) {
       loadBeat(beat)
-      flash(`📂 Loaded "${beat.name}"`)
     } else {
       // If beat not found, create a new beat with the provided beatId
       newBeat()
       currentBeatId.val = beatId
-      flash(`✨ Created new beat`)
     }
   }
 
