@@ -7,6 +7,7 @@ import { initializeXHandle, saveXHandle, showXHandleModal, skipXHandle, tempXHan
 import { BeatEditor } from './components/BeatEditor'
 import { Home } from './components/Home'
 import { XHandleModal } from './components/index'
+import { ShareHandler } from './components/ShareHandler'
 
 const App = () => {
   // Initialize X Handle system at app level
@@ -19,12 +20,23 @@ const App = () => {
       routes: [
         { path: '/', component: Home },
         {
+          path: '/share/:payload',
+          component: () => {
+            return div(() => {
+              const { payload } = getRouterParams()
+              if (!payload) {
+                return div('Invalid share link')
+              }
+              return ShareHandler({ payload })
+            })
+          },
+        },
+        {
           path: '/beats/:beatId',
           component: () => {
             return div(() => {
               const { beatId } = getRouterParams()
-              console.log(`beatId`, beatId)
-              if (!beatId || !beatId) {
+              if (!beatId) {
                 return div(`Loading...`)
               }
               return BeatEditor({ beatId })
