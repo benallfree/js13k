@@ -93,6 +93,8 @@ export const ShareHandler = ({ payload }: { payload: string }) => {
         authors: beatInfo.authors || [],
         created: beatInfo.created || Date.now(),
         modified: Date.now(),
+        // Include sample mapping if present
+        ...(beatInfo.sampleMapping && { sampleMapping: beatInfo.sampleMapping }),
       }
 
       processBeat(beat)

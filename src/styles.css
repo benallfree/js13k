@@ -1,4 +1,4 @@
-@import "./reset.css";
+@import './reset.css';
 
 body {
   font-family: monospace;
@@ -37,8 +37,20 @@ body {
   font-size: 12px;
 }
 
+.text-xs {
+  font-size: 10px;
+}
+
 .text-gray {
   color: #999;
+}
+
+.text-gray-600 {
+  color: #666;
+}
+
+.text-blue {
+  color: #4a9eff;
 }
 
 /* Essential utility classes for common patterns */
@@ -76,6 +88,14 @@ body {
   margin-bottom: 8px;
 }
 
+.mb-1 {
+  margin-bottom: 4px;
+}
+
+.mt-3 {
+  margin-top: 12px;
+}
+
 .mr-2 {
   margin-right: 8px;
 }
@@ -88,10 +108,12 @@ body {
   border-bottom: 1px solid #333;
 }
 
-
-
 .w-12 {
   width: 48px;
+}
+
+.w-full {
+  width: 100%;
 }
 
 .h-12 {
@@ -118,6 +140,14 @@ body {
   border: 1px solid;
 }
 
+.border-gray {
+  border-color: #666;
+}
+
+.border-gray-200 {
+  border-color: #333;
+}
+
 .border-gray-600 {
   border-color: #666;
 }
@@ -128,6 +158,10 @@ body {
 
 .border-gray-400 {
   border-color: #aaa;
+}
+
+.bg-gray-50 {
+  background-color: #1a1a1a;
 }
 
 .bg-gray-800 {
@@ -150,13 +184,15 @@ body {
   transition-duration: 200ms;
 }
 
-
-
 /* Add bottom padding to main content to avoid overlap with tray */
 .main-content {
   padding-bottom: 84px;
 }
 
+.p-3 {
+  padding: 12px;
+}
 
-
-
+.rounded {
+  border-radius: 4px;
+}

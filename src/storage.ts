@@ -1,5 +1,6 @@
 // Storage keys
 export const BEATS_STORAGE_KEY = 'js13k-beats-library'
+export const SAMPLES_STORAGE_KEY = 'js13k-samples-library'
 export const X_HANDLE_STORAGE_KEY = 'js13k-x-handle'
 
 // Generate a shorter but still highly unique ID (used for JS13K size constraints)
@@ -21,6 +22,22 @@ export interface Beat {
   created: number
   modified: number
   authors: string[] // Array of X handles who have edited this beat
+  sampleMapping?: { [hitIdx: number]: { sampleGuid: string; fallbackIdx: number } } // Custom sample mappings
+}
+
+// Sample interface
+export interface Sample {
+  id: string
+  name: string
+  audioData: string // Base64 encoded audio data (8-bit PCM)
+  originalAudioData?: string // Base64 encoded original audio data (Float32) for re-editing
+  fallbackIdx: number // Index of stock sample to use as fallback
+  duration: number // Duration in seconds
+  authors: string[]
+  createdDate: string
+  modifiedDate: string
+  windowPosition?: number // Window starting position in samples
+  windowSize?: number // Window size in samples
 }
 
 // Beat storage functions
@@ -64,5 +81,31 @@ export const saveXHandleToStorage = (handle: string): void => {
   } catch (e) {
     console.error('Failed to save X handle:', e)
     throw new Error('Failed to save X handle')
+  }
+}
+
+// Sample storage functions
+export const loadSamplesFromStorage = (): Sample[] => {
+  try {
+    const stored = localStorage.getItem(SAMPLES_STORAGE_KEY)
+    const samples = stored ? JSON.parse(stored) : []
+
+    // Ensure all samples have required fields (for backward compatibility)
+    return samples.map((sample: any) => ({
+      ...sample,
+      id: sample.id || generateGuid(),
+      authors: sample.authors || [],
+    }))
+  } catch {
+    return []
+  }
+}
+
+export const saveSamplesToStorage = (samples: Sample[]): void => {
+  try {
+    localStorage.setItem(SAMPLES_STORAGE_KEY, JSON.stringify(samples))
+  } catch (e) {
+    console.error('Failed to save samples:', e)
+    throw new Error('Failed to save samples')
   }
 }

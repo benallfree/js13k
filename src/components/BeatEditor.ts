@@ -24,7 +24,7 @@ import { flash } from '@/common/statusManager'
 import { div, span } from '@/common/tags'
 import { mergeAuthors, useModal } from '@/common/utils'
 import { xHandle } from '@/common/xHandleManager'
-import { sampleMetadata, sounds } from '@/sounds'
+import { playSound, sampleMetadata } from '@/sounds'
 import { Beat, generateGuid, loadBeatsFromStorage } from '@/storage'
 import { shareBeat as createShareUrl } from '@/url'
 import van from 'vanjs-core'
@@ -82,6 +82,13 @@ const cancelBeatNameModal = () => {
   beatNameModal.close()
 }
 
+// Get current beat's sample mapping
+const getCurrentBeatSampleMapping = () => {
+  const beats = loadBeatsFromStorage()
+  const currentBeat = beats.find((b) => b.id === currentBeatId.val)
+  return currentBeat?.sampleMapping
+}
+
 // Cell interaction handling
 const toggleCell = (row: number, col: number) => {
   const newGrid = [...grid.val]
@@ -99,9 +106,8 @@ const toggleCell = (row: number, col: number) => {
   // Play sample immediately when placed
   if (newGrid[row][col]) {
     const soundIndex = newGrid[row][col] - 1
-    if (sounds[soundIndex as keyof typeof sounds]) {
-      sounds[soundIndex as keyof typeof sounds]()
-    }
+    const sampleMapping = getCurrentBeatSampleMapping()
+    playSound(soundIndex, sampleMapping)
   }
 }
 
@@ -113,15 +119,14 @@ const playStep = () => {
   playingCells.val = new Set()
 
   const newPlayingCells = new Set<string>()
+  const sampleMapping = getCurrentBeatSampleMapping()
 
   // Play sounds for current step
   grid.val.forEach((row, rowIndex) => {
     if (row && row[currentStep.val]) {
       const soundIndex = row[currentStep.val] - 1
       newPlayingCells.add(`${rowIndex}-${currentStep.val}`)
-      if (sounds[soundIndex as keyof typeof sounds]) {
-        sounds[soundIndex as keyof typeof sounds]()
-      }
+      playSound(soundIndex, sampleMapping)
     }
   })
 

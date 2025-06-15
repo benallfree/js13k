@@ -1,5 +1,5 @@
 import van, { State } from 'vanjs-core'
-import { Beat, generateGuid } from '../storage'
+import { Beat, Sample, generateGuid } from '../storage'
 
 /**
  * Format a timestamp into a human-readable date string
@@ -54,6 +54,44 @@ export const createBeatData = (
     created: existingBeat?.created || now,
     modified: now,
   }
+}
+
+/**
+ * Create a complete Sample object with consistent timestamp handling
+ * @param data - Sample data
+ * @param existingSample - Existing sample for timestamp preservation
+ * @returns Complete Sample object
+ */
+export const createSampleData = (
+  data: {
+    id?: string
+    name: string
+    audioData: string
+    originalAudioData?: string
+    fallbackIdx: number
+    duration: number
+    authors: string[]
+    windowPosition?: number
+    windowSize?: number
+  },
+  existingSample?: Sample
+): Sample => {
+  const now = new Date()
+  const newSample: Sample = {
+    id: data.id || generateGuid(),
+    name: data.name,
+    audioData: data.audioData,
+    originalAudioData: data.originalAudioData,
+    fallbackIdx: data.fallbackIdx,
+    duration: data.duration,
+    authors: data.authors,
+    createdDate: existingSample ? existingSample.createdDate : now.toISOString(),
+    modifiedDate: now.toISOString(),
+    windowPosition: data.windowPosition,
+    windowSize: data.windowSize,
+  }
+
+  return newSample
 }
 
 /**

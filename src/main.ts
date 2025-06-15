@@ -7,6 +7,8 @@ import { initializeXHandle, saveXHandle, skipXHandle, tempXHandle, xHandleModal 
 import { BeatEditor } from './components/BeatEditor'
 import { Home } from './components/Home'
 import { XHandleModal } from './components/index'
+import { SampleEditor } from './components/SampleEditor'
+import { SampleShareHandler } from './components/SampleShareHandler'
 import { ShareHandler } from './components/ShareHandler'
 
 const App = () => {
@@ -32,6 +34,18 @@ const App = () => {
           },
         },
         {
+          path: '/share-sample/:payload',
+          component: () => {
+            return div(() => {
+              const { payload } = getRouterParams()
+              if (!payload) {
+                return div('Invalid sample share link')
+              }
+              return SampleShareHandler({ payload })
+            })
+          },
+        },
+        {
           path: '/beats/:beatId',
           component: () => {
             return div(() => {
@@ -40,6 +54,18 @@ const App = () => {
                 return div(`Loading...`)
               }
               return BeatEditor({ beatId })
+            })
+          },
+        },
+        {
+          path: '/samples/:sampleId',
+          component: () => {
+            return div(() => {
+              const { sampleId } = getRouterParams()
+              if (!sampleId) {
+                return div(`Loading...`)
+              }
+              return SampleEditor({ sampleId })
             })
           },
         },

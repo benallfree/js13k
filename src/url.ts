@@ -20,6 +20,8 @@ export const shareBeat = (beat: Beat, xHandle: string) => {
       grid: beat.grid,
       authors: mergeAuthors(beat.authors, [], xHandle),
       created: Date.now(),
+      // Include sample mapping if present
+      ...(beat.sampleMapping && { sampleMapping: beat.sampleMapping }),
     },
   }
 
