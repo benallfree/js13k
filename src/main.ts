@@ -8,7 +8,7 @@ import { BeatEditor } from './components/BeatEditor'
 import { Home } from './components/Home'
 import { XHandleModal } from './components/index'
 import { SampleEditor } from './components/SampleEditor'
-import { ShareHandler } from './components/ShareHandler'
+import { ImportHandler } from './components/ShareHandler'
 
 const App = () => {
   // Initialize X Handle system at app level
@@ -21,16 +21,15 @@ const App = () => {
       routes: [
         { path: '/', component: Home },
         {
-          path: '/share',
+          path: '/import/:chunks*',
           component: () => {
             return div(() => {
-              const params = new URLSearchParams(window.location.search)
-              const beatPayload = params.get('beat') || undefined
-              const samplePayload = params.get('sample') || undefined
-              if (!beatPayload && !samplePayload) {
-                return div('Invalid share link')
+              console.log('ImportHandler', getRouterParams())
+              const { chunks } = getRouterParams()
+              if (!chunks) {
+                return div('Invalid import link')
               }
-              return ShareHandler({ beatPayload, samplePayload })
+              return ImportHandler({ chunks: chunks.split('/') })
             })
           },
         },

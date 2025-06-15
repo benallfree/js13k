@@ -1,6 +1,7 @@
 import {
   currentBeatId,
   currentBeatName,
+  currentSampleMapping,
   currentStep,
   deleteBeat,
   getAuthorsForCurrentBeat,
@@ -13,8 +14,10 @@ import {
   saveBeat,
   savedBeats,
   selectedInstrument,
+  selectedSampleId,
   sharedBeatAuthors,
   stepHistory,
+  updateSampleMapping,
 } from '@/beatState'
 import { ConfirmationModal, InputModal } from '@/common'
 import { BottomTray } from '@/common/BottomTray'
@@ -23,8 +26,10 @@ import { _routerPathname } from '@/common/router/_state'
 import { flash } from '@/common/statusManager'
 import { div, span } from '@/common/tags'
 import { mergeAuthors, useModal } from '@/common/utils'
+import { xHandle } from '@/common/xHandleManager'
 import { playSound, sampleMetadata } from '@/sounds'
-import { Beat, generateGuid, loadBeatsFromStorage } from '@/storage'
+import { Beat, generateGuid, loadBeatsFromStorage, loadSamplesFromStorage } from '@/storage'
+import { shareBeat as createShareUrl } from '@/url'
 import van from 'vanjs-core'
 import { AuthorsDisplay, Grid, PatchModal, ShareModal, SplashPage } from './index'
 import sharedStyles from './Shared.module.css'
@@ -82,9 +87,7 @@ const cancelBeatNameModal = () => {
 
 // Get current beat's sample mapping
 const getCurrentBeatSampleMapping = () => {
-  const beats = loadBeatsFromStorage()
-  const currentBeat = beats.find((b) => b.id === currentBeatId.val)
-  return currentBeat?.sampleMapping
+  return currentSampleMapping.val
 }
 
 // Cell interaction handling
@@ -145,9 +148,11 @@ const togglePlay = () => {
     playing.val = false
     playingCells.val = new Set() // Clear any playing animations
     stepHistory.val = [] // Clear trail history
+    flash('⏸️ Stopped')
   } else {
     playing.val = true
     intervalId = setInterval(playStep, 120) // ~125 BPM
+    flash('▶️ Playing')
   }
 }
 
@@ -160,8 +165,21 @@ const handleClosePatchModal = () => {
   patchModal.close()
 }
 
-const handleSelectPatch = (index: number) => {
+const handleSelectPatch = (index: number, sampleId?: string) => {
   selectedInstrument.val = index
+  if (sampleId) {
+    selectedSampleId.val = sampleId
+    // Find the custom sample to get its fallback index
+    const customSamples = loadSamplesFromStorage()
+    const sample = customSamples.find((s) => s.id === sampleId)
+    if (sample) {
+      updateSampleMapping(index, sampleId, sample.fallbackIdx)
+    }
+  } else {
+    selectedSampleId.val = ''
+    // Remove any custom sample mapping for this instrument
+    updateSampleMapping(index, '', 0)
+  }
 }
 
 const handleShowShareModal = () => {
@@ -173,10 +191,10 @@ const handleShowShareModal = () => {
     authors: mergeAuthors(existingBeat?.authors, sharedBeatAuthors.val),
     created: Date.now(),
     modified: Date.now(),
+    sampleMapping: Object.keys(currentSampleMapping.val).length > 0 ? currentSampleMapping.val : undefined,
   }
 
-  const beatJson = JSON.stringify({ [beatData.id]: beatData })
-  shareUrl.val = `${window.location.origin}/share?beat=${encodeURIComponent(btoa(beatJson))}`
+  shareUrl.val = createShareUrl(beatData, xHandle.val)
   shareModal.open()
 }
 
@@ -185,7 +203,15 @@ const handleCloseShareModal = () => {
 }
 
 const handleCopyUrl = () => {
-  navigator.clipboard.writeText(shareUrl.val)
+  navigator.clipboard
+    .writeText(shareUrl.val)
+    .then(() => {
+      flash(`📋 Beat URL copied to clipboard!`)
+    })
+    .catch(() => {
+      prompt('Copy this URL to share your beat:', shareUrl.val)
+      flash('🔗 Share URL generated')
+    })
 }
 
 const handleDeleteBeat = () => {
@@ -284,6 +310,7 @@ export const BeatEditor = ({ beatId }: BeatEditorProps) => {
       PatchModal({
         isOpen: patchModal.isOpen,
         selectedInstrument,
+        selectedSampleId,
         onSelectPatch: handleSelectPatch,
         onClose: handleClosePatchModal,
       }),
@@ -307,8 +334,16 @@ export const BeatEditor = ({ beatId }: BeatEditorProps) => {
         },
         {
           children: () => {
-            const patch = sampleMetadata[selectedInstrument.val]
-            return patch ? patch.emoji : '🥁'
+            // Show custom sample name if selected, otherwise show stock instrument
+            if (selectedSampleId.val) {
+              const customSamples = loadSamplesFromStorage()
+              const sample = customSamples.find((s) => s.id === selectedSampleId.val)
+              const fallbackPatch = sampleMetadata[sample?.fallbackIdx || 0]
+              return sample ? `${fallbackPatch?.emoji || '🎵'}` : '🥁'
+            } else {
+              const patch = sampleMetadata[selectedInstrument.val]
+              return patch ? patch.emoji : '🥁'
+            }
           },
           onClick: handleShowPatchModal,
         },

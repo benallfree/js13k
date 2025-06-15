@@ -3,7 +3,7 @@ import { Modal } from '@/common/Modal'
 import { navigate } from '@/common/router'
 import { flash } from '@/common/statusManager'
 import { div } from '@/common/tags'
-import { useModal } from '@/common/utils'
+import { joinChunks, useModal } from '@/common/utils'
 import {
   Beat,
   Sample,
@@ -15,7 +15,7 @@ import {
 } from '@/storage'
 import van from 'vanjs-core'
 
-export const ShareHandler = ({ beatPayload, samplePayload }: { beatPayload?: string; samplePayload?: string }) => {
+export const ImportHandler = ({ chunks }: { chunks: string[] }) => {
   const conflictModal = useModal()
   const sharedBeat = van.state<Beat | null>(null)
   const sharedSample = van.state<Sample | null>(null)
@@ -74,8 +74,6 @@ export const ShareHandler = ({ beatPayload, samplePayload }: { beatPayload?: str
       return
     }
 
-    console.log(`sample`, sample)
-
     if (shouldOverwrite && existing) {
       // Overwrite existing sample
       const sampleIndex = samples.findIndex((s) => s.id === sample.id)
@@ -125,79 +123,73 @@ export const ShareHandler = ({ beatPayload, samplePayload }: { beatPayload?: str
     navigate('/')
   }
 
-  // Process the share payload
-  const processShare = () => {
+  // Process the import payload
+  const processImport = () => {
     try {
-      if (beatPayload) {
-        contentType.val = 'beat'
-        // Decode the base64 payload
-        const beatJson = atob(decodeURIComponent(beatPayload))
-        const beatData = JSON.parse(beatJson)
+      // Join chunks and decode the base64 payload
+      const joinedPayload = joinChunks(chunks)
+      const json = atob(decodeURIComponent(joinedPayload))
+      const data = JSON.parse(json)
 
-        // Get the first (and only) key which is the GUID
-        const guid = Object.keys(beatData)[0]
-        const beatInfo = beatData[guid]
+      // Get the first (and only) key which is the GUID
+      const guid = Object.keys(data)[0]
+      const info = data[guid]
 
-        if (!beatInfo.grid || !Array.isArray(beatInfo.grid)) {
-          throw new Error('Invalid beat data')
-        }
-
-        // Create a complete Beat object
-        const beat: Beat = {
-          id: guid,
-          name: beatInfo.name || 'Shared Beat',
-          grid: beatInfo.grid,
-          authors: beatInfo.authors || [],
-          created: beatInfo.created || Date.now(),
-          modified: Date.now(),
-          // Include sample mapping if present
-          ...(beatInfo.sampleMapping && { sampleMapping: beatInfo.sampleMapping }),
-        }
-
-        processBeat(beat)
-      } else if (samplePayload) {
+      // Detect content type based on properties
+      if (info.audioData) {
         contentType.val = 'sample'
-        // Decode the base64 payload
-        const sampleJson = atob(decodeURIComponent(samplePayload))
-        const sampleData = JSON.parse(sampleJson)
-
-        // Get the first (and only) key which is the GUID
-        const guid = Object.keys(sampleData)[0]
-        const sampleInfo = sampleData[guid]
-
-        if (!sampleInfo.audioData || typeof sampleInfo.audioData !== 'string') {
+        if (typeof info.audioData !== 'string') {
           throw new Error('Invalid sample data')
         }
 
         // Create a complete Sample object
         const sample: Sample = {
           id: guid,
-          name: sampleInfo.name || 'Shared Sample',
-          audioData: sampleInfo.audioData,
-          originalAudioData: sampleInfo.audioData, // Use same data for both since it's already processed
-          fallbackIdx: sampleInfo.fallbackIdx || 0,
-          authors: sampleInfo.authors || [],
-          created: sampleInfo.created || Date.now(),
+          name: info.name || 'Shared Sample',
+          audioData: info.audioData,
+          originalAudioData: info.audioData, // Use same data for both since it's already processed
+          fallbackIdx: info.fallbackIdx || 0,
+          authors: info.authors || [],
+          created: info.created || Date.now(),
           modified: Date.now(),
           windowPosition: 0,
-          windowSize: sampleInfo.audioData.length,
+          windowSize: info.audioData.length,
         }
 
         processSample(sample)
+      } else if (info.grid) {
+        contentType.val = 'beat'
+        if (!Array.isArray(info.grid)) {
+          throw new Error('Invalid beat data')
+        }
+
+        // Create a complete Beat object
+        const beat: Beat = {
+          id: guid,
+          name: info.name || 'Shared Beat',
+          grid: info.grid,
+          authors: info.authors || [],
+          created: info.created || Date.now(),
+          modified: Date.now(),
+          // Include sample mapping if present
+          ...(info.sampleMapping && { sampleMapping: info.sampleMapping }),
+        }
+
+        processBeat(beat)
       } else {
-        throw new Error('No payload provided')
+        throw new Error('Invalid import data')
       }
     } catch (e) {
-      console.error('Error processing shared content:', e)
-      flash('❌ Invalid share link', 3000)
+      console.error('Error processing imported content:', e)
+      flash('❌ Invalid import link', 3000)
       navigate('/')
     }
   }
 
-  // Process the share when component mounts
+  // Process the import when component mounts
   van.derive(() => {
     if (isProcessing.val) {
-      processShare()
+      processImport()
     }
   })
 

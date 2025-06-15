@@ -1,7 +1,7 @@
 import van from 'vanjs-core'
 import { _routerBasename, _routerParams, _routerPathname, _routerQuery } from './_state'
 
-const _QUERY_PARAM_REGEX = /:([^\\d|^/]([^/]+)?)/
+const _PATH_PARAM_REGEX = /:([^\\d|^/]([^/]+)?)(\*)?/
 
 interface Route {
   path: string | '*'
@@ -36,22 +36,34 @@ export function Router({ routes, basename, ...props }: RouterProps) {
     basename = sanitizePath(basename)
 
     const pathParts = path.split('/')
-    console.log({ pathParts })
     const params: Record<string, string> = {}
     let matchedRoute: Route | null = null
 
     for (const route of routes) {
       const routePathParts = sanitizePath(basename + route.path).split('/')
-      if (routePathParts.length !== pathParts.length) continue
+      console.log({ routePathParts, pathParts })
+      const hasWildcard = routePathParts.some((part) => part.endsWith('*'))
+      if (!hasWildcard && routePathParts.length !== pathParts.length) continue
 
       let matchFound = true
 
       for (let idx = 0; idx < routePathParts.length; idx++) {
         const routePathPart = routePathParts[idx]
         const pathPart = pathParts[idx]
+        console.log({ routePathPart, pathPart })
 
-        if (_QUERY_PARAM_REGEX.test(routePathPart)) {
-          params[decodeURIComponent(routePathPart.slice(1))] = decodeURIComponent(pathPart)
+        if (_PATH_PARAM_REGEX.test(routePathPart)) {
+          const isWildcard = routePathPart.endsWith('*')
+          console.log({ isWildcard, routePathPart })
+          const paramName = decodeURIComponent(routePathPart.slice(1, isWildcard ? -1 : undefined))
+
+          if (isWildcard) {
+            // For wildcard params, collect all remaining path parts
+            params[paramName] = pathParts.slice(idx).map(decodeURIComponent).join('/')
+            break
+          } else {
+            params[paramName] = decodeURIComponent(pathPart)
+          }
         } else if (pathPart !== routePathPart) {
           matchFound = false
           break

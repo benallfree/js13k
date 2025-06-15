@@ -7,6 +7,8 @@ import { Beat, loadBeatsFromStorage, saveBeatsToStorage } from './storage'
 export const playing = van.state(false)
 export const currentStep = van.state(0)
 export const selectedInstrument = van.state(0)
+export const selectedSampleId = van.state('')
+export const currentSampleMapping = van.state<{ [hitIdx: number]: { sampleGuid: string; fallbackIdx: number } }>({})
 export const grid = van.state<number[][]>(
   Array(16)
     .fill(0)
@@ -48,6 +50,7 @@ export const saveBeat = (name: string, authors: string[]) => {
       name,
       grid: grid.val,
       authors,
+      sampleMapping: Object.keys(currentSampleMapping.val).length > 0 ? currentSampleMapping.val : undefined,
     },
     existingBeat
   )
@@ -73,8 +76,10 @@ export const loadBeat = (beat: Beat) => {
   currentBeatName.val = beat.name
   originalBeatName.val = beat.name
   currentBeatId.val = beat.id
+  currentSampleMapping.val = beat.sampleMapping || {}
   isModified.val = false
   sharedBeatAuthors.val = beat.authors || []
+  selectedSampleId.val = '' // Reset selection when loading a beat
 }
 
 export const newBeat = () => {
@@ -84,8 +89,10 @@ export const newBeat = () => {
   currentBeatName.val = 'Untitled Beat'
   originalBeatName.val = 'Untitled Beat'
   currentBeatId.val = ''
+  currentSampleMapping.val = {}
   isModified.val = false
   sharedBeatAuthors.val = []
+  selectedSampleId.val = ''
 }
 
 export const deleteBeat = (beatId: string) => {
@@ -95,4 +102,19 @@ export const deleteBeat = (beatId: string) => {
   if (currentBeatId.val === beatId) {
     newBeat()
   }
+}
+
+/**
+ * Update the sample mapping for the currently selected instrument
+ * This is called when a custom sample is selected for an instrument
+ */
+export const updateSampleMapping = (instrumentIndex: number, sampleId: string, fallbackIdx: number) => {
+  const newMapping = { ...currentSampleMapping.val }
+  if (sampleId) {
+    newMapping[instrumentIndex] = { sampleGuid: sampleId, fallbackIdx }
+  } else {
+    delete newMapping[instrumentIndex]
+  }
+  currentSampleMapping.val = newMapping
+  isModified.val = true
 }

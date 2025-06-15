@@ -10,7 +10,7 @@ import { BottomTray } from '@/common/BottomTray'
 import { Link } from '@/common/router'
 import { flash } from '@/common/statusManager'
 import { canvas, div, input, span } from '@/common/tags'
-import { mergeAuthors, useModal } from '@/common/utils'
+import { useModal } from '@/common/utils'
 import { xHandle } from '@/common/xHandleManager'
 import {
   currentSampleFallback,
@@ -28,7 +28,8 @@ import {
   windowedSampleData,
 } from '@/sampleState'
 import { sampleMetadata } from '@/sounds'
-import { SharableSample, generateGuid, loadSamplesFromStorage } from '@/storage'
+import { Sample, generateGuid, loadSamplesFromStorage } from '@/storage'
+import { shareSample } from '@/url'
 import van from 'vanjs-core'
 import { AuthorsDisplay, ShareModal, SplashPage } from './index'
 import sharedStyles from './Shared.module.css'
@@ -266,18 +267,20 @@ const handleShowShareModal = () => {
     return
   }
 
-  const sampleData: SharableSample = {
+  const sampleData: Sample = {
     id: generateGuid(),
     name: currentSampleName.val,
     audioData: windowedSampleData.val,
+    originalAudioData: windowedSampleData.val,
     fallbackIdx: currentSampleFallback.val,
-    authors: mergeAuthors([], sharedSampleAuthors.val, xHandle.val),
-    createdDate: new Date().toISOString(),
-    modifiedDate: new Date().toISOString(),
+    authors: getAuthorsForCurrentSample(),
+    created: Date.now(),
+    modified: Date.now(),
+    windowPosition: 0,
+    windowSize: windowedSampleData.val.length,
   }
 
-  const sampleJson = JSON.stringify({ [sampleData.id]: sampleData })
-  shareUrl.val = `${window.location.origin}/share?sample=${encodeURIComponent(btoa(sampleJson))}`
+  shareUrl.val = shareSample(sampleData, xHandle.val)
   shareModal.open()
 }
 
