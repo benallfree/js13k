@@ -1,4 +1,5 @@
 import { State } from 'vanjs-core'
+import { ButtonVariant } from './Button'
 import { Modal } from './Modal'
 import { div, input } from './tags'
 
@@ -51,13 +52,17 @@ export const InputModal = ({
           },
         })
       ),
-    primaryButton: {
-      text: confirmText,
-      onClick: handleConfirm,
-    },
-    secondaryButton: {
-      text: cancelText,
-      onClick: onCancel,
-    },
+    buttons: [
+      {
+        text: confirmText,
+        onClick: handleConfirm,
+        variant: ButtonVariant.Primary,
+      },
+      {
+        text: cancelText,
+        onClick: onCancel,
+        variant: ButtonVariant.Cancel,
+      },
+    ],
   })
 }

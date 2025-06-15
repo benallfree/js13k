@@ -8,7 +8,6 @@
   transition: all 0.2s ease;
   font-weight: 500;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  font-family: monospace;
 }
 
 .btn:hover {
@@ -43,6 +42,15 @@
   background: #555;
 }
 
+.btn-cancel {
+  background: #444;
+  color: #fff;
+}
+
+.btn-cancel:hover {
+  background: #555;
+}
+
 /* Button Sizes */
 .btn-sm {
   padding: 6px 12px;
@@ -59,4 +67,4 @@
 .btn-active:hover {
   background: #3a8eef !important;
   box-shadow: 0 4px 8px rgba(74, 158, 255, 0.4) !important;
-} 
+}

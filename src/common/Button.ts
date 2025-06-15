@@ -1,8 +1,18 @@
 import { button } from '../common/tags'
 import styles from './Button.module.css'
 
-type ButtonVariant = 'primary' | 'danger' | 'secondary'
-type ButtonSize = 'sm' | 'md' | 'lg'
+export enum ButtonVariant {
+  Primary = 'primary',
+  Danger = 'danger',
+  Secondary = 'secondary',
+  Cancel = 'cancel',
+}
+
+export enum ButtonSize {
+  Small = 'sm',
+  Medium = 'md',
+  Large = 'lg',
+}
 
 interface ButtonProps {
   onClick: () => void
@@ -13,8 +23,8 @@ interface ButtonProps {
 }
 
 const getButtonClasses = (
-  variant: ButtonVariant = 'secondary',
-  size: ButtonSize = 'md',
+  variant: ButtonVariant = ButtonVariant.Secondary,
+  size: ButtonSize = ButtonSize.Medium,
   className: string = ''
 ): string => {
   const classes = [styles.btn, styles[`btn-${variant}`]]
@@ -32,8 +42,8 @@ const getButtonClasses = (
 
 export const Button = ({
   onClick,
-  variant = 'secondary',
-  size = 'md',
+  variant = ButtonVariant.Secondary,
+  size = ButtonSize.Medium,
   class: className = '',
   children,
 }: ButtonProps) => {

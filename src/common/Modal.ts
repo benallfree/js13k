@@ -1,55 +1,56 @@
 import { State } from 'vanjs-core'
-import { Button } from './Button'
+import { Button, ButtonVariant } from './Button'
 import styles from './Modal.module.css'
 import { div } from './tags'
+
+export interface ButtonProps {
+  text: string
+  onClick: () => void
+  variant?: ButtonVariant
+}
 
 export interface ModalProps {
   isOpen: State<boolean>
   title?: string
   content: () => any
-  primaryButton?: {
-    text: string
-    onClick: () => void
-    variant?: 'primary' | 'danger' | 'secondary'
-  }
-  secondaryButton?: {
-    text: string
-    onClick: () => void
-    variant?: 'primary' | 'danger' | 'secondary'
-  }
+  buttons?: ButtonProps[]
 }
 
 export const Modal =
-  ({ isOpen, title, content, primaryButton, secondaryButton }: ModalProps) =>
+  ({ isOpen, title, content, buttons }: ModalProps) =>
   () =>
     isOpen.val
       ? div(
-          { class: styles.overlay },
+          {
+            class: styles.overlay,
+            onclick: (e: MouseEvent) => {
+              const target = e.target as HTMLElement
+              if (target.classList.contains(styles.overlay)) {
+                const cancelButton = buttons?.find((button) => button.variant === ButtonVariant.Cancel)
+                cancelButton?.onClick()
+                isOpen.val = false
+              }
+            },
+          },
           div(
             { class: styles.modal },
             title && div({ class: styles.title }, title),
             div({ class: styles.content }, content()),
-            div(
-              { class: styles.buttons },
-              primaryButton &&
-                Button({
-                  onClick: () => {
-                    primaryButton.onClick()
-                    isOpen.val = false
-                  },
-                  variant: primaryButton.variant || 'primary',
-                  children: primaryButton.text,
-                }),
-              secondaryButton &&
-                Button({
-                  onClick: () => {
-                    secondaryButton.onClick()
-                    isOpen.val = false
-                  },
-                  variant: secondaryButton.variant || 'secondary',
-                  children: secondaryButton.text,
-                })
-            )
+            () =>
+              buttons?.length &&
+              div(
+                { class: styles.buttons },
+                buttons?.map((button) =>
+                  Button({
+                    onClick: () => {
+                      button.onClick()
+                      isOpen.val = false
+                    },
+                    variant: button.variant || ButtonVariant.Primary,
+                    children: button.text,
+                  })
+                )
+              )
           )
         )
       : ''

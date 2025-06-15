@@ -1,4 +1,4 @@
-import { Button } from '@/common/Button'
+import { ButtonVariant } from '@/common/Button'
 import { Modal } from '@/common/Modal'
 import { navigate } from '@/common/router'
 import { flash } from '@/common/statusManager'
@@ -206,25 +206,25 @@ export const ImportHandler = ({ chunks }: { chunks: string[] }) => {
               : `A sample named "${existingSample.val?.name}" already exists in your library.`
           ),
           div('What would you like to do?'),
-          div(
-            { class: 'flex gap-2 mt-4 justify-center' },
-            Button({
-              onClick: handleOverwrite,
-              variant: 'danger',
-              children: 'Overwrite',
-            }),
-            Button({
-              onClick: handleMakeCopy,
-              variant: 'primary',
-              children: 'Make Copy',
-            }),
-            Button({
-              onClick: handleCancel,
-              variant: 'secondary',
-              children: 'Cancel',
-            })
-          )
+          div({ class: 'flex gap-2 mt-4 justify-center' })
         ),
+      buttons: [
+        {
+          onClick: handleOverwrite,
+          variant: ButtonVariant.Danger,
+          text: 'Overwrite',
+        },
+        {
+          onClick: handleMakeCopy,
+          variant: ButtonVariant.Primary,
+          text: 'Make Copy',
+        },
+        {
+          onClick: handleCancel,
+          variant: ButtonVariant.Cancel,
+          text: 'Cancel',
+        },
+      ],
     }),
 
     // Loading state

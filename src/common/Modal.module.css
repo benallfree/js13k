@@ -43,6 +43,7 @@
   color: #ccc;
   line-height: 1.4;
   -webkit-overflow-scrolling: touch;
+  margin-bottom: 20px;
 }
 
 .buttons {
@@ -62,13 +63,12 @@
   color: #fff;
   border: 1px solid #555;
   border-radius: 4px;
-  font-family: monospace;
   font-size: 14px;
-  margin-bottom: 20px;
   box-sizing: border-box;
+  margin-top: 10px;
 }
 
 .content input:focus {
   outline: none;
   border-color: #777;
-} 
+}

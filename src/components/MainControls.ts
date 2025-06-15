@@ -1,5 +1,5 @@
 import { State } from 'vanjs-core'
-import { Button } from '../common/Button'
+import { Button, ButtonSize, ButtonVariant } from '../common/Button'
 import styles from '../common/Button.module.css'
 import { div } from '../common/tags'
 import { sampleMetadata } from '../sounds'
@@ -14,7 +14,7 @@ export const MainControls = (
     { class: 'mb-4' },
     Button({
       onClick: onTogglePlay,
-      variant: 'primary',
+      variant: ButtonVariant.Primary,
       children: () => (playing.val ? '⏹️' : '▶️'),
     }),
     div(
@@ -23,7 +23,7 @@ export const MainControls = (
         Button({
           onClick: () => onSelectInstrument(Number(index)),
           class: selectedInstrument.val === Number(index) ? styles['btn-active'] : '',
-          size: 'sm',
+          size: ButtonSize.Small,
           children: `${meta.emoji} ${meta.shortName}`,
         })
       )
