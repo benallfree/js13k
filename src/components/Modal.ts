@@ -5,7 +5,7 @@ const { div } = van.tags
 
 export interface ModalProps {
   isOpen: State<boolean>
-  title: string
+  title?: string
   content: () => any
   primaryButton?: {
     text: string
@@ -25,14 +25,28 @@ export const Modal =
           { class: 'modal-overlay' },
           div(
             { class: 'modal' },
-            div({ class: 'modal-title' }, title),
+            title && div({ class: 'modal-title' }, title),
             div({ class: 'modal-content' }, content()),
             div(
               { class: 'modal-buttons' },
               primaryButton &&
-                Button({ onClick: primaryButton.onClick, variant: 'primary', children: primaryButton.text }),
+                Button({
+                  onClick: () => {
+                    primaryButton.onClick()
+                    isOpen.val = false
+                  },
+                  variant: 'primary',
+                  children: primaryButton.text,
+                }),
               secondaryButton &&
-                Button({ onClick: secondaryButton.onClick, variant: 'secondary', children: secondaryButton.text })
+                Button({
+                  onClick: () => {
+                    secondaryButton.onClick()
+                    isOpen.val = false
+                  },
+                  variant: 'secondary',
+                  children: secondaryButton.text,
+                })
             )
           )
         )

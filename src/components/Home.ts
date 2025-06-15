@@ -29,6 +29,7 @@ import {
   LibraryPanel,
   MainControls,
   RenameBeatModal,
+  SplashPage,
   StatusBar,
   XHandleModal,
 } from './index'
@@ -305,29 +306,33 @@ window.addEventListener('popstate', () => {
   }, showStatus)
 })
 
-export const Home = () => {
-  return div(
-    StatusBar(statusMessage, statusVisible),
-    XHandleModal(showXHandleModal, tempXHandle, saveXHandle, skipXHandle),
-    RenameBeatModal(showRenameModal, currentBeatId, tempBeatName, confirmRename, cancelRename),
-    ClearBeatModal(showClearModal, confirmClearBeat, cancelClearBeat),
-    BeatNameInput(currentBeatName, isModified, () => {
-      tempBeatName.val = currentBeatName.val
-      showRenameModal.val = true
-    }),
-    LibraryControls(showLibrary, handleSaveBeat, handleClearBeat, shareBeat),
-    LibraryPanel(showLibrary, savedBeats, formatDate, loadBeat, deleteBeat),
-    MainControls(playing, selectedInstrument, togglePlay, (index) => {
-      selectedInstrument.val = index
-    }),
-    Grid(grid, playing, playingCells, stepHistory, toggleCell),
-    AuthorsDisplay(sharedBeatAuthors),
-    () =>
-      currentBeatId.val
-        ? div(
-            { style: 'color: #666; font-size: 11px; margin-top: 10px; font-family: monospace;' },
-            `ID: ${currentBeatId.val}`
-          )
-        : ''
+export const Home = () =>
+  div(
+    { class: 'app' },
+    SplashPage(),
+    div(
+      { class: 'main-content' },
+      StatusBar(statusMessage, statusVisible),
+      XHandleModal(showXHandleModal, tempXHandle, saveXHandle, skipXHandle),
+      RenameBeatModal(showRenameModal, currentBeatId, tempBeatName, confirmRename, cancelRename),
+      ClearBeatModal(showClearModal, confirmClearBeat, cancelClearBeat),
+      BeatNameInput(currentBeatName, isModified, () => {
+        tempBeatName.val = currentBeatName.val
+        showRenameModal.val = true
+      }),
+      LibraryControls(showLibrary, handleSaveBeat, handleClearBeat, shareBeat),
+      LibraryPanel(showLibrary, savedBeats, formatDate, loadBeat, deleteBeat),
+      MainControls(playing, selectedInstrument, togglePlay, (index) => {
+        selectedInstrument.val = index
+      }),
+      Grid(grid, playing, playingCells, stepHistory, toggleCell),
+      AuthorsDisplay(sharedBeatAuthors),
+      () =>
+        currentBeatId.val
+          ? div(
+              { style: 'color: #666; font-size: 11px; margin-top: 10px; font-family: monospace;' },
+              `ID: ${currentBeatId.val}`
+            )
+          : ''
+    )
   )
-}
