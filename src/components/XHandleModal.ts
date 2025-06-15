@@ -8,7 +8,7 @@ export const XHandleModal =
   () =>
     Modal({
       isOpen: showXHandleModal,
-      title: 'Welcome to Beat Maker! 🎵',
+      title: 'Welcome to Beat Threads! 🎵',
       content: () =>
         div(
           div("What's your X (Twitter) handle?"),
