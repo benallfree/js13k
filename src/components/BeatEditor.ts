@@ -14,16 +14,16 @@ import {
   sharedBeatAuthors,
   stepHistory,
 } from '@/beatState'
+import { Modal } from '@/common/Modal'
 import { Link } from '@/common/router'
 import { _routerPathname } from '@/common/router/_state'
-import { div, span } from '@/common/tags'
+import { div, input, span } from '@/common/tags'
 import { sounds } from '@/sounds'
 import { Beat, generateGuid, loadBeatsFromStorage, loadXHandleFromStorage, saveXHandleToStorage } from '@/storage'
 import { shareBeat as createShareUrl } from '@/url'
 import van from 'vanjs-core'
 import {
   AuthorsDisplay,
-  BeatNameInput,
   Button,
   ClearBeatModal,
   Grid,
@@ -45,6 +45,10 @@ const tempXHandle = van.state('')
 
 // Add clear modal state
 const showClearModal = van.state(false)
+
+// Beat name editing state
+const showBeatNameModal = van.state(false)
+const tempBeatName = van.state('')
 
 // Status bar functions
 const showStatus = (message: string, duration = 2000) => {
@@ -131,6 +135,22 @@ const handleBeatNameSave = (newName: string) => {
   if (saveBeat(newName, authors)) {
     showStatus(`💾 Beat renamed to "${newName}"`)
   }
+}
+
+const openBeatNameModal = () => {
+  tempBeatName.val = currentBeatName.val
+  showBeatNameModal.val = true
+}
+
+const saveBeatNameFromModal = () => {
+  if (tempBeatName.val.trim()) {
+    handleBeatNameSave(tempBeatName.val.trim())
+  }
+  showBeatNameModal.val = false
+}
+
+const cancelBeatNameModal = () => {
+  showBeatNameModal.val = false
 }
 
 const handleClearBeat = () => {
@@ -329,12 +349,46 @@ export const BeatEditor = ({ beatId }: BeatEditorProps) => {
           '🏠'
         ),
         span(' > '),
-        span(() => currentBeatName.val || 'New Beat')
+        span(
+          {
+            class: 'breadcrumb-title',
+            onclick: openBeatNameModal,
+          },
+          () => currentBeatName.val || 'New Beat',
+          () => (isModified.val ? span({ class: 'breadcrumb-modified' }, ' *') : '')
+        )
       ),
       StatusBar(statusMessage, statusVisible),
       XHandleModal(showXHandleModal, tempXHandle, saveXHandle, skipXHandle),
       ClearBeatModal(showClearModal, confirmClearBeat, cancelClearBeat),
-      BeatNameInput(currentBeatName, isModified, handleBeatNameSave),
+      Modal({
+        isOpen: showBeatNameModal,
+        title: 'Rename Beat',
+        content: () =>
+          div(
+            div('Enter a new name for your beat:'),
+            input({
+              type: 'text',
+              value: () => tempBeatName.val,
+              oninput: (e: Event) => {
+                tempBeatName.val = (e.target as HTMLInputElement).value
+              },
+              onkeydown: (e: KeyboardEvent) => {
+                if (e.key === 'Enter') {
+                  saveBeatNameFromModal()
+                }
+              },
+            })
+          ),
+        primaryButton: {
+          text: 'Rename',
+          onClick: saveBeatNameFromModal,
+        },
+        secondaryButton: {
+          text: 'Cancel',
+          onClick: cancelBeatNameModal,
+        },
+      }),
       // Updated LibraryControls without the library button
       div(
         { class: 'flex flex-wrap gap-2 mb-4' },

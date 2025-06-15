@@ -87,9 +87,27 @@ body {
 }
 
 .breadcrumb {
+  position: sticky;
+  top: 0;
+  background: #111;
   margin-bottom: 15px;
   padding: 10px 0;
   border-bottom: 1px solid #333;
+  z-index: 10;
+}
+
+.breadcrumb-title {
+  cursor: pointer;
+  color: #fff;
+  text-decoration: none;
+}
+
+.breadcrumb-title:hover {
+  color: #4a9eff;
+}
+
+.breadcrumb-modified {
+  color: #f44;
 }
 
 .id-display {
