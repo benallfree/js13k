@@ -25,8 +25,8 @@
       "   const {} = { ...Default$1Props, ...props }",
       "   ",
       "   return div({ ...mkClass(`$1`) }, '$1', ...rest)",
-      "}"
+      "}",
     ],
-    "description": "Create a new Van component"
-  }
+    "description": "Create a new Van component",
+  },
 }

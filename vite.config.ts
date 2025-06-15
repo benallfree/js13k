@@ -5,17 +5,17 @@ export default defineConfig({
   build: {
     minify: 'terser',
     modulePreload: {
-      polyfill: false
+      polyfill: false,
     },
     terserOptions: {
       compress: {
-        drop_console: true
+        drop_console: true,
       },
       mangle: {
         eval: true,
-        toplevel: true
-      }
-    }
+        toplevel: true,
+      },
+    },
   },
-  plugins: []
+  plugins: [],
 })
