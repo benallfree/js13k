@@ -1,8 +1,7 @@
-import van, { State } from 'vanjs-core'
+import { State } from 'vanjs-core'
 import { Button } from './Button'
 import styles from './Modal.module.css'
-
-const { div } = van.tags
+import { div } from './tags'
 
 export interface ModalProps {
   isOpen: State<boolean>

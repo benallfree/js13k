@@ -1,7 +1,5 @@
-import van from 'vanjs-core'
+import { button } from '../common/tags'
 import styles from './Button.module.css'
-
-const { button } = van.tags
 
 type ButtonVariant = 'primary' | 'danger' | 'secondary'
 type ButtonSize = 'sm' | 'md' | 'lg'

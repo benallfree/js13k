@@ -1,7 +1,6 @@
-import van, { State } from 'vanjs-core'
+import { State } from 'vanjs-core'
 import { Modal } from '../common/Modal'
-
-const { div } = van.tags
+import { div } from '../common/tags'
 
 export const ClearBeatModal = (showClearModal: State<boolean>, onConfirm: () => void, onCancel: () => void) => () =>
   Modal({

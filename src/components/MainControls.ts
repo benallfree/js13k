@@ -1,9 +1,8 @@
-import van, { State } from 'vanjs-core'
+import { State } from 'vanjs-core'
 import { Button } from '../common/Button'
 import styles from '../common/Button.module.css'
+import { div } from '../common/tags'
 import { sampleMetadata } from '../sounds'
-
-const { div } = van.tags
 
 export const MainControls = (
   playing: State<boolean>,

@@ -1,9 +1,8 @@
 import van from 'vanjs-core'
+import { div, h1, h2, p } from '../common/tags'
 import { Button } from './Button'
 import { Modal } from './Modal'
 import styles from './Splash.module.css'
-
-const { div, p, h1, h2 } = van.tags
 
 export interface SplashProps {
   title: string

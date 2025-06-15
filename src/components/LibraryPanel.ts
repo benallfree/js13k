@@ -1,8 +1,7 @@
-import van, { State } from 'vanjs-core'
+import { State } from 'vanjs-core'
 import { Button } from '../common/Button'
+import { a, div, h3 } from '../common/tags'
 import { Beat } from '../storage'
-
-const { div, h3, a } = van.tags
 
 export const LibraryPanel =
   (

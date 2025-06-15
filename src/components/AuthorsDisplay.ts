@@ -1,6 +1,5 @@
-import van, { State } from 'vanjs-core'
-
-const { div, a } = van.tags
+import { State } from 'vanjs-core'
+import { a, div } from '../common/tags'
 
 export const AuthorsDisplay = (authors: State<string[]>) => () =>
   authors.val.length > 0

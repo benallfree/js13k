@@ -1,8 +1,7 @@
 import van, { State } from 'vanjs-core'
+import { div, input, span } from '../common/tags'
 import styles from './EditableInput.module.css'
 import { Modal } from './Modal'
-
-const { div, span, input } = van.tags
 
 export interface EditableInputProps {
   value: State<string>

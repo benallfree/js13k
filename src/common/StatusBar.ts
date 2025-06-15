@@ -1,7 +1,6 @@
-import van, { State } from 'vanjs-core'
+import { State } from 'vanjs-core'
+import { div } from '../common/tags'
 import styles from './StatusBar.module.css'
-
-const { div } = van.tags
 
 export const StatusBar = (statusMessage: State<string>, statusVisible: State<boolean>) =>
   div({ class: () => `${styles.statusBar} ${statusVisible.val ? styles.visible : ''}` }, () => statusMessage.val)

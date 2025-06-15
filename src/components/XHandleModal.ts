@@ -1,7 +1,6 @@
-import van, { State } from 'vanjs-core'
+import { State } from 'vanjs-core'
 import { Modal } from '../common/Modal'
-
-const { div, input } = van.tags
+import { div, input } from '../common/tags'
 
 export const XHandleModal =
   (showXHandleModal: State<boolean>, tempXHandle: State<string>, saveXHandle: () => void, skipXHandle: () => void) =>

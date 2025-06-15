@@ -1,7 +1,6 @@
-import van, { State } from 'vanjs-core'
+import { State } from 'vanjs-core'
+import { div } from '../common/tags'
 import { sampleMetadata } from '../sounds'
-
-const { div } = van.tags
 
 export const Grid = (
   grid: State<number[][]>,

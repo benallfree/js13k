@@ -1,7 +1,6 @@
-import van, { State } from 'vanjs-core'
+import { State } from 'vanjs-core'
 import { Button } from '../common/Button'
-
-const { div } = van.tags
+import { div } from '../common/tags'
 
 export const LibraryControls = (
   showLibrary: State<boolean>,
