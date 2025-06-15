@@ -7,6 +7,7 @@ A production-ready starter template for JS13K game development featuring modern 
 ### 🎯 **Ultra-Compact Framework**
 
 - **van.js** - Minimal reactive framework (~1.2KB gzipped)
+- **VanJS Routing** - Lightweight client-side routing
 - Perfect for JS13K with minimal overhead
 - Simple, reactive UI updates without bloat
 
@@ -14,11 +15,14 @@ A production-ready starter template for JS13K game development featuring modern 
 
 - **Vite** - Lightning-fast development server
 - **Terser** - Aggressive minification and mangling
+- **LightningCSS** - Fast CSS processing and optimization
+- **ZIP** - Automated archive creation for submission
 - Console stripping in production builds
 - Module preload polyfill disabled for smaller bundles
 
 ### 📏 **Real-time Size Monitoring**
 
+- **Base starter size: ~4.5KB** (leaves 8.5KB for your game!)
 - Automated 13KB limit checking after each build
 - Live file watching with `bun size:watch`
 - macOS notifications when approaching size limit
@@ -27,6 +31,7 @@ A production-ready starter template for JS13K game development featuring modern 
 ### 🛠️ **Developer Experience**
 
 - **TypeScript** - Full type safety and IntelliSense
+- **CSS Modules** - Scoped styling with class name hashing
 - **Path aliases** - Clean imports (`@/`, `$util/`, `$components/`)
 - **Prettier** - Consistent code formatting
 - **Bundle analyzer** - Visualize what's taking up space
@@ -36,6 +41,7 @@ A production-ready starter template for JS13K game development featuring modern 
 - Pre/post build scripts for version management
 - Automatic README updates with build stats
 - ZIP creation and size validation
+- **Cloudflare Deployment** - Production hosting setup
 - Ready for contest submission
 
 ### 🎮 **JS13K Optimizations**
@@ -68,8 +74,8 @@ bun analyze
 
 | Spec  | Info               |
 | ----- | ------------------ |
-| Build | <!-- BUILD -->5    |
-| Bytes | <!-- BYTES -->1831 |
+| Build | <!-- BUILD -->28    |
+| Bytes | <!-- BYTES -->4555 |
 
 ## 🎯 Why This Starter?
 

@@ -31,6 +31,6 @@
     }
   },
 
-  "include": ["src/**/*.d.ts", "src/**/*.ts"],
+  "include": ["src/**/*.d.ts", "src/**/*.ts", "scripts/prebuild.ts", "scripts/postbuild.ts"],
   "references": [{ "path": "tsconfig.node.json" }]
 }
