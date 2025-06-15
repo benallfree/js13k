@@ -176,7 +176,7 @@ const handleShowShareModal = () => {
   }
 
   const beatJson = JSON.stringify({ [beatData.id]: beatData })
-  shareUrl.val = `${window.location.origin}/share?beat=${btoa(beatJson)}`
+  shareUrl.val = `${window.location.origin}/share?beat=${encodeURIComponent(btoa(beatJson))}`
   shareModal.open()
 }
 

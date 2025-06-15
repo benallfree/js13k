@@ -131,7 +131,7 @@ export const ShareHandler = ({ beatPayload, samplePayload }: { beatPayload?: str
       if (beatPayload) {
         contentType.val = 'beat'
         // Decode the base64 payload
-        const beatJson = atob(beatPayload)
+        const beatJson = atob(decodeURIComponent(beatPayload))
         const beatData = JSON.parse(beatJson)
 
         // Get the first (and only) key which is the GUID
@@ -158,7 +158,7 @@ export const ShareHandler = ({ beatPayload, samplePayload }: { beatPayload?: str
       } else if (samplePayload) {
         contentType.val = 'sample'
         // Decode the base64 payload
-        const sampleJson = atob(samplePayload)
+        const sampleJson = atob(decodeURIComponent(samplePayload))
         const sampleData = JSON.parse(sampleJson)
 
         // Get the first (and only) key which is the GUID
