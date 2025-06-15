@@ -2,6 +2,7 @@ import { State } from 'vanjs-core'
 import { Modal } from '../common/Modal'
 import { div } from '../common/tags'
 import { sampleMetadata } from '../sounds'
+import styles from './PatchModal.module.css'
 
 interface PatchModalProps {
   isOpen: State<boolean>
@@ -21,19 +22,19 @@ export const PatchModal = ({ isOpen, selectedInstrument, onSelectPatch, onClose 
     title: 'Select Patch',
     content: () =>
       div(
-        { class: 'patch-grid' },
+        { class: styles.patchGrid },
         ...Object.entries(sampleMetadata).map(([index, patch]) => {
           const patchIndex = Number(index)
           return div(
             {
-              class: `patch-item ${selectedInstrument.val === patchIndex ? 'selected' : ''}`,
+              class: `${styles.patchItem} ${selectedInstrument.val === patchIndex ? styles.selected : ''}`,
               onclick: () => handlePatchSelect(patchIndex),
             },
-            div({ class: 'patch-icon' }, patch.emoji),
+            div({ class: styles.patchIcon }, patch.emoji),
             div(
-              { class: 'patch-info' },
-              div({ class: 'patch-name' }, patch.longName),
-              div({ class: 'patch-description' }, patch.description)
+              { class: styles.patchInfo },
+              div({ class: styles.patchName }, patch.longName),
+              div({ class: styles.patchDescription }, patch.description)
             )
           )
         })

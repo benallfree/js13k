@@ -26,6 +26,7 @@ import { Beat, generateGuid, loadBeatsFromStorage } from '@/storage'
 import { shareBeat as createShareUrl } from '@/url'
 import van from 'vanjs-core'
 import { AuthorsDisplay, BottomTray, ClearBeatModal, Grid, PatchModal, ShareModal, SplashPage } from './index'
+import sharedStyles from './Shared.module.css'
 
 // Add clear modal state
 const showClearModal = van.state(false)
@@ -353,7 +354,7 @@ export const BeatEditor = ({ beatId }: BeatEditorProps) => {
       { class: 'main-content' },
       // Breadcrumb navigation
       div(
-        { class: 'breadcrumb' },
+        { class: sharedStyles.breadcrumb },
         Link(
           {
             href: '/',
@@ -363,11 +364,11 @@ export const BeatEditor = ({ beatId }: BeatEditorProps) => {
         span(' > '),
         span(
           {
-            class: 'breadcrumb-title',
+            class: sharedStyles.breadcrumbTitle,
             onclick: openBeatNameModal,
           },
           () => currentBeatName.val || 'New Beat',
-          () => (isModified.val ? span({ class: 'breadcrumb-modified' }, ' *') : '')
+          () => (isModified.val ? span({ class: sharedStyles.breadcrumbModified }, ' *') : '')
         )
       ),
       ClearBeatModal(showClearModal, confirmClearBeat, cancelClearBeat),

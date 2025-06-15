@@ -1,6 +1,7 @@
 import { State } from 'vanjs-core'
 import { div } from '../common/tags'
 import { sampleMetadata } from '../sounds'
+import styles from './Grid.module.css'
 
 export const Grid = (
   grid: State<number[][]>,
@@ -10,7 +11,7 @@ export const Grid = (
   onToggleCell: (row: number, col: number) => void
 ) =>
   div(
-    { class: 'grid' },
+    { class: styles.grid },
     ...Array(16)
       .fill(0)
       .flatMap((_, row) =>
@@ -24,13 +25,13 @@ export const Grid = (
                 const isPlaying = playingCells.val.has(cellKey)
                 const trailIndex = stepHistory.val.indexOf(col)
 
-                let classes = 'cell'
+                let classes = styles.cell
                 if (val) {
                   const meta = sampleMetadata[val - 1]
-                  classes += ` ${meta.shortName.toLowerCase()}`
+                  classes += ` ${styles[meta.shortName.toLowerCase()]}`
                 }
-                if (playing.val && trailIndex >= 0) classes += ` trail-${trailIndex}`
-                if (isPlaying) classes += ' playing'
+                if (playing.val && trailIndex >= 0) classes += ` ${styles['trail' + trailIndex]}`
+                if (isPlaying) classes += ` ${styles.playing}`
 
                 return classes
               },

@@ -1,0 +1,51 @@
+.libraryPanel {
+  background: #222;
+  border: 1px solid #555;
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 4px;
+}
+
+.libraryPanel h3 {
+  margin: 0 0 10px 0;
+}
+
+.beatList {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.beatItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  margin: 4px 0;
+  background: #333;
+  border-radius: 3px;
+}
+
+.beatItem:hover {
+  background: #444;
+}
+
+.beatInfo {
+  flex: 1;
+}
+
+.authors {
+  font-size: 11px;
+  color: #888;
+  margin-top: 2px;
+}
+
+.authors a {
+  color: #4a9eff;
+  text-decoration: none;
+  margin-right: 8px;
+}
+
+.authors a:hover {
+  color: #6bb1ff;
+  text-decoration: underline;
+} 

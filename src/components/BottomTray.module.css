@@ -1,0 +1,19 @@
+.bottomTray {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #111;
+  border-top: 1px solid #333;
+  padding: 12px 20px;
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  z-index: 100;
+}
+
+.bottomTrayDivider {
+  width: 1px;
+  background: #333;
+  height: 48px;
+} 

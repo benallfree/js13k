@@ -1,4 +1,5 @@
 import { button } from '../common/tags'
+import styles from './Icon.module.css'
 
 interface IconProps {
   onClick: () => void
@@ -8,10 +9,10 @@ interface IconProps {
 }
 
 export const Icon = ({ onClick, active = false, class: className = '', children }: IconProps) => {
-  let classes = 'icon-base'
+  let classes = styles.iconBase
 
   if (active) {
-    classes += ' icon-active'
+    classes += ` ${styles.iconActive}`
   }
 
   if (className) {

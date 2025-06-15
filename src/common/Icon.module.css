@@ -1,0 +1,22 @@
+.iconBase {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  background-color: transparent;
+  border: 1px solid #666;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.iconBase:hover {
+  background-color: #222;
+  border-color: #888;
+}
+
+.iconActive {
+  background-color: #333;
+  border-color: #aaa;
+} 

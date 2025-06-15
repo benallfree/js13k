@@ -2,6 +2,7 @@ import { State } from 'vanjs-core'
 import { Icon } from '../common/Icon'
 import { div } from '../common/tags'
 import { sampleMetadata } from '../sounds'
+import styles from './BottomTray.module.css'
 
 interface BottomTrayProps {
   playing: State<boolean>
@@ -9,6 +10,7 @@ interface BottomTrayProps {
   onTogglePlay: () => void
   onShowPatchModal: () => void
   onShowShareModal: () => void
+  onDeleteBeat: () => void
 }
 
 export const BottomTray = ({
@@ -17,14 +19,14 @@ export const BottomTray = ({
   onTogglePlay,
   onShowPatchModal,
   onShowShareModal,
+  onDeleteBeat,
 }: BottomTrayProps) => {
   return div(
-    { class: 'bottom-tray' },
+    { class: styles.bottomTray },
     Icon({
       onClick: onTogglePlay,
       children: () => (playing.val ? '⏹️' : '▶️'),
     }),
-    div({ class: 'bottom-tray-divider' }),
     Icon({
       onClick: onShowPatchModal,
       children: () => {
@@ -32,10 +34,13 @@ export const BottomTray = ({
         return patch ? patch.emoji : '🥁'
       },
     }),
-    div({ class: 'bottom-tray-divider' }),
     Icon({
       onClick: onShowShareModal,
       children: '🔗',
+    }),
+    Icon({
+      onClick: onDeleteBeat,
+      children: '🗑️',
     })
   )
 }

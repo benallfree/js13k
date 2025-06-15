@@ -1,0 +1,48 @@
+.patchGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.patchItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid #333;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.patchItem:hover {
+  background: #222;
+  border-color: #555;
+}
+
+.patchItem.selected {
+  background: #333;
+  border-color: #4a9eff;
+}
+
+.patchIcon {
+  font-size: 24px;
+  width: 32px;
+  text-align: center;
+}
+
+.patchInfo {
+  flex: 1;
+}
+
+.patchName {
+  font-weight: bold;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.patchDescription {
+  font-size: 12px;
+  color: #999;
+} 

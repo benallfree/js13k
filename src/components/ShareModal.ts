@@ -2,6 +2,7 @@ import van, { State } from 'vanjs-core'
 import { Button } from '../common/Button'
 import { Modal } from '../common/Modal'
 import { div, input } from '../common/tags'
+import styles from './ShareModal.module.css'
 
 interface ShareModalProps {
   isOpen: State<boolean>
@@ -44,9 +45,9 @@ export const ShareModal = ({ isOpen, shareUrl, onClose, onCopyUrl }: ShareModalP
       div(
         div('Share this URL to let others listen to your beat:'),
         div(
-          { class: 'share-url-container' },
+          { class: styles.shareUrlContainer },
           input({
-            class: 'share-url',
+            class: styles.shareUrl,
             type: 'text',
             value: shareUrl,
             readonly: true,
@@ -58,7 +59,7 @@ export const ShareModal = ({ isOpen, shareUrl, onClose, onCopyUrl }: ShareModalP
           Button({
             onClick: handleCopy,
             variant: copied.val ? 'primary' : 'primary',
-            class: `copy-button ${copied.val ? 'copy-success' : ''}`,
+            class: `${styles.copyButton} ${copied.val ? styles.copySuccess : ''}`,
             children: () => (copied.val ? '✅ Copied!' : '📋 Copy to Clipboard'),
           })
         )
