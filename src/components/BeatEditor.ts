@@ -1,4 +1,3 @@
-import van from 'vanjs-core'
 import {
   currentBeatId,
   currentBeatName,
@@ -14,11 +13,13 @@ import {
   selectedInstrument,
   sharedBeatAuthors,
   stepHistory,
-} from '../beatState'
-import { a, div, span } from '../common/tags'
-import { sounds } from '../sounds'
-import { Beat, generateGuid, loadBeatsFromStorage, loadXHandleFromStorage, saveXHandleToStorage } from '../storage'
-import { shareBeat as createShareUrl } from '../url'
+} from '@/beatState'
+import { Link } from '@/common/router'
+import { div, span } from '@/common/tags'
+import { sounds } from '@/sounds'
+import { Beat, generateGuid, loadBeatsFromStorage, loadXHandleFromStorage, saveXHandleToStorage } from '@/storage'
+import { shareBeat as createShareUrl } from '@/url'
+import van from 'vanjs-core'
 import {
   AuthorsDisplay,
   BeatNameInput,
@@ -304,14 +305,9 @@ export const BeatEditor = ({ beatId }: BeatEditorProps) => {
       // Breadcrumb navigation
       div(
         { class: 'breadcrumb', style: 'margin-bottom: 15px; padding: 10px 0; border-bottom: 1px solid #333;' },
-        a(
+        Link(
           {
             href: '/',
-            onclick: (e: Event) => {
-              e.preventDefault()
-              window.history.pushState({}, '', '/')
-              window.dispatchEvent(new PopStateEvent('popstate'))
-            },
           },
           '🏠'
         ),

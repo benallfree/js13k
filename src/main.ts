@@ -1,5 +1,5 @@
 import van from 'vanjs-core'
-import { getRouterParams, Router } from 'vanjs-routing'
+import { getRouterParams, Router } from './common/router'
 import { div } from './common/tags'
 import { BeatEditor } from './components/BeatEditor'
 import { Home } from './components/Home'

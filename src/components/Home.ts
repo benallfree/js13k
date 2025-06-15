@@ -1,5 +1,5 @@
+import { navigate } from '@/common/router'
 import van from 'vanjs-core'
-import { navigate } from 'vanjs-routing'
 import { deleteBeat, newBeat, savedBeats } from '../beatState'
 import { a, div, h1, h2, h3, p } from '../common/tags'
 import { Beat, generateGuid, loadBeatsFromStorage, loadXHandleFromStorage, saveXHandleToStorage } from '../storage'
