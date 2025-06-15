@@ -329,11 +329,10 @@ export const BeatEditor = ({ beatId }: BeatEditorProps) => {
       loadBeat(beat)
       flash(`📂 Loaded "${beat.name}"`)
     } else {
-      flash('❌ Beat not found', 3000)
-      // Redirect to home if beat not found
-      window.history.pushState({}, '', '/')
-      window.dispatchEvent(new PopStateEvent('popstate'))
-      return
+      // If beat not found, create a new beat with the provided beatId
+      newBeat()
+      currentBeatId.val = beatId
+      flash(`✨ Created new beat`)
     }
   }
 

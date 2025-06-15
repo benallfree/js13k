@@ -1,6 +1,6 @@
 import { navigate } from '@/common/router'
 import { formatDate } from '@/common/utils'
-import { newBeat, savedBeats } from '../beatState'
+import { savedBeats } from '../beatState'
 import { a, div, h1, h2, h3, p } from '../common/tags'
 import { Beat, generateGuid, loadBeatsFromStorage } from '../storage'
 import styles from './Home.module.css'
@@ -9,7 +9,6 @@ import { Button, SplashPage } from './index'
 // Create new beat
 const createNewBeat = () => {
   const newBeatId = generateGuid()
-  newBeat()
   navigate(`/beats/${newBeatId}`)
 }
 
