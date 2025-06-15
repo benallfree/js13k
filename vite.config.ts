@@ -2,6 +2,9 @@ import { defineConfig } from 'vite'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  css: {
+    transformer: 'lightningcss',
+  },
   build: {
     minify: 'terser',
     modulePreload: {
