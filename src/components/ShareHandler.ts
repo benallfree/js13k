@@ -3,11 +3,12 @@ import { Modal } from '@/common/Modal'
 import { navigate } from '@/common/router'
 import { flash } from '@/common/statusManager'
 import { div } from '@/common/tags'
+import { useModal } from '@/common/utils'
 import { Beat, generateGuid, loadBeatsFromStorage, saveBeatsToStorage } from '@/storage'
 import van from 'vanjs-core'
 
 export const ShareHandler = ({ payload }: { payload: string }) => {
-  const showConflictModal = van.state(false)
+  const conflictModal = useModal()
   const sharedBeat = van.state<Beat | null>(null)
   const existingBeat = van.state<Beat | null>(null)
   const isProcessing = van.state(true)
@@ -20,7 +21,7 @@ export const ShareHandler = ({ payload }: { payload: string }) => {
       // Show conflict modal
       sharedBeat.val = beat
       existingBeat.val = existing
-      showConflictModal.val = true
+      conflictModal.open()
       isProcessing.val = false
       return
     }
@@ -53,7 +54,7 @@ export const ShareHandler = ({ payload }: { payload: string }) => {
     if (sharedBeat.val) {
       processBeat(sharedBeat.val, true)
     }
-    showConflictModal.val = false
+    conflictModal.close()
   }
 
   const handleMakeCopy = () => {
@@ -61,11 +62,11 @@ export const ShareHandler = ({ payload }: { payload: string }) => {
       const newBeat = { ...sharedBeat.val, id: generateGuid() }
       processBeat(newBeat, false)
     }
-    showConflictModal.val = false
+    conflictModal.close()
   }
 
   const handleCancel = () => {
-    showConflictModal.val = false
+    conflictModal.close()
     navigate('/')
   }
 
@@ -112,7 +113,7 @@ export const ShareHandler = ({ payload }: { payload: string }) => {
   return div(
     // Conflict resolution modal
     Modal({
-      isOpen: showConflictModal,
+      isOpen: conflictModal.isOpen,
       title: 'Beat Already Exists',
       content: () =>
         div(

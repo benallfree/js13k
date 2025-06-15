@@ -3,7 +3,7 @@ import { getRouterParams, Router } from './common/router'
 import { StatusBar } from './common/StatusBar'
 import { statusMessage, statusVisible } from './common/statusManager'
 import { div } from './common/tags'
-import { initializeXHandle, saveXHandle, showXHandleModal, skipXHandle, tempXHandle } from './common/xHandleManager'
+import { initializeXHandle, saveXHandle, skipXHandle, tempXHandle, xHandleModal } from './common/xHandleManager'
 import { BeatEditor } from './components/BeatEditor'
 import { Home } from './components/Home'
 import { XHandleModal } from './components/index'
@@ -15,7 +15,7 @@ const App = () => {
 
   return div(
     StatusBar(statusMessage, statusVisible),
-    XHandleModal(showXHandleModal, tempXHandle, saveXHandle, skipXHandle),
+    XHandleModal(xHandleModal.isOpen, tempXHandle, saveXHandle, skipXHandle),
     Router({
       routes: [
         { path: '/', component: Home },

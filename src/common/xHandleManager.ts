@@ -1,10 +1,11 @@
 import { loadXHandleFromStorage, saveXHandleToStorage } from '@/storage'
 import van from 'vanjs-core'
 import { flash } from './statusManager'
+import { useModal } from './utils'
 
 // Global X Handle state
 export const xHandle = van.state('')
-export const showXHandleModal = van.state(false)
+export const xHandleModal = useModal()
 export const tempXHandle = van.state('')
 
 /**
@@ -16,7 +17,7 @@ export const initializeXHandle = () => {
 
   // Show X handle modal if not set
   if (!xHandle.val) {
-    showXHandleModal.val = true
+    xHandleModal.open()
   }
 }
 
@@ -26,7 +27,7 @@ export const initializeXHandle = () => {
 export const saveXHandle = () => {
   xHandle.val = tempXHandle.val
   saveXHandleToStorage(tempXHandle.val)
-  showXHandleModal.val = false
+  xHandleModal.close()
   if (tempXHandle.val) {
     flash(`👋 Welcome, @${tempXHandle.val}!`)
   }
@@ -36,6 +37,6 @@ export const saveXHandle = () => {
  * Skip X handle setup and show welcome message
  */
 export const skipXHandle = () => {
-  showXHandleModal.val = false
+  xHandleModal.close()
   flash('👋 Welcome to Beat Threads!')
 }

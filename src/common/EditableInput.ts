@@ -2,6 +2,7 @@ import van, { State } from 'vanjs-core'
 import { div, input, span } from '../common/tags'
 import styles from './EditableInput.module.css'
 import { Modal } from './Modal'
+import { useModal } from './utils'
 
 export interface EditableInputProps {
   value: State<string>
@@ -26,23 +27,23 @@ export const EditableInput = ({
   saveButtonText = 'Save',
   cancelButtonText = 'Cancel',
 }: EditableInputProps) => {
-  const showModal = van.state(false)
+  const modal = useModal()
   const tempValue = van.state('')
 
   const openModal = () => {
     tempValue.val = value.val
-    showModal.val = true
+    modal.open()
   }
 
   const handleSave = () => {
     if (tempValue.val.trim()) {
       onSave(tempValue.val.trim())
     }
-    showModal.val = false
+    modal.close()
   }
 
   const handleCancel = () => {
-    showModal.val = false
+    modal.close()
   }
 
   return div(
@@ -56,7 +57,7 @@ export const EditableInput = ({
       () => (isModified?.val ? span({ class: styles.modified }, modifiedIndicator) : '')
     ),
     Modal({
-      isOpen: showModal,
+      isOpen: modal.isOpen,
       title: modalTitle,
       content: () =>
         div(

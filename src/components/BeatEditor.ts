@@ -22,27 +22,25 @@ import { Link } from '@/common/router'
 import { _routerPathname } from '@/common/router/_state'
 import { flash } from '@/common/statusManager'
 import { div, input, span } from '@/common/tags'
+import { useModal } from '@/common/utils'
 import { xHandle } from '@/common/xHandleManager'
 import { sampleMetadata, sounds } from '@/sounds'
 import { Beat, generateGuid, loadBeatsFromStorage } from '@/storage'
 import { shareBeat as createShareUrl } from '@/url'
 import van from 'vanjs-core'
-import { AuthorsDisplay, ClearBeatModal, Grid, PatchModal, ShareModal, SplashPage } from './index'
+import { AuthorsDisplay, Grid, PatchModal, ShareModal, SplashPage } from './index'
 import sharedStyles from './Shared.module.css'
 
-// Add clear modal state
-const showClearModal = van.state(false)
-
-// Add delete modal state
-const showDeleteModal = van.state(false)
+// Modal state management using useModal utility
+const deleteModal = useModal()
+const beatNameModal = useModal()
+const patchModal = useModal()
+const shareModal = useModal()
 
 // Beat name editing state
-const showBeatNameModal = van.state(false)
 const tempBeatName = van.state('')
 
-// Modal states for bottom tray
-const showPatchModal = van.state(false)
-const showShareModal = van.state(false)
+// Share modal state
 const shareUrl = van.state('')
 
 let intervalId: ReturnType<typeof setInterval>
@@ -67,29 +65,6 @@ const autoSave = () => {
   saveBeat(currentBeatName.val, authors)
 }
 
-const handleSaveBeat = () => {
-  if (!currentBeatName.val.trim()) {
-    flash('⚠️ Please enter a beat name', 3000)
-    return
-  }
-
-  // If we're updating an existing beat with a different name, let the user rename it
-  if (currentBeatId.val) {
-    const beats = loadBeatsFromStorage()
-    const storedBeat = beats.find((b) => b.id === currentBeatId.val)
-    if (storedBeat && currentBeatName.val !== storedBeat.name) {
-      // This case is now handled by the EditableInput component
-      return
-    }
-  }
-
-  const authors = getAuthorsForCurrentBeat()
-
-  if (saveBeat(currentBeatName.val, authors)) {
-    flash(currentBeatId.val ? `💾 Beat "${currentBeatName.val}" updated` : `✅ Beat "${currentBeatName.val}" saved`)
-  }
-}
-
 const handleBeatNameSave = (newName: string) => {
   const authors = getAuthorsForCurrentBeat()
 
@@ -100,38 +75,19 @@ const handleBeatNameSave = (newName: string) => {
 
 const openBeatNameModal = () => {
   tempBeatName.val = currentBeatName.val
-  showBeatNameModal.val = true
+  beatNameModal.open()
 }
 
 const saveBeatNameFromModal = () => {
   if (tempBeatName.val.trim()) {
     handleBeatNameSave(tempBeatName.val.trim())
   }
-  showBeatNameModal.val = false
+  beatNameModal.close()
 }
 
 const cancelBeatNameModal = () => {
-  showBeatNameModal.val = false
+  beatNameModal.close()
 }
-
-const handleClearBeat = () => {
-  if (isModified.val) {
-    showClearModal.val = true
-  } else {
-    confirmClearBeat()
-  }
-}
-
-const confirmClearBeat = () => {
-  newBeat()
-  showClearModal.val = false
-  flash('🧹 Beat cleared')
-}
-
-const cancelClearBeat = () => {
-  showClearModal.val = false
-}
-
 // Cell interaction handling
 const toggleCell = (row: number, col: number) => {
   const newGrid = [...grid.val]
@@ -202,11 +158,11 @@ const togglePlay = () => {
 
 // Bottom tray handlers
 const handleShowPatchModal = () => {
-  showPatchModal.val = true
+  patchModal.open()
 }
 
 const handleClosePatchModal = () => {
-  showPatchModal.val = false
+  patchModal.close()
 }
 
 const handleSelectPatch = (index: number) => {
@@ -232,11 +188,11 @@ const handleShowShareModal = () => {
   }
 
   shareUrl.val = createShareUrl(beatData, xHandle.val)
-  showShareModal.val = true
+  shareModal.open()
 }
 
 const handleCloseShareModal = () => {
-  showShareModal.val = false
+  shareModal.close()
 }
 
 const handleCopyUrl = () => {
@@ -252,14 +208,14 @@ const handleCopyUrl = () => {
 }
 
 const handleDeleteBeat = () => {
-  showDeleteModal.val = true
+  deleteModal.open()
 }
 
 const confirmDeleteBeat = () => {
   if (currentBeatId.val && currentBeatName.val) {
     deleteBeat(currentBeatId.val)
     flash(`🗑️ Beat "${currentBeatName.val}" deleted`)
-    showDeleteModal.val = false
+    deleteModal.close()
     // Navigate back to home
     window.history.pushState({}, '', '/')
     window.dispatchEvent(new PopStateEvent('popstate'))
@@ -267,7 +223,7 @@ const confirmDeleteBeat = () => {
 }
 
 const cancelDeleteBeat = () => {
-  showDeleteModal.val = false
+  deleteModal.close()
 }
 
 interface BeatEditorProps {
@@ -329,9 +285,8 @@ export const BeatEditor = ({ beatId }: BeatEditorProps) => {
           () => (isModified.val ? span({ class: sharedStyles.breadcrumbModified }, ' *') : '')
         )
       ),
-      ClearBeatModal(showClearModal, confirmClearBeat, cancelClearBeat),
       Modal({
-        isOpen: showDeleteModal,
+        isOpen: deleteModal.isOpen,
         title: 'Delete Beat',
         content: () => div(`Are you sure you want to delete "${currentBeatName.val}"? This action cannot be undone.`),
         primaryButton: {
@@ -344,7 +299,7 @@ export const BeatEditor = ({ beatId }: BeatEditorProps) => {
         },
       }),
       Modal({
-        isOpen: showBeatNameModal,
+        isOpen: beatNameModal.isOpen,
         title: 'Rename Beat',
         content: () =>
           div(
@@ -372,13 +327,13 @@ export const BeatEditor = ({ beatId }: BeatEditorProps) => {
         },
       }),
       PatchModal({
-        isOpen: showPatchModal,
+        isOpen: patchModal.isOpen,
         selectedInstrument,
         onSelectPatch: handleSelectPatch,
         onClose: handleClosePatchModal,
       }),
       ShareModal({
-        isOpen: showShareModal,
+        isOpen: shareModal.isOpen,
         shareUrl: shareUrl.val,
         onClose: handleCloseShareModal,
         onCopyUrl: handleCopyUrl,
