@@ -1,0 +1,11 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+* Van.js
+* Vanjs-routing (https://www.npmjs.com/package/vanjs-routing)
+* this is a JS13K game and must be approached as minimally as possible when writing code
+* Prefer tailwind-style symantic styling over inline styles. Add classes to [styles.css](mdc:src/styles.css) or use CSS modules for component-specific styling which cannot be generalized
+* Do NOT run the application
+* We are using Bun
