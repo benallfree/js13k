@@ -5,6 +5,19 @@
   margin-top: 16px;
 }
 
+.sectionTitle {
+  font-weight: bold;
+  font-size: 14px;
+  color: #fff;
+  margin: 16px 0 8px 0;
+  border-bottom: 1px solid #333;
+  padding-bottom: 4px;
+}
+
+.sectionTitle:first-child {
+  margin-top: 0;
+}
+
 .patchItem {
   display: flex;
   align-items: center;
@@ -23,6 +36,15 @@
 
 .patchItem.selected {
   background: #333;
+  border-color: #4a9eff;
+}
+
+.patchItem.customSample {
+  border-left: 3px solid #ff6b35;
+}
+
+.patchItem.customSample.selected {
+  border-left: 3px solid #ff6b35;
   border-color: #4a9eff;
 }
 
@@ -45,4 +67,4 @@
 .patchDescription {
   font-size: 12px;
   color: #999;
-} 
+}

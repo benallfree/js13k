@@ -1,17 +1,28 @@
-import { Button } from '@/common/Button'
+import { ButtonVariant } from '@/common/Button'
 import { Modal } from '@/common/Modal'
 import { navigate } from '@/common/router'
 import { flash } from '@/common/statusManager'
 import { div } from '@/common/tags'
-import { useModal } from '@/common/utils'
-import { Beat, generateGuid, loadBeatsFromStorage, saveBeatsToStorage } from '@/storage'
+import { joinChunks, useModal } from '@/common/utils'
+import {
+  Beat,
+  Sample,
+  generateGuid,
+  loadBeatsFromStorage,
+  loadSamplesFromStorage,
+  saveBeatsToStorage,
+  saveSamplesToStorage,
+} from '@/storage'
 import van from 'vanjs-core'
 
-export const ShareHandler = ({ payload }: { payload: string }) => {
+export const ImportHandler = ({ chunks }: { chunks: string[] }) => {
   const conflictModal = useModal()
   const sharedBeat = van.state<Beat | null>(null)
+  const sharedSample = van.state<Sample | null>(null)
   const existingBeat = van.state<Beat | null>(null)
+  const existingSample = van.state<Sample | null>(null)
   const isProcessing = van.state(true)
+  const contentType = van.state<'beat' | 'sample' | null>(null)
 
   const processBeat = (beat: Beat, shouldOverwrite: boolean = false) => {
     const beats = loadBeatsFromStorage()
@@ -50,9 +61,48 @@ export const ShareHandler = ({ payload }: { payload: string }) => {
     navigate(`/beats/${beat.id}`)
   }
 
+  const processSample = (sample: Sample, shouldOverwrite: boolean = false) => {
+    const samples = loadSamplesFromStorage()
+    const existing = samples.find((s) => s.id === sample.id)
+
+    if (existing && !shouldOverwrite) {
+      // Show conflict modal
+      sharedSample.val = sample
+      existingSample.val = existing
+      conflictModal.open()
+      isProcessing.val = false
+      return
+    }
+
+    if (shouldOverwrite && existing) {
+      // Overwrite existing sample
+      const sampleIndex = samples.findIndex((s) => s.id === sample.id)
+      samples[sampleIndex] = sample
+      saveSamplesToStorage(samples)
+      flash(`🔄 Sample "${sample.name}" overwritten`)
+    } else if (!existing) {
+      // Add new sample
+      samples.push(sample)
+      saveSamplesToStorage(samples)
+      flash(`📥 Sample "${sample.name}" imported`)
+    } else {
+      // Make a copy
+      const newSample = { ...sample, id: generateGuid() }
+      samples.push(newSample)
+      saveSamplesToStorage(samples)
+      flash(`📋 Sample "${sample.name}" copied`)
+      sample = newSample
+    }
+
+    // Redirect to sample editor
+    navigate(`/samples/${sample.id}`)
+  }
+
   const handleOverwrite = () => {
     if (sharedBeat.val) {
       processBeat(sharedBeat.val, true)
+    } else if (sharedSample.val) {
+      processSample(sharedSample.val, true)
     }
     conflictModal.close()
   }
@@ -61,6 +111,9 @@ export const ShareHandler = ({ payload }: { payload: string }) => {
     if (sharedBeat.val) {
       const newBeat = { ...sharedBeat.val, id: generateGuid() }
       processBeat(newBeat, false)
+    } else if (sharedSample.val) {
+      const newSample = { ...sharedSample.val, id: generateGuid() }
+      processSample(newSample, false)
     }
     conflictModal.close()
   }
@@ -70,43 +123,73 @@ export const ShareHandler = ({ payload }: { payload: string }) => {
     navigate('/')
   }
 
-  // Process the share payload
-  const processShare = () => {
+  // Process the import payload
+  const processImport = () => {
     try {
-      // Decode the base64 payload
-      const beatJson = atob(payload)
-      const beatData = JSON.parse(beatJson)
+      // Join chunks and decode the base64 payload
+      const joinedPayload = joinChunks(chunks)
+      const json = atob(decodeURIComponent(joinedPayload))
+      const data = JSON.parse(json)
 
       // Get the first (and only) key which is the GUID
-      const guid = Object.keys(beatData)[0]
-      const beatInfo = beatData[guid]
+      const guid = Object.keys(data)[0]
+      const info = data[guid]
 
-      if (!beatInfo.grid || !Array.isArray(beatInfo.grid)) {
-        throw new Error('Invalid beat data')
+      // Detect content type based on properties
+      if (info.audioData) {
+        contentType.val = 'sample'
+        if (typeof info.audioData !== 'string') {
+          throw new Error('Invalid sample data')
+        }
+
+        // Create a complete Sample object
+        const sample: Sample = {
+          id: guid,
+          name: info.name || 'Shared Sample',
+          audioData: info.audioData,
+          originalAudioData: info.audioData, // Use same data for both since it's already processed
+          fallbackIdx: info.fallbackIdx || 0,
+          authors: info.authors || [],
+          created: info.created || Date.now(),
+          modified: Date.now(),
+          windowPosition: 0,
+          windowSize: info.audioData.length,
+        }
+
+        processSample(sample)
+      } else if (info.grid) {
+        contentType.val = 'beat'
+        if (!Array.isArray(info.grid)) {
+          throw new Error('Invalid beat data')
+        }
+
+        // Create a complete Beat object
+        const beat: Beat = {
+          id: guid,
+          name: info.name || 'Shared Beat',
+          grid: info.grid,
+          authors: info.authors || [],
+          created: info.created || Date.now(),
+          modified: Date.now(),
+          // Include sample mapping if present
+          ...(info.sampleMapping && { sampleMapping: info.sampleMapping }),
+        }
+
+        processBeat(beat)
+      } else {
+        throw new Error('Invalid import data')
       }
-
-      // Create a complete Beat object
-      const beat: Beat = {
-        id: guid,
-        name: beatInfo.name || 'Shared Beat',
-        grid: beatInfo.grid,
-        authors: beatInfo.authors || [],
-        created: beatInfo.created || Date.now(),
-        modified: Date.now(),
-      }
-
-      processBeat(beat)
     } catch (e) {
-      console.error('Error processing shared beat:', e)
-      flash('❌ Invalid share link', 3000)
+      console.error('Error processing imported content:', e)
+      flash('❌ Invalid import link', 3000)
       navigate('/')
     }
   }
 
-  // Process the share when component mounts
+  // Process the import when component mounts
   van.derive(() => {
     if (isProcessing.val) {
-      processShare()
+      processImport()
     }
   })
 
@@ -114,30 +197,34 @@ export const ShareHandler = ({ payload }: { payload: string }) => {
     // Conflict resolution modal
     Modal({
       isOpen: conflictModal.isOpen,
-      title: 'Beat Already Exists',
+      title: contentType.val === 'beat' ? 'Beat Already Exists' : 'Sample Already Exists',
       content: () =>
         div(
-          div(`A beat named "${existingBeat.val?.name}" already exists in your library.`),
-          div('What would you like to do?'),
           div(
-            { class: 'flex gap-2 mt-4 justify-center' },
-            Button({
-              onClick: handleOverwrite,
-              variant: 'danger',
-              children: 'Overwrite',
-            }),
-            Button({
-              onClick: handleMakeCopy,
-              variant: 'primary',
-              children: 'Make Copy',
-            }),
-            Button({
-              onClick: handleCancel,
-              variant: 'secondary',
-              children: 'Cancel',
-            })
-          )
+            contentType.val === 'beat'
+              ? `A beat named "${existingBeat.val?.name}" already exists in your library.`
+              : `A sample named "${existingSample.val?.name}" already exists in your library.`
+          ),
+          div('What would you like to do?'),
+          div({ class: 'flex gap-2 mt-4 justify-center' })
         ),
+      buttons: [
+        {
+          onClick: handleOverwrite,
+          variant: ButtonVariant.Danger,
+          text: 'Overwrite',
+        },
+        {
+          onClick: handleMakeCopy,
+          variant: ButtonVariant.Primary,
+          text: 'Make Copy',
+        },
+        {
+          onClick: handleCancel,
+          variant: ButtonVariant.Cancel,
+          text: 'Cancel',
+        },
+      ],
     }),
 
     // Loading state
@@ -145,8 +232,16 @@ export const ShareHandler = ({ payload }: { payload: string }) => {
       isProcessing.val
         ? div(
             { class: 'text-center py-8' },
-            div({ class: 'text-lg' }, '🔄 Processing shared beat...'),
-            div({ class: 'text-sm text-gray-600 mt-2' }, 'Please wait while we import your beat.')
+            div(
+              { class: 'text-lg' },
+              contentType.val === 'beat' ? '🔄 Processing shared beat...' : '🔄 Processing shared sample...'
+            ),
+            div(
+              { class: 'text-sm text-gray-600 mt-2' },
+              contentType.val === 'beat'
+                ? 'Please wait while we import your beat.'
+                : 'Please wait while we import your sample.'
+            )
           )
         : ''
   )

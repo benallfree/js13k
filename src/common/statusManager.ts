@@ -11,7 +11,7 @@ let statusTimeoutId: ReturnType<typeof setTimeout>
  * @param message - The message to display
  * @param duration - How long to show the message in milliseconds (default: 2000)
  */
-export const flash = (message: string, duration = 2000) => {
+export const flash = (message: string, duration = 4000) => {
   if (statusTimeoutId) {
     clearTimeout(statusTimeoutId)
   }

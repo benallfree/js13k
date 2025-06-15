@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite dev",
     "zip:watch": "chokidar src -c 'bun run build && bun run zip'",
-    "zip": "rimraf out.zip && cd dist && zip -9 -r ../out.zip .",
+    "zip": "rimraf out.zip && cd dist && zip -i index.html -i 'assets/*' -9 -r ../out.zip .",
     "postzip": "bun run scripts/postbuild.ts",
     "build": "vite build && bun run zip",
     "preview": "bun run build && vite preview",

@@ -1,6 +1,6 @@
-import { mergeAuthors } from './common/utils'
+import { chunkString, mergeAuthors } from './common/utils'
 import { encodeGrid } from './grid'
-import { Beat } from './storage'
+import { Beat, Sample } from './storage'
 
 // URL state management
 export const updateUrl = (grid: number[][]) => {
@@ -20,6 +20,8 @@ export const shareBeat = (beat: Beat, xHandle: string) => {
       grid: beat.grid,
       authors: mergeAuthors(beat.authors, [], xHandle),
       created: Date.now(),
+      // Include sample mapping if present
+      ...(beat.sampleMapping && { sampleMapping: beat.sampleMapping }),
     },
   }
 
@@ -27,5 +29,32 @@ export const shareBeat = (beat: Beat, xHandle: string) => {
   const beatJson = JSON.stringify(beatData)
   const encodedBeat = btoa(beatJson)
 
-  return `${window.location.origin}/share/${encodedBeat}`
+  // Split into chunks and URL encode each chunk
+  const chunks = chunkString(encodedBeat)
+  const encodedChunks = chunks.map((chunk) => encodeURIComponent(chunk))
+
+  return `${window.location.origin}/import/${encodedChunks.join('/')}`
+}
+
+export const shareSample = (sample: Sample, xHandle: string) => {
+  // Create a complete sample object to share with merged authors
+  const sampleData = {
+    [sample.id]: {
+      name: sample.name,
+      audioData: sample.audioData,
+      fallbackIdx: sample.fallbackIdx,
+      authors: mergeAuthors(sample.authors, [], xHandle),
+      created: Date.now(),
+    },
+  }
+
+  // Encode the complete sample data as base64 JSON
+  const sampleJson = JSON.stringify(sampleData)
+  const encodedSample = btoa(sampleJson)
+
+  // Split into chunks and URL encode each chunk
+  const chunks = chunkString(encodedSample)
+  const encodedChunks = chunks.map((chunk) => encodeURIComponent(chunk))
+
+  return `${window.location.origin}/import/${encodedChunks.join('/')}`
 }
