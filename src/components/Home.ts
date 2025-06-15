@@ -315,13 +315,13 @@ export const Home = () => {
       tempBeatName.val = currentBeatName.val
       showRenameModal.val = true
     }),
-    AuthorsDisplay(sharedBeatAuthors),
     LibraryControls(showLibrary, handleSaveBeat, handleClearBeat, shareBeat),
     LibraryPanel(showLibrary, savedBeats, formatDate, loadBeat, deleteBeat),
     MainControls(playing, selectedInstrument, togglePlay, (index) => {
       selectedInstrument.val = index
     }),
     Grid(grid, playing, playingCells, stepHistory, toggleCell),
+    AuthorsDisplay(sharedBeatAuthors),
     () =>
       currentBeatId.val
         ? div(
