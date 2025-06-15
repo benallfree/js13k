@@ -11,9 +11,8 @@ export const originalSampleName = van.state<string>('')
 export const sampleIsModified = van.state(false)
 
 // Sample editing state
-export const currentSampleData = van.state<string>('') // Base64 audio data (downsampled)
-export const originalSampleData = van.state<string>('') // Base64 audio data (original quality)
-export const currentSampleDuration = van.state<number>(0)
+export const windowedSampleData = van.state<string>('') // Base64 audio data (downsampled)
+export const fullSampleData = van.state<string>('') // Base64 audio data (original quality)
 export const currentSampleFallback = van.state<number>(0) // Fallback stock sample index
 
 // Sample authors state (for shared samples)
@@ -31,7 +30,7 @@ export const getAuthorsForCurrentSample = (): string[] => {
 
 export const saveSample = (name: string, authors: string[]) => {
   if (!name.trim()) return false
-  if (!currentSampleData.val) return false // Must have audio data
+  if (!windowedSampleData.val) return false // Must have audio data
 
   const samples = loadSamplesFromStorage()
   const existingSample = currentSampleId.val ? samples.find((s) => s.id === currentSampleId.val) : undefined
@@ -40,19 +39,17 @@ export const saveSample = (name: string, authors: string[]) => {
   const effectiveSampleData = getEffectiveSampleData()
 
   // Get effective duration
-  const effectiveDuration = getEffectiveDuration ? getEffectiveDuration() : currentSampleDuration.val
 
   const sample = createSampleData(
     {
       id: currentSampleId.val,
       name,
-      audioData: effectiveSampleData || currentSampleData.val, // Use windowed version or fallback to full
-      originalAudioData: originalSampleData.val,
+      audioData: effectiveSampleData || windowedSampleData.val, // Use windowed version or fallback to full
+      originalAudioData: fullSampleData.val,
       fallbackIdx: currentSampleFallback.val,
-      duration: effectiveDuration,
       authors,
-      windowPosition: getWindowPosition ? getWindowPosition() : undefined,
-      windowSize: getWindowSize ? getWindowSize() : undefined,
+      windowPosition: getWindowPosition ? getWindowPosition() : 0,
+      windowSize: getWindowSize ? getWindowSize() : 3000,
     },
     existingSample
   )
@@ -75,31 +72,13 @@ export const saveSample = (name: string, authors: string[]) => {
 
 // Function to get effective sample data and duration (from SampleEditor)
 // This will be set by SampleEditor component
-let getEffectiveSampleData: () => string = () => currentSampleData.val
-let getEffectiveDuration: (() => number) | null = null
+let getEffectiveSampleData: () => string = () => windowedSampleData.val
 let getWindowPosition: (() => number) | null = null
 let getWindowSize: (() => number) | null = null
 
-export const setEffectiveSampleDataGetter = (getter: () => string) => {
-  getEffectiveSampleData = getter
-}
-
-export const setEffectiveDurationGetter = (getter: () => number) => {
-  getEffectiveDuration = getter
-}
-
-export const setWindowPositionGetter = (getter: () => number) => {
-  getWindowPosition = getter
-}
-
-export const setWindowSizeGetter = (getter: () => number) => {
-  getWindowSize = getter
-}
-
 export const loadSample = (sample: Sample) => {
-  currentSampleData.val = sample.audioData
-  originalSampleData.val = sample.originalAudioData || sample.audioData
-  currentSampleDuration.val = sample.duration
+  windowedSampleData.val = sample.audioData
+  fullSampleData.val = sample.originalAudioData || sample.audioData
   currentSampleFallback.val = sample.fallbackIdx
   currentSampleName.val = sample.name
   originalSampleName.val = sample.name
@@ -109,9 +88,8 @@ export const loadSample = (sample: Sample) => {
 }
 
 export const newSample = () => {
-  currentSampleData.val = ''
-  originalSampleData.val = ''
-  currentSampleDuration.val = 0
+  windowedSampleData.val = ''
+  fullSampleData.val = ''
   currentSampleFallback.val = 0
   currentSampleName.val = 'Untitled Sample'
   originalSampleName.val = 'Untitled Sample'
@@ -131,7 +109,7 @@ export const deleteSample = (sampleId: string) => {
 
 // Auto-save function when sample data changes
 export const autoSave = () => {
-  if (!currentSampleName.val.trim() || !currentSampleData.val) {
+  if (!currentSampleName.val.trim() || !windowedSampleData.val) {
     return
   }
 

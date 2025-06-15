@@ -30,14 +30,23 @@ export interface Sample {
   id: string
   name: string
   audioData: string // Base64 encoded audio data (8-bit PCM)
-  originalAudioData?: string // Base64 encoded original audio data (Float32) for re-editing
+  originalAudioData: string // Base64 encoded original audio data (Float32) for re-editing
   fallbackIdx: number // Index of stock sample to use as fallback
-  duration: number // Duration in seconds
+  authors: string[]
+  created: number
+  modified: number
+  windowPosition: number // Window starting position in samples
+  windowSize: number // Window size in samples
+}
+
+export interface SharableSample {
+  id: string
+  name: string
+  audioData: string // Base64 encoded audio data (8-bit PCM)
+  fallbackIdx: number // Index of stock sample to use as fallback
   authors: string[]
   createdDate: string
   modifiedDate: string
-  windowPosition?: number // Window starting position in samples
-  windowSize?: number // Window size in samples
 }
 
 // Beat storage functions

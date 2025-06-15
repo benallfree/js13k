@@ -49,7 +49,7 @@ const SampleItem = (sample: Sample) => {
     div(
       { class: styles.beatInfo },
       h3({ class: styles.beatTitle }, sample.name),
-      p({ class: styles.beatMeta }, `Modified: ${formatDate(sample.modified)} • ${sample.duration.toFixed(2)}s`),
+      p({ class: styles.beatMeta }, `Modified: ${formatDate(sample.modified)}`),
       AuthorsDisplay({
         authors: sample.authors || [],
         className: styles.beatAuthors,

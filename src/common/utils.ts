@@ -67,12 +67,11 @@ export const createSampleData = (
     id?: string
     name: string
     audioData: string
-    originalAudioData?: string
+    originalAudioData: string
     fallbackIdx: number
-    duration: number
     authors: string[]
-    windowPosition?: number
-    windowSize?: number
+    windowPosition: number
+    windowSize: number
   },
   existingSample?: Sample
 ): Sample => {
@@ -83,10 +82,9 @@ export const createSampleData = (
     audioData: data.audioData,
     originalAudioData: data.originalAudioData,
     fallbackIdx: data.fallbackIdx,
-    duration: data.duration,
     authors: data.authors,
-    createdDate: existingSample ? existingSample.createdDate : now.toISOString(),
-    modifiedDate: now.toISOString(),
+    created: existingSample ? existingSample.created : now.getTime(),
+    modified: now.getTime(),
     windowPosition: data.windowPosition,
     windowSize: data.windowSize,
   }

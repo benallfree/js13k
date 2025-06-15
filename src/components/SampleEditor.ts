@@ -1,4 +1,10 @@
-import { generateWaveform, getTrimmedAudioData, playCustomSample, processAudioFileWithOriginal } from '@/audioUtils'
+import {
+  generateWaveform,
+  getSampleCount,
+  getTrimmedAudioData,
+  playCustomSample,
+  processAudioFileWithOriginal,
+} from '@/audioUtils'
 import { ConfirmationModal, InputModal } from '@/common'
 import { BottomTray } from '@/common/BottomTray'
 import { Link } from '@/common/router'
@@ -7,27 +13,22 @@ import { canvas, div, input, span } from '@/common/tags'
 import { mergeAuthors, useModal } from '@/common/utils'
 import { xHandle } from '@/common/xHandleManager'
 import {
-  currentSampleData,
-  currentSampleDuration,
   currentSampleFallback,
   currentSampleId,
   currentSampleName,
   deleteSample,
+  fullSampleData,
   getAuthorsForCurrentSample,
   loadSample,
   newSample,
-  originalSampleData,
   sampleIsModified,
   saveSample,
   savedSamples,
-  setEffectiveDurationGetter,
-  setEffectiveSampleDataGetter,
-  setWindowPositionGetter,
-  setWindowSizeGetter,
   sharedSampleAuthors,
+  windowedSampleData,
 } from '@/sampleState'
 import { sampleMetadata } from '@/sounds'
-import { Sample, generateGuid, loadSamplesFromStorage } from '@/storage'
+import { SharableSample, generateGuid, loadSamplesFromStorage } from '@/storage'
 import van from 'vanjs-core'
 import { AuthorsDisplay, ShareModal, SplashPage } from './index'
 import sharedStyles from './Shared.module.css'
@@ -54,14 +55,13 @@ const maxSamplesForSharing = 3000 // About 375ms at 8kHz - fits in ~4KB base64 f
 const windowSizeInSamples = van.state(maxSamplesForSharing)
 const windowPositionInSamples = van.state(0)
 const totalSampleCount = van.state(0)
-const shareWindowActive = van.state(false)
 
 // Canvas reference
 let canvasElement: HTMLCanvasElement | null = null
 
 // Auto-save function
 const autoSave = () => {
-  if (!currentSampleName.val.trim() || !currentSampleData.val) {
+  if (!currentSampleName.val.trim() || !windowedSampleData.val) {
     return
   }
 
@@ -108,17 +108,13 @@ const handleFileUpload = async (event: Event) => {
     const fileName = file.name.replace(/\.[^/.]+$/, '')
     currentSampleName.val = fileName
 
-    originalSampleData.val = originalAudioData
-    currentSampleData.val = downsampledAudioData
-    currentSampleDuration.val = duration
+    fullSampleData.val = downsampledAudioData // Store downsampled version as original
+    windowedSampleData.val = downsampledAudioData
     sampleIsModified.val = true
 
     // Calculate total samples for 8-bit PCM (1 byte per sample)
     const sampleCount = Math.floor((downsampledAudioData.length * 3) / 4) // base64 -> bytes = samples for 8-bit
     totalSampleCount.val = sampleCount
-
-    // Always enable windowing
-    shareWindowActive.val = true
 
     // Set window size to either full sample or max sharable size
     if (sampleCount > maxSamplesForSharing) {
@@ -128,8 +124,8 @@ const handleFileUpload = async (event: Event) => {
     }
     windowPositionInSamples.val = 0
 
-    // Generate waveform from original (higher quality for display)
-    waveformData.val = generateWaveform(originalAudioData, 800, false) // original is Float32
+    // Generate waveform from downsampled data
+    waveformData.val = generateWaveform(downsampledAudioData, 800) // Use downsampled 8-bit PCM
 
     setTimeout(() => {
       drawWaveform()
@@ -180,7 +176,7 @@ const drawWaveform = () => {
   ctx.stroke()
 
   // Draw share window if active
-  if (shareWindowActive.val && totalSampleCount.val > 0) {
+  if (totalSampleCount.val > 0) {
     const windowStart = windowPositionInSamples.val / totalSampleCount.val
     const windowEnd = (windowPositionInSamples.val + windowSizeInSamples.val) / totalSampleCount.val
 
@@ -210,38 +206,6 @@ const drawWaveform = () => {
   }
 }
 
-// Get effective sample data for sharing/playback
-const getEffectiveSampleData = () => {
-  if (!currentSampleData.val) return ''
-
-  // If windowing is active, apply window to current data
-  if (shareWindowActive.val && totalSampleCount.val > 0) {
-    const windowStart = windowPositionInSamples.val / totalSampleCount.val
-    const windowEnd = (windowPositionInSamples.val + windowSizeInSamples.val) / totalSampleCount.val
-    try {
-      const { audioData: windowedData } = getTrimmedAudioData(currentSampleData.val, windowStart, windowEnd)
-      return windowedData
-    } catch {
-      return currentSampleData.val
-    }
-  }
-
-  return currentSampleData.val
-}
-
-// Get effective duration for sharing/saving
-const getEffectiveDuration = () => {
-  if (!currentSampleData.val) return 0
-
-  // If windowing is active, calculate windowed duration
-  if (shareWindowActive.val && totalSampleCount.val > 0) {
-    const windowRatio = windowSizeInSamples.val / totalSampleCount.val
-    return currentSampleDuration.val * windowRatio
-  }
-
-  return currentSampleDuration.val
-}
-
 // Window size slider handler
 const handleWindowSizeChange = (event: Event) => {
   const input = event.target as HTMLInputElement
@@ -252,6 +216,12 @@ const handleWindowSizeChange = (event: Event) => {
   if (windowPositionInSamples.val > maxPosition) {
     windowPositionInSamples.val = Math.max(0, maxPosition)
   }
+
+  windowedSampleData.val = getTrimmedAudioData(
+    fullSampleData.val,
+    windowPositionInSamples.val,
+    windowSizeInSamples.val
+  ).audioData
 
   drawWaveform()
   sampleIsModified.val = true
@@ -266,6 +236,14 @@ const handleWindowSizeChange = (event: Event) => {
 const handleWindowPositionChange = (event: Event) => {
   const input = event.target as HTMLInputElement
   windowPositionInSamples.val = parseInt(input.value)
+
+  // Update the windowed sample data
+  windowedSampleData.val = getTrimmedAudioData(
+    fullSampleData.val,
+    windowPositionInSamples.val,
+    windowPositionInSamples.val + windowSizeInSamples.val
+  ).audioData
+
   drawWaveform()
   sampleIsModified.val = true
 
@@ -285,27 +263,23 @@ const handleFallbackChange = (event: Event) => {
 
 // Share modal handlers
 const handleShowShareModal = () => {
-  if (!currentSampleData.val) {
+  if (!windowedSampleData.val) {
     flash('❌ No sample data to share', 3000)
     return
   }
 
-  const effectiveSampleData = getEffectiveSampleData()
-  const effectiveDuration = getEffectiveDuration()
-
-  const sampleData: Sample = {
-    id: currentSampleId.val || generateGuid(),
+  const sampleData: SharableSample = {
+    id: generateGuid(),
     name: currentSampleName.val,
-    audioData: effectiveSampleData,
+    audioData: windowedSampleData.val,
     fallbackIdx: currentSampleFallback.val,
-    duration: effectiveDuration,
     authors: mergeAuthors([], sharedSampleAuthors.val, xHandle.val),
     createdDate: new Date().toISOString(),
     modifiedDate: new Date().toISOString(),
   }
 
   const sampleJson = JSON.stringify({ [sampleData.id]: sampleData })
-  shareUrl.val = `${window.location.origin}/share-sample/${btoa(sampleJson)}`
+  shareUrl.val = `${window.location.origin}/share/${btoa(sampleJson)}`
   shareModal.open()
 }
 
@@ -384,12 +358,6 @@ interface SampleEditorProps {
 }
 
 export const SampleEditor = ({ sampleId }: SampleEditorProps) => {
-  // Register our getEffectiveSampleData function with the state manager
-  setEffectiveSampleDataGetter(getEffectiveSampleData)
-  setEffectiveDurationGetter(getEffectiveDuration)
-  setWindowPositionGetter(() => windowPositionInSamples.val)
-  setWindowSizeGetter(() => windowSizeInSamples.val)
-
   // Initialize editor
   const initializeEditor = () => {
     savedSamples.val = loadSamplesFromStorage()
@@ -398,37 +366,14 @@ export const SampleEditor = ({ sampleId }: SampleEditorProps) => {
     const sample = samples.find((s) => s.id === sampleId)
     if (sample) {
       loadSample(sample)
-      // Use original data for waveform if available, otherwise downsampled (as 8-bit)
-      if (sample.originalAudioData) {
-        waveformData.val = generateWaveform(sample.originalAudioData, 800, false) // Float32
-      } else {
-        waveformData.val = generateWaveform(sample.audioData, 800, true) // 8-bit PCM
-      }
+      // Use downsampled data for waveform
+      waveformData.val = generateWaveform(sample.originalAudioData, 800) // Use 8-bit PCM
 
       // Setup windowing - calculate samples for 8-bit PCM
-      const sampleCount = Math.floor((sample.audioData.length * 3) / 4) // base64 -> bytes = samples for 8-bit
-      totalSampleCount.val = sampleCount
+      totalSampleCount.val = getSampleCount(sample.originalAudioData)
 
-      // Always enable windowing
-      shareWindowActive.val = true
-
-      // Restore saved window settings or use defaults
-      if (sample.windowSize !== undefined) {
-        windowSizeInSamples.val = sample.windowSize
-      } else {
-        // Set window size to either full sample or max sharable size
-        if (sampleCount > maxSamplesForSharing) {
-          windowSizeInSamples.val = maxSamplesForSharing
-        } else {
-          windowSizeInSamples.val = sampleCount
-        }
-      }
-
-      if (sample.windowPosition !== undefined) {
-        windowPositionInSamples.val = sample.windowPosition
-      } else {
-        windowPositionInSamples.val = 0
-      }
+      windowSizeInSamples.val = sample.windowSize
+      windowPositionInSamples.val = sample.windowPosition || 0
 
       flash(`📂 Loaded "${sample.name}"`)
 
@@ -444,9 +389,7 @@ export const SampleEditor = ({ sampleId }: SampleEditorProps) => {
 
   // Watch for window changes and redraw
   van.derive(() => {
-    const size = windowSizeInSamples.val
-    const position = windowPositionInSamples.val
-    if (currentSampleData.val && totalSampleCount.val > 0) {
+    if (windowedSampleData.val && totalSampleCount.val > 0) {
       setTimeout(() => {
         drawWaveform()
       }, 10)
@@ -530,7 +473,7 @@ export const SampleEditor = ({ sampleId }: SampleEditorProps) => {
 
           setTimeout(() => {
             canvasElement = canvasEl as HTMLCanvasElement
-            if (currentSampleData.val && waveformData.val.length > 0) {
+            if (windowedSampleData.val && waveformData.val.length > 0) {
               drawWaveform()
             } else {
               drawTestPattern()
@@ -542,39 +485,37 @@ export const SampleEditor = ({ sampleId }: SampleEditorProps) => {
 
         // Window control sliders (always show when there's audio data)
         () =>
-          currentSampleData.val
-            ? div(
-                { class: 'mt-3 p-3 bg-gray-50 border border-gray-200 rounded' },
+          div(
+            { class: 'mt-3 p-3 bg-gray-50 border border-gray-200 rounded' },
 
-                // Window size slider
-                div(
-                  { class: 'mb-3' },
-                  div({ class: 'text-xs text-gray-600 mb-1' }, `Length`),
-                  input({
-                    type: 'range',
-                    min: '500', // ~62ms at 8kHz - minimum useful drum hit
-                    max: () => totalSampleCount.val.toString(),
-                    value: () => windowSizeInSamples.val.toString(),
-                    oninput: handleWindowSizeChange,
-                    class: 'w-full',
-                  })
-                ),
+            // Window size slider
+            div(
+              { class: 'mb-3' },
+              div({ class: 'text-xs text-gray-600 mb-1' }, `Length`),
+              input({
+                type: 'range',
+                min: '500', // ~62ms at 8kHz - minimum useful drum hit
+                max: () => Math.min(fullSampleData.val.length, maxSamplesForSharing).toString(),
+                value: () => windowSizeInSamples.val.toString(),
+                oninput: handleWindowSizeChange,
+                class: 'w-full',
+              })
+            ),
 
-                // Window position slider
-                div(
-                  { class: 'mb-2' },
-                  div({ class: 'text-xs text-gray-600 mb-1' }, `Position`),
-                  input({
-                    type: 'range',
-                    min: '0',
-                    max: () => Math.max(0, totalSampleCount.val - windowSizeInSamples.val).toString(),
-                    value: () => windowPositionInSamples.val.toString(),
-                    oninput: handleWindowPositionChange,
-                    class: 'w-full',
-                  })
-                )
-              )
-            : ''
+            // Window position slider
+            div(
+              { class: 'mb-2' },
+              div({ class: 'text-xs text-gray-600 mb-1' }, `Position`),
+              input({
+                type: 'range',
+                min: '0',
+                max: () => Math.max(0, totalSampleCount.val - windowSizeInSamples.val).toString(),
+                value: () => windowPositionInSamples.val.toString(),
+                oninput: handleWindowPositionChange,
+                class: 'w-full',
+              })
+            )
+          )
       ),
 
       // Fallback sample selection
@@ -611,10 +552,7 @@ export const SampleEditor = ({ sampleId }: SampleEditorProps) => {
         {
           children: '▶️',
           onClick: () => {
-            const effectiveData = getEffectiveSampleData()
-            if (effectiveData) {
-              playCustomSample(effectiveData)
-            }
+            playCustomSample(windowedSampleData.val)
           },
         },
         {

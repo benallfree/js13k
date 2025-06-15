@@ -78,22 +78,16 @@ export const processAudioFile = async (file: File): Promise<{ audioData: string;
  * @param is8Bit - Whether the data is 8-bit PCM (default: false, assumes Float32)
  * @returns Array of waveform values normalized to 0-1
  */
-export const generateWaveform = (audioData: string, width: number = 800, is8Bit: boolean = false): number[] => {
+export const generateWaveform = (audioData: string, width: number = 800): number[] => {
   try {
     let floatArray: Float32Array
 
-    if (is8Bit) {
-      // Convert 8-bit PCM to Float32 for visualization
-      const uint8Array = base64ToUint8Array(audioData)
-      floatArray = new Float32Array(uint8Array.length)
-      for (let i = 0; i < uint8Array.length; i++) {
-        // Convert from 0-255 uint8 range to -1,1 float range
-        floatArray[i] = uint8Array[i] / 127.5 - 1
-      }
-    } else {
-      // Assume Float32 data
-      const arrayBuffer = base64ToArrayBuffer(audioData)
-      floatArray = new Float32Array(arrayBuffer)
+    // Convert 8-bit PCM to Float32 for visualization
+    const uint8Array = base64ToUint8Array(audioData)
+    floatArray = new Float32Array(uint8Array.length)
+    for (let i = 0; i < uint8Array.length; i++) {
+      // Convert from 0-255 uint8 range to -1,1 float range
+      floatArray[i] = uint8Array[i] / 127.5 - 1
     }
 
     const chunkSize = Math.ceil(floatArray.length / width)
@@ -118,24 +112,27 @@ export const generateWaveform = (audioData: string, width: number = 800, is8Bit:
   }
 }
 
+export const getSampleCount = (audioData: string): number => {
+  const uint8Array = base64ToUint8Array(audioData)
+  return uint8Array.length
+}
+
 /**
  * Apply trim to 8-bit PCM audio data and return trimmed version
  * @param audioData - Base64 encoded 8-bit PCM audio data
- * @param trimStart - Start position (0-1)
- * @param trimEnd - End position (0-1)
+ * @param trimStartSample - Start position in samples
+ * @param trimEndSample - End position in samples
  * @returns Trimmed audio data and new duration
  */
 export const getTrimmedAudioData = (
   audioData: string,
-  trimStart: number,
-  trimEnd: number
+  trimStartSample: number,
+  trimEndSample: number
 ): { audioData: string; duration: number } => {
   try {
     const uint8Array = base64ToUint8Array(audioData)
 
-    const startIndex = Math.floor(trimStart * uint8Array.length)
-    const endIndex = Math.floor(trimEnd * uint8Array.length)
-    const trimmedArray = uint8Array.slice(startIndex, endIndex)
+    const trimmedArray = uint8Array.slice(trimStartSample, trimEndSample)
 
     // Calculate new duration (assuming 8kHz sample rate)
     const duration = trimmedArray.length / 8000
@@ -146,15 +143,6 @@ export const getTrimmedAudioData = (
     throw new Error('Failed to trim audio')
   }
 }
-
-/**
- * Trim audio data based on start and end positions (legacy compatibility)
- * @param audioData - Base64 encoded audio data
- * @param trimStart - Start position (0-1)
- * @param trimEnd - End position (0-1)
- * @returns Trimmed audio data and new duration
- */
-export const trimAudio = getTrimmedAudioData
 
 /**
  * Play 8-bit PCM audio data using Web Audio API
