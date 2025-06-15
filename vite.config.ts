@@ -1,3 +1,4 @@
+import { cloudflare } from '@cloudflare/vite-plugin'
 import { resolve } from 'path'
 import { defineConfig } from 'vite'
 
@@ -51,5 +52,5 @@ export default defineConfig({
       },
     },
   },
-  plugins: [],
+  plugins: [cloudflare()],
 })
