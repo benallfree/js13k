@@ -1,34 +1,17 @@
 import { navigate } from '@/common/router'
+import { flash } from '@/common/statusManager'
+import { formatDate } from '@/common/utils'
 import van from 'vanjs-core'
 import { deleteBeat, newBeat, savedBeats } from '../beatState'
 import { a, div, h1, h2, h3, p } from '../common/tags'
 import { Beat, generateGuid, loadBeatsFromStorage, loadXHandleFromStorage, saveXHandleToStorage } from '../storage'
 import styles from './Home.module.css'
-import { Button, SplashPage, StatusBar, XHandleModal } from './index'
-
-// Status bar state
-const statusMessage = van.state('')
-const statusVisible = van.state(false)
-let statusTimeoutId: ReturnType<typeof setTimeout>
+import { Button, SplashPage, XHandleModal } from './index'
 
 // X Handle state and modal
 const xHandle = van.state('')
 const showXHandleModal = van.state(false)
 const tempXHandle = van.state('')
-
-// Status bar functions
-const showStatus = (message: string, duration = 2000) => {
-  if (statusTimeoutId) {
-    clearTimeout(statusTimeoutId)
-  }
-
-  statusMessage.val = message
-  statusVisible.val = true
-
-  statusTimeoutId = setTimeout(() => {
-    statusVisible.val = false
-  }, duration)
-}
 
 // Save X handle
 const saveXHandle = () => {
@@ -36,24 +19,13 @@ const saveXHandle = () => {
   saveXHandleToStorage(tempXHandle.val)
   showXHandleModal.val = false
   if (tempXHandle.val) {
-    showStatus(`👋 Welcome, @${tempXHandle.val}!`)
+    flash(`👋 Welcome, @${tempXHandle.val}!`)
   }
 }
 
 const skipXHandle = () => {
   showXHandleModal.val = false
-  showStatus('👋 Welcome to Beat Threads!')
-}
-
-// Format date helper
-const formatDate = (timestamp: number) => {
-  return new Date(timestamp).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
+  flash('👋 Welcome to Beat Threads!')
 }
 
 // Create new beat
@@ -111,7 +83,7 @@ const BeatItem = (beat: Beat) => {
         onClick: () => {
           if (confirm(`Are you sure you want to delete "${beat.name}"?`)) {
             deleteBeat(beat.id)
-            showStatus(`🗑️ Beat "${beat.name}" deleted`)
+            flash(`🗑️ Beat "${beat.name}" deleted`)
           }
         },
         variant: 'danger',
@@ -145,7 +117,6 @@ export const Home = () => {
     SplashPage(),
     div(
       { class: 'main-content max-w-800 mx-auto' },
-      StatusBar(statusMessage, statusVisible),
       XHandleModal(showXHandleModal, tempXHandle, saveXHandle, skipXHandle),
 
       // Header

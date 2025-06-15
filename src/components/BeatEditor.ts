@@ -17,6 +17,7 @@ import {
 import { Modal } from '@/common/Modal'
 import { Link } from '@/common/router'
 import { _routerPathname } from '@/common/router/_state'
+import { flash } from '@/common/statusManager'
 import { div, input, span } from '@/common/tags'
 import { sounds } from '@/sounds'
 import { Beat, generateGuid, loadBeatsFromStorage, loadXHandleFromStorage, saveXHandleToStorage } from '@/storage'
@@ -30,14 +31,8 @@ import {
   PatchModal,
   ShareModal,
   SplashPage,
-  StatusBar,
   XHandleModal,
 } from './index'
-
-// Status bar state
-const statusMessage = van.state('')
-const statusVisible = van.state(false)
-let statusTimeoutId: ReturnType<typeof setTimeout>
 
 // X Handle state and modal
 const xHandle = van.state('')
@@ -55,20 +50,6 @@ const tempBeatName = van.state('')
 const showPatchModal = van.state(false)
 const showShareModal = van.state(false)
 const shareUrl = van.state('')
-
-// Status bar functions
-const showStatus = (message: string, duration = 2000) => {
-  if (statusTimeoutId) {
-    clearTimeout(statusTimeoutId)
-  }
-
-  statusMessage.val = message
-  statusVisible.val = true
-
-  statusTimeoutId = setTimeout(() => {
-    statusVisible.val = false
-  }, duration)
-}
 
 let intervalId: ReturnType<typeof setInterval>
 
@@ -109,7 +90,7 @@ const autoSave = () => {
 
 const handleSaveBeat = () => {
   if (!currentBeatName.val.trim()) {
-    showStatus('⚠️ Please enter a beat name', 3000)
+    flash('⚠️ Please enter a beat name', 3000)
     return
   }
 
@@ -140,9 +121,7 @@ const handleSaveBeat = () => {
   }
 
   if (saveBeat(currentBeatName.val, authors)) {
-    showStatus(
-      currentBeatId.val ? `💾 Beat "${currentBeatName.val}" updated` : `✅ Beat "${currentBeatName.val}" saved`
-    )
+    flash(currentBeatId.val ? `💾 Beat "${currentBeatName.val}" updated` : `✅ Beat "${currentBeatName.val}" saved`)
   }
 }
 
@@ -164,7 +143,7 @@ const handleBeatNameSave = (newName: string) => {
   }
 
   if (saveBeat(newName, authors)) {
-    showStatus(`💾 Beat renamed to "${newName}"`)
+    flash(`💾 Beat renamed to "${newName}"`)
   }
 }
 
@@ -195,7 +174,7 @@ const handleClearBeat = () => {
 const confirmClearBeat = () => {
   newBeat()
   showClearModal.val = false
-  showStatus('🧹 Beat cleared')
+  flash('🧹 Beat cleared')
 }
 
 const cancelClearBeat = () => {
@@ -261,13 +240,13 @@ const saveXHandle = () => {
   saveXHandleToStorage(tempXHandle.val)
   showXHandleModal.val = false
   if (tempXHandle.val) {
-    showStatus(`👋 Welcome, @${tempXHandle.val}!`)
+    flash(`👋 Welcome, @${tempXHandle.val}!`)
   }
 }
 
 const skipXHandle = () => {
   showXHandleModal.val = false
-  showStatus('👋 Welcome to Beat Threads!')
+  flash('👋 Welcome to Beat Threads!')
 }
 
 // Toggle play/stop
@@ -277,11 +256,11 @@ const togglePlay = () => {
     playing.val = false
     playingCells.val = new Set() // Clear any playing animations
     stepHistory.val = [] // Clear trail history
-    showStatus('⏸️ Stopped')
+    flash('⏸️ Stopped')
   } else {
     playing.val = true
     intervalId = setInterval(playStep, 120) // ~125 BPM
-    showStatus('▶️ Playing')
+    flash('▶️ Playing')
   }
 }
 
@@ -328,11 +307,11 @@ const handleCopyUrl = () => {
   navigator.clipboard
     .writeText(shareUrl.val)
     .then(() => {
-      showStatus(`📋 Beat URL copied to clipboard!`)
+      flash(`📋 Beat URL copied to clipboard!`)
     })
     .catch(() => {
       prompt('Copy this URL to share your beat:', shareUrl.val)
-      showStatus('🔗 Share URL generated')
+      flash('🔗 Share URL generated')
     })
 }
 
@@ -365,9 +344,9 @@ export const BeatEditor = ({ beatId }: BeatEditorProps) => {
     const beat = beats.find((b) => b.id === beatId)
     if (beat) {
       loadBeat(beat)
-      showStatus(`📂 Loaded "${beat.name}"`)
+      flash(`📂 Loaded "${beat.name}"`)
     } else {
-      showStatus('❌ Beat not found', 3000)
+      flash('❌ Beat not found', 3000)
       // Redirect to home if beat not found
       window.history.pushState({}, '', '/')
       window.dispatchEvent(new PopStateEvent('popstate'))
@@ -415,7 +394,6 @@ export const BeatEditor = ({ beatId }: BeatEditorProps) => {
           () => (isModified.val ? span({ class: 'breadcrumb-modified' }, ' *') : '')
         )
       ),
-      StatusBar(statusMessage, statusVisible),
       XHandleModal(showXHandleModal, tempXHandle, saveXHandle, skipXHandle),
       ClearBeatModal(showClearModal, confirmClearBeat, cancelClearBeat),
       Modal({
