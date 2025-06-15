@@ -3,6 +3,7 @@ import {
   currentBeatName,
   currentStep,
   deleteBeat,
+  getAuthorsForCurrentBeat,
   grid,
   isModified,
   loadBeat,
@@ -62,22 +63,7 @@ const autoSave = () => {
     return // Don't auto-save if no name is set
   }
 
-  // Handle authors array
-  let authors: string[] = []
-  if (currentBeatId.val) {
-    const beats = loadBeatsFromStorage()
-    const existingBeat = beats.find((b) => b.id === currentBeatId.val)
-    authors = existingBeat?.authors || []
-  }
-
-  // Merge with shared beat authors from URL
-  authors = [...new Set([...authors, ...sharedBeatAuthors.val])]
-
-  // Add current user to authors if they have an X handle and aren't already in the list
-  if (xHandle.val && !authors.includes(xHandle.val)) {
-    authors.push(xHandle.val)
-  }
-
+  const authors = getAuthorsForCurrentBeat()
   saveBeat(currentBeatName.val, authors)
 }
 
@@ -97,21 +83,7 @@ const handleSaveBeat = () => {
     }
   }
 
-  // Handle authors array
-  let authors: string[] = []
-  if (currentBeatId.val) {
-    const beats = loadBeatsFromStorage()
-    const existingBeat = beats.find((b) => b.id === currentBeatId.val)
-    authors = existingBeat?.authors || []
-  }
-
-  // Merge with shared beat authors from URL
-  authors = [...new Set([...authors, ...sharedBeatAuthors.val])]
-
-  // Add current user to authors if they have an X handle and aren't already in the list
-  if (xHandle.val && !authors.includes(xHandle.val)) {
-    authors.push(xHandle.val)
-  }
+  const authors = getAuthorsForCurrentBeat()
 
   if (saveBeat(currentBeatName.val, authors)) {
     flash(currentBeatId.val ? `💾 Beat "${currentBeatName.val}" updated` : `✅ Beat "${currentBeatName.val}" saved`)
@@ -119,21 +91,7 @@ const handleSaveBeat = () => {
 }
 
 const handleBeatNameSave = (newName: string) => {
-  // Handle authors array
-  let authors: string[] = []
-  if (currentBeatId.val) {
-    const beats = loadBeatsFromStorage()
-    const existingBeat = beats.find((b) => b.id === currentBeatId.val)
-    authors = existingBeat?.authors || []
-  }
-
-  // Merge with shared beat authors from URL
-  authors = [...new Set([...authors, ...sharedBeatAuthors.val])]
-
-  // Add current user to authors if they have an X handle and aren't already in the list
-  if (xHandle.val && !authors.includes(xHandle.val)) {
-    authors.push(xHandle.val)
-  }
+  const authors = getAuthorsForCurrentBeat()
 
   if (saveBeat(newName, authors)) {
     flash(`💾 Beat renamed to "${newName}"`)

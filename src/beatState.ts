@@ -1,4 +1,5 @@
 import van from 'vanjs-core'
+import { xHandle } from './common/xHandleManager'
 import { Beat, generateGuid, loadBeatsFromStorage, saveBeatsToStorage } from './storage'
 
 // Beat maker state
@@ -23,6 +24,30 @@ export const originalBeatName = van.state<string>('')
 
 // Beat authors state (moved from Home.ts)
 export const sharedBeatAuthors = van.state<string[]>([])
+
+/**
+ * Get the complete authors array for the current beat
+ * Combines existing beat authors, shared beat authors, and current user's handle
+ */
+export const getAuthorsForCurrentBeat = (): string[] => {
+  // Start with existing authors from the current beat
+  let authors: string[] = []
+  if (currentBeatId.val) {
+    const beats = loadBeatsFromStorage()
+    const existingBeat = beats.find((b) => b.id === currentBeatId.val)
+    authors = existingBeat?.authors || []
+  }
+
+  // Merge with shared beat authors from URL (deduplicated)
+  authors = [...new Set([...authors, ...sharedBeatAuthors.val])]
+
+  // Add current user to authors if they have an X handle and aren't already in the list
+  if (xHandle.val && !authors.includes(xHandle.val)) {
+    authors.push(xHandle.val)
+  }
+
+  return authors
+}
 
 export const saveBeat = (name: string, authors: string[]) => {
   if (!name.trim()) return false
