@@ -1,6 +1,6 @@
+export { Button } from '../common/Button'
 export { AuthorsDisplay } from './AuthorsDisplay'
 export { BeatNameInput } from './BeatNameInput'
-export { Button } from './Button'
 export { ClearBeatModal } from './ClearBeatModal'
 export { Grid } from './Grid'
 export { Home } from './Home'

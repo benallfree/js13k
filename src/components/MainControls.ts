@@ -1,6 +1,7 @@
 import van, { State } from 'vanjs-core'
+import { Button } from '../common/Button'
+import styles from '../common/Button.module.css'
 import { sampleMetadata } from '../sounds'
-import { Button } from './Button'
 
 const { div } = van.tags
 
@@ -22,7 +23,7 @@ export const MainControls = (
       ...Object.entries(sampleMetadata).map(([index, meta]) =>
         Button({
           onClick: () => onSelectInstrument(Number(index)),
-          class: selectedInstrument.val === Number(index) ? 'btn-active' : '',
+          class: selectedInstrument.val === Number(index) ? styles['btn-active'] : '',
           size: 'sm',
           children: `${meta.emoji} ${meta.shortName}`,
         })

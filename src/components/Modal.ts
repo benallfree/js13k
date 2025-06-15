@@ -1,5 +1,5 @@
 import van, { State } from 'vanjs-core'
-import { Button } from './Button'
+import { Button } from '../common/Button'
 
 const { div } = van.tags
 

@@ -1,4 +1,5 @@
 import van from 'vanjs-core'
+import styles from './Button.module.css'
 
 const { button } = van.tags
 
@@ -18,10 +19,10 @@ const getButtonClasses = (
   size: ButtonSize = 'md',
   className: string = ''
 ): string => {
-  const classes = ['btn', `btn-${variant}`]
+  const classes = [styles.btn, styles[`btn-${variant}`]]
 
   if (size !== 'md') {
-    classes.push(`btn-${size}`)
+    classes.push(styles[`btn-${size}`])
   }
 
   if (className) {

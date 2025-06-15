@@ -1,6 +1,6 @@
 import van, { State } from 'vanjs-core'
+import { Button } from '../common/Button'
 import { Beat } from '../storage'
-import { Button } from './Button'
 
 const { div, h3, a } = van.tags
 

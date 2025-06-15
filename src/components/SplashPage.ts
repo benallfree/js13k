@@ -1,5 +1,5 @@
 import van from 'vanjs-core'
-import { Button } from './Button'
+import { Button } from '../common/Button'
 import { Modal } from './Modal'
 
 const { div, p, h1, h2 } = van.tags
