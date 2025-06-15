@@ -19,25 +19,12 @@ import { Link } from '@/common/router'
 import { _routerPathname } from '@/common/router/_state'
 import { flash } from '@/common/statusManager'
 import { div, input, span } from '@/common/tags'
+import { xHandle } from '@/common/xHandleManager'
 import { sounds } from '@/sounds'
-import { Beat, generateGuid, loadBeatsFromStorage, loadXHandleFromStorage, saveXHandleToStorage } from '@/storage'
+import { Beat, generateGuid, loadBeatsFromStorage } from '@/storage'
 import { shareBeat as createShareUrl } from '@/url'
 import van from 'vanjs-core'
-import {
-  AuthorsDisplay,
-  BottomTray,
-  ClearBeatModal,
-  Grid,
-  PatchModal,
-  ShareModal,
-  SplashPage,
-  XHandleModal,
-} from './index'
-
-// X Handle state and modal
-const xHandle = van.state('')
-const showXHandleModal = van.state(false)
-const tempXHandle = van.state('')
+import { AuthorsDisplay, BottomTray, ClearBeatModal, Grid, PatchModal, ShareModal, SplashPage } from './index'
 
 // Add clear modal state
 const showClearModal = van.state(false)
@@ -234,21 +221,6 @@ const playStep = () => {
   currentStep.val = (currentStep.val + 1) % 16
 }
 
-// Save X handle
-const saveXHandle = () => {
-  xHandle.val = tempXHandle.val
-  saveXHandleToStorage(tempXHandle.val)
-  showXHandleModal.val = false
-  if (tempXHandle.val) {
-    flash(`👋 Welcome, @${tempXHandle.val}!`)
-  }
-}
-
-const skipXHandle = () => {
-  showXHandleModal.val = false
-  flash('👋 Welcome to Beat Threads!')
-}
-
 // Toggle play/stop
 const togglePlay = () => {
   if (playing.val) {
@@ -315,17 +287,6 @@ const handleCopyUrl = () => {
     })
 }
 
-// Format date helper
-const formatDate = (timestamp: number) => {
-  return new Date(timestamp).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-}
-
 interface BeatEditorProps {
   beatId: string
 }
@@ -333,9 +294,6 @@ interface BeatEditorProps {
 export const BeatEditor = ({ beatId }: BeatEditorProps) => {
   // Initialize app and load beat if beatId is provided
   const initializeEditor = () => {
-    // Load X handle from storage
-    xHandle.val = loadXHandleFromStorage()
-
     // Load beats library
     savedBeats.val = loadBeatsFromStorage()
 
@@ -351,11 +309,6 @@ export const BeatEditor = ({ beatId }: BeatEditorProps) => {
       window.history.pushState({}, '', '/')
       window.dispatchEvent(new PopStateEvent('popstate'))
       return
-    }
-
-    // Show X handle modal if not set
-    if (!xHandle.val) {
-      showXHandleModal.val = true
     }
   }
 
@@ -394,7 +347,6 @@ export const BeatEditor = ({ beatId }: BeatEditorProps) => {
           () => (isModified.val ? span({ class: 'breadcrumb-modified' }, ' *') : '')
         )
       ),
-      XHandleModal(showXHandleModal, tempXHandle, saveXHandle, skipXHandle),
       ClearBeatModal(showClearModal, confirmClearBeat, cancelClearBeat),
       Modal({
         isOpen: showBeatNameModal,

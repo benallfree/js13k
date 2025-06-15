@@ -1,32 +1,11 @@
 import { navigate } from '@/common/router'
 import { flash } from '@/common/statusManager'
 import { formatDate } from '@/common/utils'
-import van from 'vanjs-core'
 import { deleteBeat, newBeat, savedBeats } from '../beatState'
 import { a, div, h1, h2, h3, p } from '../common/tags'
-import { Beat, generateGuid, loadBeatsFromStorage, loadXHandleFromStorage, saveXHandleToStorage } from '../storage'
+import { Beat, generateGuid, loadBeatsFromStorage } from '../storage'
 import styles from './Home.module.css'
-import { Button, SplashPage, XHandleModal } from './index'
-
-// X Handle state and modal
-const xHandle = van.state('')
-const showXHandleModal = van.state(false)
-const tempXHandle = van.state('')
-
-// Save X handle
-const saveXHandle = () => {
-  xHandle.val = tempXHandle.val
-  saveXHandleToStorage(tempXHandle.val)
-  showXHandleModal.val = false
-  if (tempXHandle.val) {
-    flash(`👋 Welcome, @${tempXHandle.val}!`)
-  }
-}
-
-const skipXHandle = () => {
-  showXHandleModal.val = false
-  flash('👋 Welcome to Beat Threads!')
-}
+import { Button, SplashPage } from './index'
 
 // Create new beat
 const createNewBeat = () => {
@@ -97,16 +76,8 @@ const BeatItem = (beat: Beat) => {
 export const Home = () => {
   // Initialize app
   const initializeApp = () => {
-    // Load X handle from storage
-    xHandle.val = loadXHandleFromStorage()
-
     // Load beats library
     savedBeats.val = loadBeatsFromStorage()
-
-    // Show X handle modal if not set
-    if (!xHandle.val) {
-      showXHandleModal.val = true
-    }
   }
 
   // Initialize on component creation
@@ -117,7 +88,6 @@ export const Home = () => {
     SplashPage(),
     div(
       { class: 'main-content max-w-800 mx-auto' },
-      XHandleModal(showXHandleModal, tempXHandle, saveXHandle, skipXHandle),
 
       // Header
       div(
