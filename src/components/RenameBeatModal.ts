@@ -1,5 +1,5 @@
 import van, { State } from 'vanjs-core'
-import { Modal } from './Modal'
+import { Modal } from '../common/Modal'
 
 const { div, input } = van.tags
 

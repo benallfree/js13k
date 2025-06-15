@@ -1,5 +1,6 @@
 import van, { State } from 'vanjs-core'
-import { Button } from '../common/Button'
+import { Button } from './Button'
+import styles from './Modal.module.css'
 
 const { div } = van.tags
 
@@ -22,13 +23,13 @@ export const Modal =
   () =>
     isOpen.val
       ? div(
-          { class: 'modal-overlay' },
+          { class: styles.overlay },
           div(
-            { class: 'modal' },
-            title && div({ class: 'modal-title' }, title),
-            div({ class: 'modal-content' }, content()),
+            { class: styles.modal },
+            title && div({ class: styles.title }, title),
+            div({ class: styles.content }, content()),
             div(
-              { class: 'modal-buttons' },
+              { class: styles.buttons },
               primaryButton &&
                 Button({
                   onClick: () => {
