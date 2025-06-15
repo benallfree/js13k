@@ -15,6 +15,7 @@ import {
   stepHistory,
 } from '@/beatState'
 import { Link } from '@/common/router'
+import { _routerPathname } from '@/common/router/_state'
 import { div, span } from '@/common/tags'
 import { sounds } from '@/sounds'
 import { Beat, generateGuid, loadBeatsFromStorage, loadXHandleFromStorage, saveXHandleToStorage } from '@/storage'
@@ -60,6 +61,16 @@ const showStatus = (message: string, duration = 2000) => {
 }
 
 let intervalId: ReturnType<typeof setInterval>
+
+// Add cleanup function to stop playback when navigating away
+const stopPlayback = () => {
+  if (intervalId) {
+    clearInterval(intervalId)
+  }
+  playing.val = false
+  playingCells.val = new Set()
+  stepHistory.val = []
+}
 
 const handleSaveBeat = () => {
   if (!currentBeatName.val.trim()) {
@@ -170,8 +181,6 @@ const shareBeat = () => {
 
 // Cell interaction handling
 const toggleCell = (row: number, col: number) => {
-  if (playing.val) return
-
   const newGrid = [...grid.val]
   if (!newGrid[row]) newGrid[row] = new Array(16).fill(0)
 
@@ -293,6 +302,15 @@ export const BeatEditor = ({ beatId }: BeatEditorProps) => {
       showXHandleModal.val = true
     }
   }
+
+  // Watch for navigation changes using VanJS reactive system
+  const currentBeatEditorPath = `/beats/${beatId}`
+  van.derive(() => {
+    // If we're navigating away from this beat editor, stop playback
+    if (_routerPathname.val !== currentBeatEditorPath && playing.val) {
+      stopPlayback()
+    }
+  })
 
   // Initialize on component creation
   initializeEditor()
