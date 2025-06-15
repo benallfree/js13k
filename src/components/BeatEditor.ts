@@ -298,7 +298,6 @@ export const BeatEditor = ({ beatId }: BeatEditorProps) => {
   initializeEditor()
 
   return div(
-    { class: 'app' },
     SplashPage(),
     div(
       { class: 'main-content' },
@@ -324,22 +323,18 @@ export const BeatEditor = ({ beatId }: BeatEditorProps) => {
         Button({
           onClick: handleSaveBeat,
           variant: 'primary',
-          children: '💾 Save',
-        }),
-        Button({
-          onClick: handleClearBeat,
-          variant: 'danger',
-          children: '🗑️ Clear',
+          children: '💾',
         }),
         Button({
           onClick: shareBeat,
           variant: 'secondary',
-          children: '🔗 Share',
+          children: '🔗',
         })
       ),
-      MainControls(playing, selectedInstrument, togglePlay, (index) => {
-        selectedInstrument.val = index
-      }),
+      () =>
+        MainControls(playing, selectedInstrument, togglePlay, (index) => {
+          selectedInstrument.val = index
+        }),
       Grid(grid, playing, playingCells, stepHistory, toggleCell),
       AuthorsDisplay(sharedBeatAuthors),
       () => {

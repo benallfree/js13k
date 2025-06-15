@@ -4,6 +4,7 @@ globs:
 alwaysApply: true
 ---
 * Van.js
+* VanJS State Reactivity: Whenever you reference `.val` of a state variable, the enclosing function will automatically re-execute when that state changes. This can cause bugs where initialization functions run repeatedly. To limit the re-rendering scope, wrap state access in a nested function - this confines the reactivity to just that inner function rather than the entire enclosing function.
 * Vanjs-routing (https://www.npmjs.com/package/vanjs-routing)
 * this is a JS13K game and must be approached as minimally as possible when writing code
 * Prefer tailwind-style symantic styling over inline styles. Add classes to [styles.css](mdc:src/styles.css) or use CSS modules for component-specific styling which cannot be generalized
