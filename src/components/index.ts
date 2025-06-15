@@ -1,5 +1,7 @@
 export { Button } from '../common/Button'
+export { EditableInput } from '../common/EditableInput'
 export { Modal } from '../common/Modal'
+export { Splash } from '../common/Splash'
 export { StatusBar } from '../common/StatusBar'
 export { AuthorsDisplay } from './AuthorsDisplay'
 export { BeatNameInput } from './BeatNameInput'

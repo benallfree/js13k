@@ -1,20 +1,17 @@
-import van, { State } from 'vanjs-core'
-
-const { div, span } = van.tags
+import { State } from 'vanjs-core'
+import { EditableInput } from '../common/EditableInput'
 
 export const BeatNameInput = (
   currentBeatName: State<string>,
   isModified: State<boolean>,
-  onInput: (value: string) => void
+  onSave: (newName: string) => void
 ) =>
-  div(
-    { class: 'beat-name' },
-    span(
-      {
-        class: 'beat-name-text',
-        onclick: () => onInput(currentBeatName.val),
-      },
-      () => currentBeatName.val,
-      () => (isModified.val ? span({ class: 'modified' }, ' *') : '')
-    )
-  )
+  EditableInput({
+    value: currentBeatName,
+    isModified,
+    onSave,
+    modalTitle: 'Rename Beat',
+    modalPrompt: 'Enter a new name for your beat:',
+    saveButtonText: 'Rename',
+    cancelButtonText: 'Cancel',
+  })

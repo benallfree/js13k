@@ -1,67 +1,28 @@
-import van from 'vanjs-core'
-import { Button } from '../common/Button'
-import { Modal } from '../common/Modal'
-
-const { div, p, h1, h2 } = van.tags
-
-const SPLASH_DISMISSED_KEY = 'js13k-splash-dismissed'
+import { Splash } from '../common/Splash'
 
 export const SplashPage = () => {
-  const isOpen = van.state(!localStorage.getItem(SPLASH_DISMISSED_KEY))
-
-  const dismissSplash = () => {
-    localStorage.setItem(SPLASH_DISMISSED_KEY, 'true')
-    isOpen.val = false
-  }
-
-  // Lock body scroll when modal is open
-  van.derive(() => {
-    document.body.style.overflow = isOpen.val ? 'hidden' : ''
+  return Splash({
+    title: 'Beat Threads',
+    storageKey: 'js13k-splash-dismissed',
+    sections: [
+      {
+        title: 'How to Play',
+        content: [
+          'Create and share musical beats with others!',
+          '• Click on the grid to create beats',
+          '• Use the controls to adjust tempo and volume',
+          '• Save your beats to your library',
+          '• Share your beats with others',
+        ],
+      },
+      {
+        title: 'Tips',
+        content: [
+          '• Try different patterns to create unique rhythms',
+          '• Experiment with different tempos',
+          '• Save your favorite beats for later',
+        ],
+      },
+    ],
   })
-
-  const content = () =>
-    div(
-      { class: 'splash-content' },
-      h1({ class: 'splash-title' }, 'Beat Threads'),
-      div(
-        { class: 'splash-section' },
-        h2('How to Play'),
-        p('Create and share musical beats with others!'),
-        p('• Click on the grid to create beats'),
-        p('• Use the controls to adjust tempo and volume'),
-        p('• Save your beats to your library'),
-        p('• Share your beats with others')
-      ),
-      div(
-        { class: 'splash-section' },
-        h2('Tips'),
-        p('• Try different patterns to create unique rhythms'),
-        p('• Experiment with different tempos'),
-        p('• Save your favorite beats for later')
-      )
-    )
-
-  const helpButton = () =>
-    div(
-      { class: 'help-button' },
-      Button({
-        onClick: () => (isOpen.val = true),
-        variant: 'secondary',
-        children: '?',
-      })
-    )
-
-  return () =>
-    div(
-      { class: 'splash-container' },
-      Modal({
-        isOpen,
-        content,
-        primaryButton: {
-          text: 'Get Started',
-          onClick: dismissSplash,
-        },
-      }),
-      helpButton()
-    )
 }

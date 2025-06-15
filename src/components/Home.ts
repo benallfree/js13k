@@ -29,7 +29,6 @@ import {
   LibraryControls,
   LibraryPanel,
   MainControls,
-  RenameBeatModal,
   SplashPage,
   StatusBar,
   XHandleModal,
@@ -46,10 +45,6 @@ let statusTimeoutId: ReturnType<typeof setTimeout>
 const xHandle = van.state('')
 const showXHandleModal = van.state(false)
 const tempXHandle = van.state('')
-
-// Add rename modal state
-const showRenameModal = van.state(false)
-const tempBeatName = van.state('')
 
 // Add clear modal state
 const showClearModal = van.state(false)
@@ -76,13 +71,12 @@ const handleSaveBeat = () => {
     return
   }
 
-  // If we're updating an existing beat with a different name
+  // If we're updating an existing beat with a different name, let the user rename it
   if (currentBeatId.val) {
     const beats = loadBeatsFromStorage()
     const storedBeat = beats.find((b) => b.id === currentBeatId.val)
     if (storedBeat && currentBeatName.val !== storedBeat.name) {
-      tempBeatName.val = currentBeatName.val
-      showRenameModal.val = true
+      // This case is now handled by the EditableInput component
       return
     }
   }
@@ -110,31 +104,26 @@ const handleSaveBeat = () => {
   }
 }
 
-const confirmRename = () => {
-  if (tempBeatName.val.trim()) {
-    // Handle authors array
-    let authors: string[] = []
-    if (currentBeatId.val) {
-      const beats = loadBeatsFromStorage()
-      const existingBeat = beats.find((b) => b.id === currentBeatId.val)
-      authors = existingBeat?.authors || []
-    }
-
-    // Add current user to authors if they have an X handle and aren't already in the list
-    if (xHandle.val && !authors.includes(xHandle.val)) {
-      authors.push(xHandle.val)
-    }
-
-    if (saveBeat(tempBeatName.val, authors)) {
-      showRenameModal.val = false
-      showStatus(`💾 Beat renamed to "${tempBeatName.val}"`)
-    }
+const handleBeatNameSave = (newName: string) => {
+  // Handle authors array
+  let authors: string[] = []
+  if (currentBeatId.val) {
+    const beats = loadBeatsFromStorage()
+    const existingBeat = beats.find((b) => b.id === currentBeatId.val)
+    authors = existingBeat?.authors || []
   }
-}
 
-const cancelRename = () => {
-  currentBeatName.val = originalBeatName.val
-  showRenameModal.val = false
+  // Merge with shared beat authors from URL
+  authors = [...new Set([...authors, ...sharedBeatAuthors.val])]
+
+  // Add current user to authors if they have an X handle and aren't already in the list
+  if (xHandle.val && !authors.includes(xHandle.val)) {
+    authors.push(xHandle.val)
+  }
+
+  if (saveBeat(newName, authors)) {
+    showStatus(`💾 Beat renamed to "${newName}"`)
+  }
 }
 
 const handleClearBeat = () => {
@@ -312,12 +301,8 @@ export const Home = () =>
       { class: 'main-content' },
       StatusBar(statusMessage, statusVisible),
       XHandleModal(showXHandleModal, tempXHandle, saveXHandle, skipXHandle),
-      RenameBeatModal(showRenameModal, currentBeatId, tempBeatName, confirmRename, cancelRename),
       ClearBeatModal(showClearModal, confirmClearBeat, cancelClearBeat),
-      BeatNameInput(currentBeatName, isModified, () => {
-        tempBeatName.val = currentBeatName.val
-        showRenameModal.val = true
-      }),
+      BeatNameInput(currentBeatName, isModified, handleBeatNameSave),
       LibraryControls(showLibrary, handleSaveBeat, handleClearBeat, shareBeat),
       LibraryPanel(showLibrary, savedBeats, formatDate, loadBeat, deleteBeat),
       MainControls(playing, selectedInstrument, togglePlay, (index) => {
