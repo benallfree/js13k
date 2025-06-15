@@ -15,17 +15,18 @@ import {
   sharedBeatAuthors,
   stepHistory,
 } from '@/beatState'
+import { BottomTray } from '@/common/BottomTray'
 import { Modal } from '@/common/Modal'
 import { Link } from '@/common/router'
 import { _routerPathname } from '@/common/router/_state'
 import { flash } from '@/common/statusManager'
 import { div, input, span } from '@/common/tags'
 import { xHandle } from '@/common/xHandleManager'
-import { sounds } from '@/sounds'
+import { sampleMetadata, sounds } from '@/sounds'
 import { Beat, generateGuid, loadBeatsFromStorage } from '@/storage'
 import { shareBeat as createShareUrl } from '@/url'
 import van from 'vanjs-core'
-import { AuthorsDisplay, BottomTray, ClearBeatModal, Grid, PatchModal, ShareModal, SplashPage } from './index'
+import { AuthorsDisplay, ClearBeatModal, Grid, PatchModal, ShareModal, SplashPage } from './index'
 import sharedStyles from './Shared.module.css'
 
 // Add clear modal state
@@ -429,12 +430,27 @@ export const BeatEditor = ({ beatId }: BeatEditorProps) => {
       AuthorsDisplay(sharedBeatAuthors)
     ),
     BottomTray({
-      playing,
-      selectedInstrument,
-      onTogglePlay: togglePlay,
-      onShowPatchModal: handleShowPatchModal,
-      onShowShareModal: handleShowShareModal,
-      onDeleteBeat: handleDeleteBeat,
+      icons: [
+        {
+          children: () => (playing.val ? '⏹️' : '▶️'),
+          onClick: togglePlay,
+        },
+        {
+          children: () => {
+            const patch = sampleMetadata[selectedInstrument.val]
+            return patch ? patch.emoji : '🥁'
+          },
+          onClick: handleShowPatchModal,
+        },
+        {
+          children: '🔗',
+          onClick: handleShowShareModal,
+        },
+        {
+          children: '🗑️',
+          onClick: handleDeleteBeat,
+        },
+      ],
     })
   )
 }

@@ -1,3 +1,4 @@
+export { BottomTray } from './BottomTray'
 export { Button } from './Button'
 export { EditableInput } from './EditableInput'
 export { Icon } from './Icon'
