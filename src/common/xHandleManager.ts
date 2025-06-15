@@ -24,12 +24,13 @@ export const initializeXHandle = () => {
 /**
  * Save X handle and show welcome message
  */
-export const saveXHandle = () => {
-  xHandle.val = tempXHandle.val
-  saveXHandleToStorage(tempXHandle.val)
+export const saveXHandle = (value?: string) => {
+  const handleValue = value || tempXHandle.val
+  xHandle.val = handleValue
+  saveXHandleToStorage(handleValue)
   xHandleModal.close()
-  if (tempXHandle.val) {
-    flash(`👋 Welcome, @${tempXHandle.val}!`)
+  if (handleValue) {
+    flash(`👋 Welcome, @${handleValue}!`)
   }
 }
 

@@ -16,12 +16,12 @@ import {
   sharedBeatAuthors,
   stepHistory,
 } from '@/beatState'
+import { ConfirmationModal, InputModal } from '@/common'
 import { BottomTray } from '@/common/BottomTray'
-import { Modal } from '@/common/Modal'
 import { Link } from '@/common/router'
 import { _routerPathname } from '@/common/router/_state'
 import { flash } from '@/common/statusManager'
-import { div, input, span } from '@/common/tags'
+import { div, span } from '@/common/tags'
 import { useModal } from '@/common/utils'
 import { xHandle } from '@/common/xHandleManager'
 import { sampleMetadata, sounds } from '@/sounds'
@@ -78,16 +78,10 @@ const openBeatNameModal = () => {
   beatNameModal.open()
 }
 
-const saveBeatNameFromModal = () => {
-  if (tempBeatName.val.trim()) {
-    handleBeatNameSave(tempBeatName.val.trim())
-  }
-  beatNameModal.close()
-}
-
 const cancelBeatNameModal = () => {
   beatNameModal.close()
 }
+
 // Cell interaction handling
 const toggleCell = (row: number, col: number) => {
   const newGrid = [...grid.val]
@@ -215,7 +209,6 @@ const confirmDeleteBeat = () => {
   if (currentBeatId.val && currentBeatName.val) {
     deleteBeat(currentBeatId.val)
     flash(`🗑️ Beat "${currentBeatName.val}" deleted`)
-    deleteModal.close()
     // Navigate back to home
     window.history.pushState({}, '', '/')
     window.dispatchEvent(new PopStateEvent('popstate'))
@@ -285,46 +278,23 @@ export const BeatEditor = ({ beatId }: BeatEditorProps) => {
           () => (isModified.val ? span({ class: sharedStyles.breadcrumbModified }, ' *') : '')
         )
       ),
-      Modal({
+      ConfirmationModal({
         isOpen: deleteModal.isOpen,
         title: 'Delete Beat',
-        content: () => div(`Are you sure you want to delete "${currentBeatName.val}"? This action cannot be undone.`),
-        primaryButton: {
-          text: 'Delete',
-          onClick: confirmDeleteBeat,
-        },
-        secondaryButton: {
-          text: 'Cancel',
-          onClick: cancelDeleteBeat,
-        },
+        message: () => `Are you sure you want to delete "${currentBeatName.val}"? This action cannot be undone.`,
+        confirmText: 'Delete',
+        confirmVariant: 'danger',
+        onConfirm: confirmDeleteBeat,
+        onCancel: cancelDeleteBeat,
       }),
-      Modal({
+      InputModal({
         isOpen: beatNameModal.isOpen,
         title: 'Rename Beat',
-        content: () =>
-          div(
-            div('Enter a new name for your beat:'),
-            input({
-              type: 'text',
-              value: () => tempBeatName.val,
-              oninput: (e: Event) => {
-                tempBeatName.val = (e.target as HTMLInputElement).value
-              },
-              onkeydown: (e: KeyboardEvent) => {
-                if (e.key === 'Enter') {
-                  saveBeatNameFromModal()
-                }
-              },
-            })
-          ),
-        primaryButton: {
-          text: 'Rename',
-          onClick: saveBeatNameFromModal,
-        },
-        secondaryButton: {
-          text: 'Cancel',
-          onClick: cancelBeatNameModal,
-        },
+        prompt: 'Enter a new name for your beat:',
+        inputValue: tempBeatName,
+        confirmText: 'Rename',
+        onConfirm: handleBeatNameSave,
+        onCancel: cancelBeatNameModal,
       }),
       PatchModal({
         isOpen: patchModal.isOpen,

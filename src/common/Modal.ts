@@ -10,10 +10,12 @@ export interface ModalProps {
   primaryButton?: {
     text: string
     onClick: () => void
+    variant?: 'primary' | 'danger' | 'secondary'
   }
   secondaryButton?: {
     text: string
     onClick: () => void
+    variant?: 'primary' | 'danger' | 'secondary'
   }
 }
 
@@ -35,7 +37,7 @@ export const Modal =
                     primaryButton.onClick()
                     isOpen.val = false
                   },
-                  variant: 'primary',
+                  variant: primaryButton.variant || 'primary',
                   children: primaryButton.text,
                 }),
               secondaryButton &&
@@ -44,7 +46,7 @@ export const Modal =
                     secondaryButton.onClick()
                     isOpen.val = false
                   },
-                  variant: 'secondary',
+                  variant: secondaryButton.variant || 'secondary',
                   children: secondaryButton.text,
                 })
             )
