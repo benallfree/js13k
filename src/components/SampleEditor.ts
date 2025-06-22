@@ -35,8 +35,9 @@ import { sampleMetadata } from '@/sounds'
 import { Sample, generateGuid, loadSamplesFromStorage } from '@/storage'
 import { shareSample } from '@/url'
 import van from 'vanjs-core'
+import { AuthorsDisplay } from './AuthorsDisplay'
 import styles from './common.module.css'
-import { AuthorsDisplay, ShareModal } from './index'
+import { ShareModal } from './ShareModal'
 
 // Modal state management
 const deleteModal = useModal()

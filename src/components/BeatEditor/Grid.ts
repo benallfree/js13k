@@ -1,7 +1,7 @@
 import { clickify } from '@/common/clickify'
 import { State } from 'vanjs-core'
-import { div } from '../common/tags'
-import { InstrumentType, sampleMetadata } from '../sounds'
+import { div } from '../../common/tags'
+import { InstrumentType, sampleMetadata } from '../../sounds'
 import styles from './Grid.module.css'
 
 const CELL_TYPES = {

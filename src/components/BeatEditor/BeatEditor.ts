@@ -31,8 +31,12 @@ import { playSound, sampleMetadata } from '@/sounds'
 import { Beat, generateGuid, loadBeatsFromStorage, loadSamplesFromStorage } from '@/storage'
 import { shareBeat as createShareUrl } from '@/url'
 import van from 'vanjs-core'
-import styles from './common.module.css'
-import { AuthorsDisplay, Grid, PatchModal, ShareModal, SplashPage } from './index'
+import { AuthorsDisplay } from '../AuthorsDisplay'
+import { ShareModal } from '../ShareModal'
+import { SplashPage } from '../SplashPage'
+import styles from '../common.module.css'
+import { Grid } from './Grid'
+import { PatchModal } from './PatchModal'
 
 // Modal state management using useModal utility
 const deleteModal = useModal()

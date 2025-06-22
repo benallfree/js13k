@@ -1,12 +1,12 @@
 import { ButtonVariant } from '@/common/Button'
 import { clickify } from '@/common/clickify'
 import { State } from 'vanjs-core'
-import { Modal } from '../common/Modal'
-import { div } from '../common/tags'
-import { classify } from '../common/utils'
-import { sampleMetadata } from '../sounds'
-import { loadSamplesFromStorage } from '../storage'
-import common from './common.module.css'
+import { Modal } from '../../common/Modal'
+import { div } from '../../common/tags'
+import { classify } from '../../common/utils'
+import { sampleMetadata } from '../../sounds'
+import { loadSamplesFromStorage } from '../../storage'
+import common from '../common.module.css'
 
 interface PatchModalProps {
   isOpen: State<boolean>
