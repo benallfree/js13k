@@ -1,9 +1,10 @@
+import { classify } from './common/classify'
 import { getRouterParams, Router } from './common/router'
 import { StatusBar } from './common/StatusBar'
 import { div } from './common/tags'
 import { initializeXHandle, saveXHandle, skipXHandle, tempXHandle, xHandleModal } from './common/xHandleManager'
 import { BeatEditor } from './components/BeatEditor'
-import './components/common.module.css'
+import { m20 } from './components/common.module.css'
 import { Home } from './components/Home'
 import { XHandleModal } from './components/index'
 import { SampleEditor } from './components/SampleEditor'
@@ -15,6 +16,7 @@ export const App = () => {
   initializeXHandle()
 
   return div(
+    { ...classify(m20) },
     StatusBar(),
     XHandleModal(xHandleModal.isOpen, tempXHandle, saveXHandle, skipXHandle),
     Router({
