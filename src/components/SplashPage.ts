@@ -2,8 +2,8 @@ import { Splash } from '../common/Splash'
 
 export const SplashPage = () => {
   return Splash({
-    title: 'JS13K Starter',
-    storageKey: 'js13k-splash-dismissed',
+    title: 'Van13k Starter',
+    storageKey: 'van13k-splash-dismissed',
     sections: [
       {
         title: 'Features',
@@ -14,7 +14,6 @@ export const SplashPage = () => {
           'VanJS',
           'VanJS Routing',
           'Cloudflare Deployment',
-          'LightningCSS',
         ],
       },
     ],

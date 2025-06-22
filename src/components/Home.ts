@@ -1,15 +1,18 @@
-import van from 'vanjs-core'
-import { StatusBar } from '../common/StatusBar'
-import { SplashPage } from './SplashPage'
-
-const { div } = van.tags
-
-const statusMessage = van.state('')
-const statusVisible = van.state(false)
+import { div, h1, p, span } from '@/common/tags'
+import styles from './Home.module.scss'
 
 export const Home = () =>
-  div(
-    { class: 'app' },
-    SplashPage(),
-    div({ class: 'main-content' }, StatusBar(statusMessage, statusVisible), div(`Hello js13k`))
-  )
+  div({ class: styles.app }, [
+    div({ class: styles.floatingElements }, [
+      div({ class: styles.floatingElement }),
+      div({ class: styles.floatingElement }),
+      div({ class: styles.floatingElement }),
+      div({ class: styles.floatingElement }),
+      div({ class: styles.floatingElement }),
+    ]),
+    div({ class: styles.mainContent }, [
+      h1({ class: styles.title }, 'Van', span('13k')),
+      p({ class: styles.subtitle }, 'The ultimate starter kit for VanJS + js13k games'),
+      div({ class: styles.badge }, 'Ready to build something amazing?'),
+    ]),
+  ])
