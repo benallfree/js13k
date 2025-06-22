@@ -1,5 +1,5 @@
 ---
-'js13k-starter': patch
+'van13k': patch
 ---
 
 Add src alias to Vite

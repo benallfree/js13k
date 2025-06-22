@@ -1,5 +1,5 @@
 ---
-'js13k-starter': patch
+'van13k': patch
 ---
 
 Improve support for CSS modules in Typescript
