@@ -1,5 +1,7 @@
+import { clickify } from '@/common/clickify'
+import { classify } from '@/common/utils'
 import van, { State } from 'vanjs-core'
-import { Button } from '../common/Button'
+import { Button, ButtonVariant } from '../common/Button'
 import { Modal } from '../common/Modal'
 import { div, input } from '../common/tags'
 import styles from './ShareModal.module.css'
@@ -28,6 +30,11 @@ export const ShareModal = ({ isOpen, shareUrl, onClose, onCopyUrl }: ShareModalP
     }, 2000)
   }
 
+  const handleInputInteraction = (e: Event) => {
+    const target = e.target as HTMLInputElement
+    target.select()
+  }
+
   // Reset copied state when modal closes
   van.derive(() => {
     if (!isOpen.val) {
@@ -51,22 +58,22 @@ export const ShareModal = ({ isOpen, shareUrl, onClose, onCopyUrl }: ShareModalP
             type: 'text',
             value: shareUrl,
             readonly: true,
-            onclick: (e: Event) => {
-              const target = e.target as HTMLInputElement
-              target.select()
-            },
+            ...clickify(handleInputInteraction),
           }),
           Button({
             onClick: handleCopy,
-            variant: copied.val ? 'primary' : 'primary',
-            class: `${styles.copyButton} ${copied.val ? styles.copySuccess : ''}`,
+            variant: copied.val ? ButtonVariant.Primary : ButtonVariant.Primary,
+            ...classify(styles.copyButton, copied.val ? styles.copySuccess : ''),
             children: () => (copied.val ? '✅ Copied!' : '📋 Copy to Clipboard'),
           })
         )
       ),
-    primaryButton: {
-      text: 'Close',
-      onClick: onClose,
-    },
+    buttons: [
+      {
+        text: 'Close',
+        onClick: onClose,
+        variant: ButtonVariant.Cancel,
+      },
+    ],
   })
 }

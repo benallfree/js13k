@@ -1,7 +1,9 @@
+import { ButtonVariant } from '@/common/Button'
+import { classify } from '@/common/utils'
 import { State } from 'vanjs-core'
 import { Modal } from '../common/Modal'
 import { div, input } from '../common/tags'
-import sharedStyles from './Shared.module.css'
+import globalStyles from './common.module.css'
 
 export const XHandleModal =
   (
@@ -17,9 +19,9 @@ export const XHandleModal =
       content: () =>
         div(
           div("What's your X (Twitter) handle?"),
-          div({ class: sharedStyles.modalHelpText }, 'This will be included when you share beats (optional)'),
+          div({ ...classify(globalStyles.textGray) }, 'This will be included when you share beats (optional)'),
           div(
-            { style: 'margin-top: 1rem;' },
+            { ...classify(globalStyles.mt5) },
             input({
               type: 'text',
               placeholder: 'username (without @)',
@@ -35,12 +37,16 @@ export const XHandleModal =
             })
           )
         ),
-      primaryButton: {
-        text: 'Save',
-        onClick: () => saveXHandle(tempXHandle.val),
-      },
-      secondaryButton: {
-        text: 'Skip',
-        onClick: skipXHandle,
-      },
+      buttons: [
+        {
+          text: 'Save',
+          onClick: () => saveXHandle(tempXHandle.val),
+          variant: ButtonVariant.Primary,
+        },
+        {
+          text: 'Skip',
+          onClick: skipXHandle,
+          variant: ButtonVariant.Cancel,
+        },
+      ],
     })()

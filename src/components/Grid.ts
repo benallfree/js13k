@@ -1,7 +1,25 @@
+import { clickify } from '@/common/clickify'
 import { State } from 'vanjs-core'
 import { div } from '../common/tags'
-import { sampleMetadata } from '../sounds'
+import { InstrumentType, sampleMetadata } from '../sounds'
 import styles from './Grid.module.css'
+
+const CELL_TYPES = {
+  [InstrumentType.Kick]: styles.k,
+  [InstrumentType.Snare]: styles.s,
+  [InstrumentType.HiHat]: styles.h,
+  [InstrumentType.Crash]: styles.c,
+  [InstrumentType.Tom]: styles.t,
+  [InstrumentType.Clap]: styles.p,
+  [InstrumentType.Bell]: styles.b,
+} as const
+
+const TRAIL_STYLES = {
+  [0]: styles.trail0,
+  [1]: styles.trail1,
+  [2]: styles.trail2,
+  [3]: styles.trail3,
+} as const
 
 export const Grid = (
   grid: State<number[][]>,
@@ -28,18 +46,15 @@ export const Grid = (
                 let classes = styles.cell
                 if (val) {
                   const meta = sampleMetadata[val - 1]
-                  classes += ` ${styles[meta.shortName.toLowerCase()]}`
+                  classes += ` ${CELL_TYPES[meta.shortName]}`
                 }
-                if (playing.val && trailIndex >= 0) classes += ` ${styles['trail' + trailIndex]}`
+                if (playing.val && trailIndex >= 0)
+                  classes += ` ${TRAIL_STYLES[trailIndex as keyof typeof TRAIL_STYLES]}`
                 if (isPlaying) classes += ` ${styles.playing}`
 
                 return classes
               },
-              ontouchstart: (e: TouchEvent) => {
-                e.preventDefault()
-                onToggleCell(row, col)
-              },
-              onmousedown: () => onToggleCell(row, col),
+              ...clickify(() => onToggleCell(row, col)),
             })
           )
       )

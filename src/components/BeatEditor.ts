@@ -19,20 +19,20 @@ import {
   stepHistory,
   updateSampleMapping,
 } from '@/beatState'
-import { ConfirmationModal, InputModal } from '@/common'
+import { Breadcrumb, ConfirmationModal, InputModal } from '@/common'
 import { BottomTray } from '@/common/BottomTray'
-import { Link } from '@/common/router'
+import { ButtonVariant } from '@/common/Button'
 import { _routerPathname } from '@/common/router/_state'
 import { flash } from '@/common/statusManager'
-import { div, span } from '@/common/tags'
-import { mergeAuthors, useModal } from '@/common/utils'
+import { div } from '@/common/tags'
+import { classify, mergeAuthors, useModal } from '@/common/utils'
 import { xHandle } from '@/common/xHandleManager'
 import { playSound, sampleMetadata } from '@/sounds'
 import { Beat, generateGuid, loadBeatsFromStorage, loadSamplesFromStorage } from '@/storage'
 import { shareBeat as createShareUrl } from '@/url'
 import van from 'vanjs-core'
+import styles from './common.module.css'
 import { AuthorsDisplay, Grid, PatchModal, ShareModal, SplashPage } from './index'
-import sharedStyles from './Shared.module.css'
 
 // Modal state management using useModal utility
 const deleteModal = useModal()
@@ -92,6 +92,7 @@ const getCurrentBeatSampleMapping = () => {
 
 // Cell interaction handling
 const toggleCell = (row: number, col: number) => {
+  console.log(`toggling`)
   const newGrid = [...grid.val]
   if (!newGrid[row]) newGrid[row] = new Array(16).fill(0)
 
@@ -271,30 +272,25 @@ export const BeatEditor = ({ beatId }: BeatEditorProps) => {
     div(
       { class: 'main-content' },
       // Breadcrumb navigation
-      div(
-        { class: sharedStyles.breadcrumb },
-        Link(
+      Breadcrumb({
+        items: [
           {
+            label: '🏠',
             href: '/',
           },
-          '🏠'
-        ),
-        span(' > '),
-        span(
           {
-            class: sharedStyles.breadcrumbTitle,
-            onclick: openBeatNameModal,
+            label: () => currentBeatName.val || 'New Beat',
+            onClick: openBeatNameModal,
+            isModified: () => isModified.val,
           },
-          () => currentBeatName.val || 'New Beat',
-          () => (isModified.val ? span({ class: sharedStyles.breadcrumbModified }, ' *') : '')
-        )
-      ),
+        ],
+      }),
       ConfirmationModal({
         isOpen: deleteModal.isOpen,
         title: 'Delete Beat',
         message: () => `Are you sure you want to delete "${currentBeatName.val}"? This action cannot be undone.`,
         confirmText: 'Delete',
-        confirmVariant: 'danger',
+        confirmVariant: ButtonVariant.Danger,
         onConfirm: confirmDeleteBeat,
         onCancel: cancelDeleteBeat,
       }),
@@ -323,7 +319,7 @@ export const BeatEditor = ({ beatId }: BeatEditorProps) => {
       Grid(grid, playing, playingCells, stepHistory, toggleCell),
       AuthorsDisplay({
         authors: sharedBeatAuthors,
-        className: 'current-beat-authors text-sm text-gray mb-2',
+        ...classify(styles.textSm, styles.textGray, styles.mb2),
       })
     ),
     BottomTray({

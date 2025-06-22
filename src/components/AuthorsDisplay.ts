@@ -1,5 +1,7 @@
+import { classify } from '@/common/utils'
 import { State } from 'vanjs-core'
 import { a, p } from '../common/tags'
+import styles from './common.module.css'
 
 interface AuthorsDisplayProps {
   authors: string[] | State<string[]>
@@ -8,12 +10,7 @@ interface AuthorsDisplayProps {
   clickHandler?: (e: Event) => void
 }
 
-export const AuthorsDisplay = ({
-  authors,
-  className = '',
-  prefix = 'Authors: ',
-  clickHandler,
-}: AuthorsDisplayProps) => {
+export const AuthorsDisplay = ({ authors, className = '', prefix = 'Authors: ' }: AuthorsDisplayProps) => {
   const getAuthors = () => (Array.isArray(authors) ? authors : authors.val)
 
   return () => {
@@ -30,11 +27,10 @@ export const AuthorsDisplay = ({
         .map((author, index) => [
           a(
             {
-              href: `https://twitter.com/${author}`,
+              href: `https://x.com/${author}`,
               target: '_blank',
               rel: 'noopener noreferrer',
-              class: 'text-link mr-2',
-              onclick: clickHandler || ((e: Event) => e.stopPropagation()),
+              ...classify(styles.textLink, styles.mr2),
             },
             `@${author}`
           ),

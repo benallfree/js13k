@@ -1,0 +1,641 @@
+/* Layout Utilities */
+.flex {
+  display: flex;
+}
+
+.flex1 {
+  flex: 1;
+}
+
+.flexCol {
+  flex-direction: column;
+}
+
+.flexWrap {
+  flex-wrap: wrap;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.itemsCenter {
+  align-items: center;
+}
+
+.justifyCenter {
+  justify-content: center;
+}
+
+.justifyEnd {
+  justify-content: flex-end;
+}
+
+.justifyBetween {
+  justify-content: space-between;
+}
+
+/* Position Utilities */
+.fixed {
+  position: fixed;
+}
+
+.relative {
+  position: relative;
+}
+
+.top0 {
+  top: 0;
+}
+
+.topNeg100 {
+  top: -100%;
+}
+
+.left0 {
+  left: 0;
+}
+
+.right0 {
+  right: 0;
+}
+
+.bottom0 {
+  bottom: 0;
+}
+
+.widthFull {
+  width: 100%;
+}
+
+.heightFull {
+  height: 100%;
+}
+
+/* Z-index Utilities */
+.zIndexHighest {
+  z-index: 1000;
+}
+
+.zIndexHigh {
+  z-index: 999;
+}
+
+.zIndexMax {
+  z-index: 10000;
+}
+
+/* Pointer Events */
+.pointerNone {
+  pointer-events: none;
+}
+
+.pointerAuto {
+  pointer-events: auto;
+}
+
+/* Gap Utilities */
+.gapSmall {
+  gap: 8px;
+}
+
+.gapMedium {
+  gap: 12px;
+}
+
+.gapLarge {
+  gap: 16px;
+}
+
+.gap4 {
+  gap: 1rem;
+}
+
+/* Text Styles */
+.textGray {
+  color: #999;
+}
+
+.textGray600 {
+  color: #666;
+}
+
+.textGray700 {
+  color: #777;
+}
+
+.textGray800 {
+  color: #888;
+}
+
+.textWhite {
+  color: #fff;
+}
+
+.textPrimary {
+  color: var(--primary-color);
+}
+
+.textCcc {
+  color: #ccc;
+}
+
+.textYellow {
+  color: #ff6;
+}
+
+.textSm {
+  font-size: 14px;
+}
+
+.textXs {
+  font-size: 10px;
+}
+
+.textLg {
+  font-size: 1.5rem;
+}
+
+.textXl {
+  font-size: 20px;
+}
+
+.text2xl {
+  font-size: 28px;
+}
+
+.text3xl {
+  font-size: 3rem;
+}
+
+.textIcon {
+  font-size: 18px;
+}
+
+.textIconLarge {
+  font-size: 24px;
+}
+
+.fontBold {
+  font-weight: bold;
+}
+
+.lineHeightNormal {
+  line-height: 1.4;
+}
+
+/* Spacing */
+.mt0 {
+  margin-top: 0;
+}
+
+.mb0 {
+  margin-bottom: 0;
+}
+
+.mb1 {
+  margin-bottom: 4px;
+}
+
+.mb2 {
+  margin-bottom: 8px;
+}
+
+.mb3 {
+  margin-bottom: 12px;
+}
+
+.mb4 {
+  margin-bottom: 15px;
+}
+
+.mb5 {
+  margin-bottom: 1rem;
+}
+
+.mb6 {
+  margin-bottom: 1.5rem;
+}
+
+.mb7 {
+  margin-bottom: 2rem;
+}
+
+.mt1 {
+  margin-top: 4px;
+}
+
+.mt2 {
+  margin-top: 8px;
+}
+
+.mt3 {
+  margin-top: 12px;
+}
+
+.mt4 {
+  margin-top: 15px;
+}
+
+.mt5 {
+  margin-top: 1rem;
+}
+
+.my1 {
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.my2 {
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.my3 {
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+
+.my4 {
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+.my5 {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.my6 {
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.my7 {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+.p1 {
+  padding: 4px;
+}
+
+.p2 {
+  padding: 8px;
+}
+
+.p3 {
+  padding: 12px;
+}
+
+.p4 {
+  padding: 15px;
+}
+
+.p5 {
+  padding: 1rem;
+}
+
+.p6 {
+  padding: 1.5rem;
+}
+
+.py1 {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+.py2 {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.py3 {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+.py4 {
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+.py5 {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.py6 {
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+}
+
+.px1 {
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+.px2 {
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.px3 {
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.px4 {
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+.px5 {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.px6 {
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+/* Borders */
+.border {
+  border: 1px solid;
+}
+
+.border2 {
+  border: 2px solid;
+}
+
+.borderB {
+  border-bottom: 1px solid;
+}
+
+.borderT {
+  border-top: 1px solid;
+}
+
+.borderL {
+  border-left: 1px solid;
+}
+
+.borderLAccent {
+  border-left: 3px solid #ff6b35;
+}
+
+.borderGray {
+  border-color: #555;
+}
+
+.borderGray200 {
+  border-color: #333;
+}
+
+.borderGray300 {
+  border-color: #1d1d1d;
+}
+
+.borderGray400 {
+  border-color: #444;
+}
+
+.borderGray500 {
+  border-color: #555;
+}
+
+.borderGray600 {
+  border-color: #777;
+}
+
+.borderGray700 {
+  border-color: #777;
+}
+
+.borderGray800 {
+  border-color: #888;
+}
+
+.borderGray900 {
+  border-color: #aaa;
+}
+
+.borderAccent {
+  border-color: #4a9eff;
+}
+
+.rounded {
+  border-radius: 4px;
+}
+
+.roundedLg {
+  border-radius: 8px;
+}
+
+/* Backgrounds */
+.bgGray {
+  background: #333;
+}
+
+.bgGray200 {
+  background: #222;
+}
+
+.bgGray300 {
+  background: #333;
+}
+
+.bgGray400 {
+  background: #444;
+}
+
+.bgGray500 {
+  background: #555;
+}
+
+.bgGray600 {
+  background: #666;
+}
+
+.bgGray700 {
+  background: #777;
+}
+
+.bgGray800 {
+  background: #888;
+}
+
+.bgTransparent {
+  background: transparent;
+}
+
+.bgOverlay {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+/* Transitions */
+.transition {
+  transition: all 0.2s;
+}
+
+.transitionBg {
+  transition: background 0.2s;
+}
+
+/* Cursor */
+.cursorPointer {
+  cursor: pointer;
+}
+
+/* Text Alignment */
+.textCenter {
+  text-align: center;
+}
+
+.textLeft {
+  text-align: left;
+}
+
+/* Container */
+.maxW800 {
+  max-width: 800px;
+}
+
+.maxW600 {
+  max-width: 600px;
+}
+
+.maxH90vh {
+  max-height: 90vh;
+}
+
+.mxAuto {
+  margin: 0 auto;
+}
+
+.w48 {
+  width: 48px;
+}
+
+.h48 {
+  height: 48px;
+}
+
+.w90vw {
+  width: 90vw;
+}
+
+.w32 {
+  width: 32px;
+}
+
+/* Add bottom padding to main content to avoid overlap with tray */
+.mainContent {
+  padding-bottom: 84px;
+}
+
+/* Links */
+.textLink {
+  color: #3b82f6;
+  text-decoration: none;
+}
+
+.textLink:hover {
+  text-decoration: underline;
+}
+
+/* Margin */
+.mr2 {
+  margin-right: 8px;
+}
+
+/* Hover States */
+.hoverBgGray200:hover {
+  background: #222;
+}
+
+.hoverBorderGray700:hover {
+  border-color: #888;
+}
+
+/* Shadows */
+.shadowLg {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+/* Overflow */
+.overflowHidden {
+  overflow: hidden;
+}
+
+.overflowYAuto {
+  overflow-y: auto;
+}
+
+/* Form Elements */
+.input {
+  width: 100%;
+  padding: 10px;
+  background: #333;
+  color: #fff;
+  border: 1px solid #555;
+  border-radius: 4px;
+  font-size: 14px;
+  box-sizing: border-box;
+  margin-top: 10px;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #4a9eff;
+  box-shadow: 0 0 0 2px rgba(74, 158, 255, 0.2);
+}
+
+.input::placeholder {
+  color: #888;
+}
+
+/* Padding */
+.pb5 {
+  padding-bottom: 1rem;
+}
+
+.pt5 {
+  padding-top: 1rem;
+}
+
+/* Dimensions */
+.minH20 {
+  min-height: 20px;
+}
+
+/* Backdrop Filter */
+.backdropBlur {
+  backdrop-filter: blur(10px);
+}
+
+/* Transform */
+.transformY0 {
+  transform: translateY(0);
+}
+
+/* New semantic utility classes */
+.bgAccent {
+  background: rgba(237, 178, 129, 0.9);
+}
+
+.textAccentDark {
+  color: #3c2615;
+}
+
+.shadowMedium {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.transitionSlow {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}

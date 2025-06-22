@@ -1,6 +1,8 @@
 import { State } from 'vanjs-core'
+import { classify } from '../common/utils'
+import globalStyles from '../components/common.module.css'
 import { Button, ButtonVariant } from './Button'
-import styles from './Modal.module.css'
+import { clickify } from './clickify'
 import { div } from './tags'
 
 export interface ButtonProps {
@@ -18,28 +20,93 @@ export interface ModalProps {
 
 export const Modal =
   ({ isOpen, title, content, buttons }: ModalProps) =>
-  () =>
-    isOpen.val
+  () => {
+    const handleOutsideClick = (e: Event) => {
+      const target = e.target as HTMLElement
+      if (target.classList.contains(globalStyles.bgOverlay)) {
+        const cancelButton = buttons?.find((button) => button.variant === ButtonVariant.Cancel)
+        cancelButton?.onClick()
+        isOpen.val = false
+      }
+    }
+
+    return isOpen.val
       ? div(
           {
-            class: styles.overlay,
-            onclick: (e: MouseEvent) => {
-              const target = e.target as HTMLElement
-              if (target.classList.contains(styles.overlay)) {
-                const cancelButton = buttons?.find((button) => button.variant === ButtonVariant.Cancel)
-                cancelButton?.onClick()
-                isOpen.val = false
-              }
-            },
+            ...classify(
+              globalStyles.fixed,
+              globalStyles.top0,
+              globalStyles.left0,
+              globalStyles.right0,
+              globalStyles.bottom0,
+              globalStyles.bgOverlay,
+              globalStyles.flex,
+              globalStyles.itemsCenter,
+              globalStyles.justifyCenter,
+              globalStyles.zIndexHighest,
+              globalStyles.overflowHidden,
+              globalStyles.pointerAuto
+            ),
+            ...clickify(handleOutsideClick),
           },
           div(
-            { class: styles.modal },
-            title && div({ class: styles.title }, title),
-            div({ class: styles.content }, content()),
+            {
+              ...classify(
+                globalStyles.bgGray200,
+                globalStyles.border2,
+                globalStyles.borderGray500,
+                globalStyles.roundedLg,
+                globalStyles.w90vw,
+                globalStyles.maxW600,
+                globalStyles.maxH90vh,
+                globalStyles.flex,
+                globalStyles.flexCol,
+                globalStyles.relative,
+                globalStyles.shadowLg,
+                globalStyles.overflowHidden,
+                globalStyles.pointerAuto
+              ),
+            },
+            title &&
+              div(
+                {
+                  ...classify(
+                    globalStyles.textLg,
+                    globalStyles.fontBold,
+                    globalStyles.p6,
+                    globalStyles.pb5,
+                    globalStyles.textWhite
+                  ),
+                },
+                title
+              ),
+            div(
+              {
+                ...classify(
+                  globalStyles.px6,
+                  globalStyles.overflowYAuto,
+                  globalStyles.flex1,
+                  globalStyles.textCcc,
+                  globalStyles.lineHeightNormal,
+                  globalStyles.pb5
+                ),
+              },
+              content()
+            ),
             () =>
               buttons?.length &&
               div(
-                { class: styles.buttons },
+                {
+                  ...classify(
+                    globalStyles.flex,
+                    globalStyles.gap4,
+                    globalStyles.justifyEnd,
+                    globalStyles.p6,
+                    globalStyles.borderT,
+                    globalStyles.borderGray400,
+                    globalStyles.bgGray200
+                  ),
+                },
                 buttons?.map((button) =>
                   Button({
                     onClick: () => {
@@ -54,3 +121,4 @@ export const Modal =
           )
         )
       : ''
+  }

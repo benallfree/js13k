@@ -154,3 +154,9 @@ export const chunkString = (str: string, chunkSize: number = 100): string[] => {
 export const joinChunks = (chunks: string[]): string => {
   return chunks.join('')
 }
+
+export type VanJsClass = string | (() => string)
+
+export const classify = (...args: VanJsClass[]) => {
+  return { class: () => args.map((arg) => (typeof arg === 'string' ? arg : arg())).join(' ') }
+}

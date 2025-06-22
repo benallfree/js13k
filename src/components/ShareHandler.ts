@@ -3,7 +3,7 @@ import { Modal } from '@/common/Modal'
 import { navigate } from '@/common/router'
 import { flash } from '@/common/statusManager'
 import { div } from '@/common/tags'
-import { joinChunks, useModal } from '@/common/utils'
+import { classify, useModal } from '@/common/utils'
 import {
   Beat,
   Sample,
@@ -14,6 +14,7 @@ import {
   saveSamplesToStorage,
 } from '@/storage'
 import van from 'vanjs-core'
+import styles from './common.module.css'
 
 export const ImportHandler = ({ chunks }: { chunks: string[] }) => {
   const conflictModal = useModal()
@@ -127,7 +128,7 @@ export const ImportHandler = ({ chunks }: { chunks: string[] }) => {
   const processImport = () => {
     try {
       // Join chunks and decode the base64 payload
-      const joinedPayload = joinChunks(chunks)
+      const joinedPayload = chunks.join('')
       const json = atob(decodeURIComponent(joinedPayload))
       const data = JSON.parse(json)
 
@@ -206,7 +207,7 @@ export const ImportHandler = ({ chunks }: { chunks: string[] }) => {
               : `A sample named "${existingSample.val?.name}" already exists in your library.`
           ),
           div('What would you like to do?'),
-          div({ class: 'flex gap-2 mt-4 justify-center' })
+          div({ ...classify(styles.flex, styles.gapSmall, styles.mt4, styles.justifyCenter) })
         ),
       buttons: [
         {
@@ -231,13 +232,13 @@ export const ImportHandler = ({ chunks }: { chunks: string[] }) => {
     () =>
       isProcessing.val
         ? div(
-            { class: 'text-center py-8' },
+            { ...classify(styles.textCenter, styles.py6) },
             div(
-              { class: 'text-lg' },
+              { ...classify(styles.textLg) },
               contentType.val === 'beat' ? '🔄 Processing shared beat...' : '🔄 Processing shared sample...'
             ),
             div(
-              { class: 'text-sm text-gray-600 mt-2' },
+              { ...classify(styles.textSm, styles.textGray600, styles.mt2) },
               contentType.val === 'beat'
                 ? 'Please wait while we import your beat.'
                 : 'Please wait while we import your sample.'

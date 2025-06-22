@@ -1,8 +1,9 @@
 import van from 'vanjs-core'
 import { div, h1, h2, p } from '../common/tags'
-import { Button } from './Button'
+import { classify } from '../common/utils'
+import globalStyles from '../components/common.module.css'
+import { Button, ButtonVariant } from './Button'
 import { Modal } from './Modal'
-import styles from './Splash.module.css'
 
 export interface SplashProps {
   title: string
@@ -36,33 +37,71 @@ export const Splash = ({
 
   const content = () =>
     div(
-      { class: styles.content },
-      h1({ class: styles.title }, title),
+      { ...classify(globalStyles.maxW600, globalStyles.mxAuto, globalStyles.p5, globalStyles.textCenter) },
+      h1(
+        {
+          ...classify(
+            globalStyles.textPrimary,
+            globalStyles.text3xl,
+            globalStyles.mb7,
+            'text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2)'
+          ),
+        },
+        title
+      ),
       ...sections.map((section) =>
-        div({ class: styles.section }, h2(section.title), ...section.content.map((text) => p(text)))
+        div(
+          { ...classify(globalStyles.mb7, globalStyles.textLeft) },
+          h2({ ...classify(globalStyles.textPrimary, globalStyles.mb5) }, section.title),
+          ...section.content.map((text) =>
+            p({ ...classify(globalStyles.textCcc, globalStyles.my5, 'line-height: 1.5') }, text)
+          )
+        )
       )
     )
 
   const helpButton = () =>
     div(
-      { class: styles.helpButton },
+      {
+        ...classify(
+          globalStyles.fixed,
+          globalStyles.top0,
+          globalStyles.right0,
+          globalStyles.p5,
+          globalStyles.pointerAuto,
+          globalStyles.zIndexHigh
+        ),
+      },
       Button({
         onClick: () => (isOpen.val = true),
-        variant: 'secondary',
+        variant: ButtonVariant.Secondary,
         children: helpButtonText,
       })
     )
 
   return () =>
     div(
-      { class: styles.container },
+      {
+        ...classify(
+          globalStyles.fixed,
+          globalStyles.top0,
+          globalStyles.left0,
+          globalStyles.widthFull,
+          globalStyles.heightFull,
+          globalStyles.pointerNone,
+          globalStyles.zIndexHighest
+        ),
+      },
       Modal({
         isOpen,
         content,
-        primaryButton: {
-          text: primaryButtonText,
-          onClick: dismissSplash,
-        },
+        buttons: [
+          {
+            text: primaryButtonText,
+            onClick: dismissSplash,
+            variant: ButtonVariant.Primary,
+          },
+        ],
       }),
       helpButton()
     )

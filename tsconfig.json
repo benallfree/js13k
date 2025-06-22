@@ -28,9 +28,14 @@
       "$components/*": ["components/*"],
       "$constants/*": ["constants/*"],
       "$store/*": ["store/*"]
-    }
+    },
+    "plugins": [
+      {
+        "name": "typescript-plugin-css-modules"
+      }
+    ]
   },
 
-  "include": ["src/**/*.d.ts", "src/**/*.ts", "scripts/prebuild.ts", "scripts/postbuild.ts"],
+  "include": ["src/**/*", "scripts/*.ts"],
   "references": [{ "path": "tsconfig.node.json" }]
 }

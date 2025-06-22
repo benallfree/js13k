@@ -1,4 +1,5 @@
 export { BottomTray } from './BottomTray'
+export { Breadcrumb } from './Breadcrumb'
 export { Button } from './Button'
 export { ConfirmationModal } from './ConfirmationModal'
 export { EditableInput } from './EditableInput'

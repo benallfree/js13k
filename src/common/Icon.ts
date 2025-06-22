@@ -1,5 +1,6 @@
-import { button } from '../common/tags'
-import styles from './Icon.module.css'
+import { Button, ButtonSize, ButtonVariant } from './Button'
+import styles from './Button.module.css'
+import { classify } from './utils'
 
 interface IconProps {
   onClick: () => void
@@ -9,21 +10,12 @@ interface IconProps {
 }
 
 export const Icon = ({ onClick, active = false, class: className = '', children }: IconProps) => {
-  let classes = styles.iconBase
-
-  if (active) {
-    classes += ` ${styles.iconActive}`
-  }
-
-  if (className) {
-    classes += ' ' + className
-  }
-
-  return button(
-    {
-      onclick: onClick,
-      class: classes,
-    },
-    children
-  )
+  return Button({
+    onClick,
+    variant: active ? ButtonVariant.Primary : ButtonVariant.Cancel,
+    size: ButtonSize.Medium,
+    ...classify(styles.btn, styles.btnIcon, className),
+    isActive: active,
+    children,
+  })
 }

@@ -1,36 +1,8 @@
-.statusBar {
-  position: fixed;
+.visible {
+  top: 0 !important;
+}
+
+.base {
   top: -100%;
-  left: 0;
-  right: 0;
-  background: rgba(237, 178, 129, 0.9);
-  color: #3c2615;
-  padding: 12px 24px;
-  font-size: 14px;
-  z-index: 10000;
-  backdrop-filter: blur(10px);
-  text-align: center;
-  min-height: 20px;
-  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  transform: translateY(0);
-}
-
-.statusBar.visible {
-  top: 0;
-  animation: statusFlash 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-@keyframes statusFlash {
-  0% {
-    transform: translateY(-20px) scale(0.8);
-    opacity: 0;
-  }
-  50% {
-    transform: translateY(5px) scale(1.05);
-  }
-  100% {
-    transform: translateY(0) scale(1);
-    opacity: 1;
-  }
+  transition: top 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }

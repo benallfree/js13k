@@ -1,6 +1,9 @@
 import van, { State } from 'vanjs-core'
 import { div, input, span } from '../common/tags'
-import styles from './EditableInput.module.css'
+import { classify } from '../common/utils'
+import globalStyles from '../components/common.module.css'
+import { ButtonVariant } from './Button'
+import { clickify } from './clickify'
 import { Modal } from './Modal'
 import { useModal } from './utils'
 
@@ -47,14 +50,20 @@ export const EditableInput = ({
   }
 
   return div(
-    { class: `${styles.container} ${className}` },
+    { ...classify(globalStyles.flex, globalStyles.itemsCenter, globalStyles.gapMedium, globalStyles.mb3, className) },
     span(
       {
-        class: styles.text,
-        onclick: openModal,
+        ...classify(
+          globalStyles.textWhite,
+          globalStyles.cursorPointer,
+          globalStyles.p2,
+          globalStyles.rounded,
+          globalStyles.transitionBg
+        ),
+        ...clickify(openModal),
       },
       () => value.val,
-      () => (isModified?.val ? span({ class: styles.modified }, modifiedIndicator) : '')
+      () => (isModified?.val ? span({ ...classify(globalStyles.textYellow) }, modifiedIndicator) : '')
     ),
     Modal({
       isOpen: modal.isOpen,
@@ -75,14 +84,18 @@ export const EditableInput = ({
             },
           })
         ),
-      primaryButton: {
-        text: saveButtonText,
-        onClick: handleSave,
-      },
-      secondaryButton: {
-        text: cancelButtonText,
-        onClick: handleCancel,
-      },
+      buttons: [
+        {
+          text: saveButtonText,
+          onClick: handleSave,
+          variant: ButtonVariant.Primary,
+        },
+        {
+          text: cancelButtonText,
+          onClick: handleCancel,
+          variant: ButtonVariant.Secondary,
+        },
+      ],
     })
   )
 }

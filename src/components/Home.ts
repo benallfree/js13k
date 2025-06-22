@@ -1,11 +1,13 @@
+import { clickify } from '@/common/clickify'
 import { navigate } from '@/common/router'
-import { formatDate } from '@/common/utils'
+import { classify, formatDate } from '@/common/utils'
 import { savedBeats } from '../beatState'
-import { div, h1, h2, h3, p } from '../common/tags'
+import { ButtonSize, ButtonVariant } from '../common/Button'
+import { div, h1, h3, p } from '../common/tags'
 import { savedSamples } from '../sampleState'
 import { Beat, Sample, generateGuid, loadBeatsFromStorage, loadSamplesFromStorage } from '../storage'
-import styles from './Home.module.css'
-import { AuthorsDisplay, Button, SplashPage } from './index'
+import globalStyles from './common.module.css'
+import { AuthorsDisplay, Button, SectionHeader, SplashPage } from './index'
 
 // Create new beat
 const createNewBeat = () => {
@@ -21,19 +23,32 @@ const createNewSample = () => {
 
 // Beat item component
 const BeatItem = (beat: Beat) => {
+  const handleInteraction = () => navigate(`/beats/${beat.id}`)
+
   return div(
     {
-      class: styles.beatItem,
-      onclick: () => navigate(`/beats/${beat.id}`),
+      ...classify(
+        globalStyles.bgGray,
+        globalStyles.border,
+        globalStyles.borderGray,
+        globalStyles.rounded,
+        globalStyles.cursorPointer,
+        globalStyles.transitionBg,
+        globalStyles.p4,
+        globalStyles.my2
+      ),
+      ...clickify(handleInteraction),
     },
     div(
-      { class: styles.beatInfo },
-      h3({ class: styles.beatTitle }, beat.name),
-      p({ class: styles.beatMeta }, `Modified: ${formatDate(beat.modified)}`),
+      { ...classify(globalStyles.flex1) },
+      h3({ ...classify(globalStyles.textWhite, globalStyles.textLg, globalStyles.mb2, globalStyles.mt0) }, beat.name),
+      p(
+        { ...classify(globalStyles.textGray, globalStyles.textSm, globalStyles.my1) },
+        `Modified: ${formatDate(beat.modified)}`
+      ),
       AuthorsDisplay({
         authors: beat.authors || [],
-        className: styles.beatAuthors,
-        clickHandler: (e: Event) => e.stopPropagation(),
+        ...classify(globalStyles.textGray800, globalStyles.textXs, globalStyles.my1),
       })
     )
   )
@@ -41,19 +56,32 @@ const BeatItem = (beat: Beat) => {
 
 // Sample item component
 const SampleItem = (sample: Sample) => {
+  const handleInteraction = () => navigate(`/samples/${sample.id}`)
+
   return div(
     {
-      class: styles.beatItem, // Reuse beat item styles
-      onclick: () => navigate(`/samples/${sample.id}`),
+      ...classify(
+        globalStyles.bgGray,
+        globalStyles.border,
+        globalStyles.borderGray,
+        globalStyles.rounded,
+        globalStyles.cursorPointer,
+        globalStyles.transitionBg,
+        globalStyles.p4,
+        globalStyles.my2
+      ),
+      ...clickify(handleInteraction),
     },
     div(
-      { class: styles.beatInfo },
-      h3({ class: styles.beatTitle }, sample.name),
-      p({ class: styles.beatMeta }, `Modified: ${formatDate(sample.modified)}`),
+      { ...classify(globalStyles.flex1) },
+      h3({ ...classify(globalStyles.textWhite, globalStyles.textLg, globalStyles.mb2, globalStyles.mt0) }, sample.name),
+      p(
+        { ...classify(globalStyles.textGray, globalStyles.textSm, globalStyles.my1) },
+        `Modified: ${formatDate(sample.modified)}`
+      ),
       AuthorsDisplay({
         authors: sample.authors || [],
-        className: styles.beatAuthors,
-        clickHandler: (e: Event) => e.stopPropagation(),
+        ...classify(globalStyles.textGray800, globalStyles.textXs, globalStyles.my1),
       })
     )
   )
@@ -72,70 +100,105 @@ export const Home = () => {
   initializeApp()
 
   return div(
-    { class: 'app' },
+    { ...classify('app') },
     SplashPage(),
     div(
-      { class: 'main-content max-w-800 mx-auto' },
+      { ...classify(globalStyles.maxW800, globalStyles.mxAuto, globalStyles.mainContent) },
 
       // Header
       div(
-        { class: 'text-center my-7 py-5 border-b' },
-        h1({ class: styles.headerTitle }, '🎵 Beat Threads'),
-        p({ class: styles.headerSubtitle }, 'Create, edit, and manage your beats and samples')
-      ),
-
-      // New Beat Button
-      div(
-        { class: 'text-center my-5' },
-        Button({
-          onClick: createNewBeat,
-          variant: 'primary',
-          children: '➕ Create New Beat',
-        })
+        { ...classify(globalStyles.textCenter, globalStyles.my7, globalStyles.py5, globalStyles.borderB) },
+        h1(
+          { ...classify(globalStyles.textWhite, globalStyles.text2xl, globalStyles.mb2, globalStyles.mt0) },
+          '🎵 Beat Threads'
+        ),
+        p(
+          { ...classify(globalStyles.textGray, globalStyles.textSm, globalStyles.mt0) },
+          'Create, edit, and share your beats and samples'
+        )
       ),
 
       // Beat Library
       div(
-        { class: 'my-5' },
-        h2({ class: styles.sectionTitle }, () => `Your Beats (${savedBeats.val.length})`),
+        { ...classify(globalStyles.my5) },
+        SectionHeader({
+          title: () => `Your Beats (${savedBeats.val.length})`,
+          controls: Button({
+            onClick: createNewBeat,
+            variant: ButtonVariant.Primary,
+            size: ButtonSize.Small,
+            children: '+',
+          }),
+        }),
         () =>
           savedBeats.val.length === 0
             ? div(
-                { class: styles.emptyState },
-                p({ class: styles.emptyStateTitle }, '🎼 No beats yet'),
-                p({ class: styles.emptyStateSubtitle }, 'Create your first beat to get started!')
+                {
+                  ...classify(
+                    globalStyles.textCenter,
+                    globalStyles.p4,
+                    globalStyles.bgGray200,
+                    globalStyles.border2,
+                    globalStyles.borderGray400,
+                    globalStyles.roundedLg,
+                    globalStyles.my4
+                  ),
+                },
+                p(
+                  { ...classify(globalStyles.textGray, globalStyles.textLg, globalStyles.mb3, globalStyles.mt0) },
+                  '🎼 No beats yet'
+                ),
+                p(
+                  { ...classify(globalStyles.textGray700, globalStyles.textSm, globalStyles.mt0) },
+                  'Create your first beat to get started!'
+                )
               )
             : div(
-                { class: styles.beatsContainer },
+                { ...classify(globalStyles.mt3) },
                 ...savedBeats.val
                   .sort((a, b) => b.modified - a.modified) // Sort by most recently modified
                   .map((beat) => BeatItem(beat))
               )
       ),
 
-      // New Sample Button
-      div(
-        { class: 'text-center my-5' },
-        Button({
-          onClick: createNewSample,
-          variant: 'secondary',
-          children: '🎤 Create New Sample',
-        })
-      ),
-
       // Sample Library
       div(
-        { class: 'my-5' },
-        h2({ class: styles.sectionTitle }, () => `Your Samples (${savedSamples.val.length})`),
+        { ...classify(globalStyles.my5) },
+        SectionHeader({
+          title: () => `Your Samples (${savedSamples.val.length})`,
+          controls: Button({
+            onClick: createNewSample,
+            variant: ButtonVariant.Primary,
+            size: ButtonSize.Small,
+            children: '+',
+          }),
+        }),
+
         () =>
           savedSamples.val.length === 0
             ? div(
-                { class: styles.emptyState },
-                p({ class: styles.emptyStateTitle }, '🎤 No samples yet'),
-                p({ class: styles.emptyStateSubtitle }, 'Upload your first custom sample!')
+                {
+                  ...classify(
+                    globalStyles.textCenter,
+                    globalStyles.p4,
+                    globalStyles.bgGray200,
+                    globalStyles.border2,
+                    globalStyles.borderGray400,
+                    globalStyles.roundedLg,
+                    globalStyles.my4
+                  ),
+                },
+                p(
+                  { ...classify(globalStyles.textGray, globalStyles.textLg, globalStyles.mb3, globalStyles.mt0) },
+                  '🎤 No samples yet'
+                ),
+                p(
+                  { ...classify(globalStyles.textGray700, globalStyles.textSm, globalStyles.mt0) },
+                  'Upload your first custom sample!'
+                )
               )
             : div(
-                { class: styles.beatsContainer }, // Reuse beats container styles
+                { ...classify(globalStyles.mt3) }, // Reuse beats container styles
                 ...savedSamples.val
                   .sort((a, b) => b.modified - a.modified) // Sort by most recently modified
                   .map((sample) => SampleItem(sample))

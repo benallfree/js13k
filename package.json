@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev",
-    "zip:watch": "chokidar src -c 'bun run build && bun run zip'",
+    "zip:watch": "chokidar src '*.config.{js,ts,json,css}' -c 'bun run build && bun run zip'",
     "zip": "rimraf out.zip && cd dist && zip -i index.html -i 'assets/*' -9 -r ../out.zip .",
     "postzip": "bun run scripts/postbuild.ts",
-    "build": "vite build && bun run zip",
+    "css:strip": "bun run scripts/stripcss.ts",
+    "build": "vite build && bun run css:strip && bun run zip",
     "preview": "bun run build && vite preview",
     "deploy": "bun run build && wrangler deploy",
     "prebuild": "bun scripts/prebuild.ts",
@@ -16,25 +17,30 @@
     "prettier": "prettier --write ."
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "^1.6.0",
+    "@cloudflare/vite-plugin": "^1.7.3",
     "@tsconfig/node16": "^16.1.4",
-    "@types/node": "^24.0.1",
+    "@types/node": "^24.0.3",
+    "@vanilla-extract/css": "^1.17.4",
+    "@vanilla-extract/vite-plugin": "^5.0.6",
     "chokidar-cli": "^3.0.0",
     "http-server": "^14.1.1",
     "lightningcss": "^1.30.1",
     "nanoid": "^5.1.5",
     "prettier": "^3.5.3",
     "prettier-plugin-organize-imports": "^4.1.0",
+    "purgecss": "^7.0.2",
     "rimraf": "^6.0.1",
     "sass": "^1.89.2",
-    "terser": "^5.42.0",
+    "terser": "^5.43.1",
     "tslib": "^2.8.1",
     "type-fest": "^4.41.0",
     "typescript": "^5.8.3",
+    "typescript-plugin-css-modules": "^5.1.0",
     "vanjs-core": "^1.5.5",
     "vite": "^6.3.5",
     "vite-bundle-visualizer": "^1.2.1",
-    "wrangler": "^4.20.0"
+    "vite-plugin-optimize-css-modules": "^1.2.0",
+    "wrangler": "^4.20.4"
   },
   "prettier": {
     "useTabs": false,
@@ -46,5 +52,9 @@
     "plugins": [
       "prettier-plugin-organize-imports"
     ]
+  },
+  "dependencies": {
+    "@types/css-tree": "^2.3.10",
+    "css-tree": "^3.1.0"
   }
 }

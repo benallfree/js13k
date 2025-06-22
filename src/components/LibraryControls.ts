@@ -1,6 +1,8 @@
 import { State } from 'vanjs-core'
-import { Button } from '../common/Button'
+import { Button, ButtonVariant } from '../common/Button'
 import { div } from '../common/tags'
+import { classify } from '../common/utils'
+import styles from './common.module.css'
 
 export const LibraryControls = (
   showLibrary: State<boolean>,
@@ -9,9 +11,9 @@ export const LibraryControls = (
   onShare: () => void
 ) =>
   div(
-    { class: 'flex flex-wrap gap-2 mb-4' },
-    Button({ onClick: onSave, variant: 'primary', children: '💾' }),
-    Button({ onClick: onClear, variant: 'danger', children: '🗑️' }),
+    { ...classify(styles.flex, styles.flexWrap, styles.gapMedium, styles.mb4) },
+    Button({ onClick: onSave, variant: ButtonVariant.Primary, children: '💾' }),
+    Button({ onClick: onClear, variant: ButtonVariant.Danger, children: '🗑️' }),
     Button({
       onClick: () => (showLibrary.val = !showLibrary.val),
       children: () => (showLibrary.val ? '📚' : '📚'),

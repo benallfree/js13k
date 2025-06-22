@@ -7,10 +7,11 @@ import {
 } from '@/audioUtils'
 import { ConfirmationModal, InputModal } from '@/common'
 import { BottomTray } from '@/common/BottomTray'
-import { Link } from '@/common/router'
+import { Breadcrumb } from '@/common/Breadcrumb'
+import { ButtonVariant } from '@/common/Button'
 import { flash } from '@/common/statusManager'
-import { canvas, div, input, span } from '@/common/tags'
-import { useModal } from '@/common/utils'
+import { canvas, div, input } from '@/common/tags'
+import { classify, useModal } from '@/common/utils'
 import { xHandle } from '@/common/xHandleManager'
 import {
   currentSampleFallback,
@@ -20,19 +21,22 @@ import {
   fullSampleData,
   getAuthorsForCurrentSample,
   loadSample,
+  maxSamplesForSharing,
   newSample,
-  sampleIsModified,
   saveSample,
   savedSamples,
   sharedSampleAuthors,
+  totalSampleCount,
+  windowPositionInSamples,
+  windowSizeInSamples,
   windowedSampleData,
 } from '@/sampleState'
 import { sampleMetadata } from '@/sounds'
 import { Sample, generateGuid, loadSamplesFromStorage } from '@/storage'
 import { shareSample } from '@/url'
 import van from 'vanjs-core'
-import { AuthorsDisplay, ShareModal, SplashPage } from './index'
-import sharedStyles from './Shared.module.css'
+import styles from './common.module.css'
+import { AuthorsDisplay, ShareModal } from './index'
 
 // Modal state management
 const deleteModal = useModal()
@@ -50,12 +54,6 @@ const isProcessing = van.state(false)
 
 // Share state
 const shareUrl = van.state('')
-
-// Window control state (simplified) - updated for 8-bit PCM
-const maxSamplesForSharing = 3000 // About 375ms at 8kHz - fits in ~4KB base64 for URL sharing
-const windowSizeInSamples = van.state(maxSamplesForSharing)
-const windowPositionInSamples = van.state(0)
-const totalSampleCount = van.state(0)
 
 // Canvas reference
 let canvasElement: HTMLCanvasElement | null = null
@@ -110,7 +108,6 @@ const handleFileUpload = async (event: Event) => {
 
     fullSampleData.val = downsampledAudioData // Store downsampled version as original
     windowedSampleData.val = downsampledAudioData
-    sampleIsModified.val = true
 
     // Calculate total samples for 8-bit PCM (1 byte per sample)
     const sampleCount = Math.floor((downsampledAudioData.length * 3) / 4) // base64 -> bytes = samples for 8-bit
@@ -223,7 +220,6 @@ const handleWindowSizeChange = (event: Event) => {
   ).audioData
 
   drawWaveform()
-  sampleIsModified.val = true
 
   // Auto-save the windowed sample
   setTimeout(() => {
@@ -244,7 +240,6 @@ const handleWindowPositionChange = (event: Event) => {
   ).audioData
 
   drawWaveform()
-  sampleIsModified.val = true
 
   // Auto-save the windowed sample
   setTimeout(() => {
@@ -256,7 +251,6 @@ const handleWindowPositionChange = (event: Event) => {
 const handleFallbackChange = (event: Event) => {
   const input = event.target as HTMLInputElement
   currentSampleFallback.val = parseInt(input.value)
-  sampleIsModified.val = true
   autoSave()
 }
 
@@ -389,24 +383,22 @@ export const SampleEditor = ({ sampleId }: SampleEditorProps) => {
   initializeEditor()
 
   return div(
-    SplashPage(),
     div(
-      { class: 'main-content' },
+      { ...classify(styles.mainContent) },
 
       // Breadcrumb navigation
-      div(
-        { class: sharedStyles.breadcrumb },
-        Link({ href: '/' }, '🏠'),
-        span(' > '),
-        span(
+      Breadcrumb({
+        items: [
           {
-            class: sharedStyles.breadcrumbTitle,
-            onclick: openSampleNameModal,
+            label: '🏠',
+            href: '/',
           },
-          () => currentSampleName.val || 'New Sample',
-          () => (sampleIsModified.val ? span({ class: sharedStyles.breadcrumbModified }, ' *') : '')
-        )
-      ),
+          {
+            label: () => currentSampleName.val || 'New Sample',
+            onClick: openSampleNameModal,
+          },
+        ],
+      }),
 
       // Modals
       ConfirmationModal({
@@ -414,7 +406,7 @@ export const SampleEditor = ({ sampleId }: SampleEditorProps) => {
         title: 'Delete Sample',
         message: () => `Are you sure you want to delete "${currentSampleName.val}"? This action cannot be undone.`,
         confirmText: 'Delete',
-        confirmVariant: 'danger',
+        confirmVariant: ButtonVariant.Danger,
         onConfirm: confirmDeleteSample,
         onCancel: cancelDeleteSample,
       }),
@@ -438,26 +430,25 @@ export const SampleEditor = ({ sampleId }: SampleEditorProps) => {
 
       // File upload section
       div(
-        { class: 'mb-4' },
+        { ...classify(styles.mb4) },
         input({
           type: 'file',
           accept: 'audio/*',
           onchange: handleFileUpload,
           disabled: () => isProcessing.val,
-          class: 'mb-2',
+          ...classify(styles.mb2),
         }),
-        () => (isProcessing.val ? div({ class: 'text-sm text-blue' }, '🔄 Processing...') : '')
+        () => (isProcessing.val ? div({ ...classify(styles.textSm, styles.textPrimary) }, '🔄 Processing...') : '')
       ),
 
       // Waveform display
       div(
-        { class: 'mb-4' },
+        { ...classify(styles.mb4) },
         (() => {
           const canvasEl = canvas({
             width: 800,
             height: 120,
-            class: 'border border-gray',
-            style: 'max-width: 100%; height: auto; display: block;',
+            ...classify(styles.border, styles.borderGray, styles.widthFull),
           })
 
           setTimeout(() => {
@@ -475,33 +466,35 @@ export const SampleEditor = ({ sampleId }: SampleEditorProps) => {
         // Window control sliders (always show when there's audio data)
         () =>
           div(
-            { class: 'mt-3 p-3 bg-gray-50 border border-gray-200 rounded' },
+            {
+              ...classify(styles.mt3, styles.p3, styles.bgGray200, styles.border, styles.borderGray200, styles.rounded),
+            },
 
             // Window size slider
             div(
-              { class: 'mb-3' },
-              div({ class: 'text-xs text-gray-600 mb-1' }, `Length`),
+              { ...classify(styles.mb3) },
+              div({ ...classify(styles.textXs, styles.textGray600, styles.mb1) }, `Length`),
               input({
                 type: 'range',
                 min: '500', // ~62ms at 8kHz - minimum useful drum hit
                 max: () => Math.min(fullSampleData.val.length, maxSamplesForSharing).toString(),
                 value: () => windowSizeInSamples.val.toString(),
                 oninput: handleWindowSizeChange,
-                class: 'w-full',
+                ...classify(styles.widthFull),
               })
             ),
 
             // Window position slider
             div(
-              { class: 'mb-2' },
-              div({ class: 'text-xs text-gray-600 mb-1' }, `Position`),
+              { ...classify(styles.mb2) },
+              div({ ...classify(styles.textXs, styles.textGray600, styles.mb1) }, `Position`),
               input({
                 type: 'range',
                 min: '0',
                 max: () => Math.max(0, totalSampleCount.val - windowSizeInSamples.val).toString(),
                 value: () => windowPositionInSamples.val.toString(),
                 oninput: handleWindowPositionChange,
-                class: 'w-full',
+                ...classify(styles.widthFull),
               })
             )
           )
@@ -509,19 +502,18 @@ export const SampleEditor = ({ sampleId }: SampleEditorProps) => {
 
       // Fallback sample selection
       div(
-        { class: 'mb-4' },
-        div({ class: 'text-sm text-gray mb-2' }, 'Fallback Sample'),
+        { ...classify(styles.mb4) },
+        div({ ...classify(styles.textSm, styles.textGray, styles.mb2) }, 'Fallback Sample'),
         div(
-          { class: 'flex items-center gap-2' },
+          { ...classify(styles.flex, styles.itemsCenter, styles.gapSmall) },
           input({
             type: 'range',
             min: '0',
             max: '6',
             value: () => currentSampleFallback.val.toString(),
             oninput: handleFallbackChange,
-            class: 'w-32',
           }),
-          div({ class: 'text-sm' }, () => {
+          div({ ...classify(styles.textSm) }, () => {
             const metadata = sampleMetadata[currentSampleFallback.val]
             return metadata ? `${metadata.emoji} ${metadata.longName}` : 'Unknown'
           })
@@ -531,7 +523,7 @@ export const SampleEditor = ({ sampleId }: SampleEditorProps) => {
       // Authors display
       AuthorsDisplay({
         authors: sharedSampleAuthors,
-        className: 'text-sm text-gray mb-2',
+        ...classify(styles.textSm, styles.textGray, styles.mb2),
       })
     ),
 

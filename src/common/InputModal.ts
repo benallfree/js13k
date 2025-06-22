@@ -1,4 +1,5 @@
 import { State } from 'vanjs-core'
+import styles from '../components/common.module.css'
 import { ButtonVariant } from './Button'
 import { Modal } from './Modal'
 import { div, input } from './tags'
@@ -42,6 +43,7 @@ export const InputModal = ({
           type: 'text',
           placeholder,
           value: () => inputValue.val,
+          className: styles.input,
           oninput: (e: Event) => {
             inputValue.val = (e.target as HTMLInputElement).value
           },

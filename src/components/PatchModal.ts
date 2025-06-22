@@ -1,9 +1,12 @@
+import { ButtonVariant } from '@/common/Button'
+import { clickify } from '@/common/clickify'
 import { State } from 'vanjs-core'
 import { Modal } from '../common/Modal'
 import { div } from '../common/tags'
+import { classify } from '../common/utils'
 import { sampleMetadata } from '../sounds'
 import { loadSamplesFromStorage } from '../storage'
-import styles from './PatchModal.module.css'
+import common from './common.module.css'
 
 interface PatchModalProps {
   isOpen: State<boolean>
@@ -30,6 +33,10 @@ export const PatchModal = ({
     onClose()
   }
 
+  const handleStockInstrumentInteraction = (patchIndex: number) => () => handleStockInstrumentSelect(patchIndex)
+  const handleCustomSampleInteraction = (sampleId: string, fallbackIdx: number) => () =>
+    handleCustomSampleSelect(sampleId, fallbackIdx)
+
   return Modal({
     isOpen,
     title: 'Select Instrument',
@@ -39,22 +46,49 @@ export const PatchModal = ({
 
       return div(
         // Stock instruments section
-        div({ class: styles.sectionTitle }, '🎵 Stock Instruments'),
         div(
-          { class: styles.patchGrid },
+          {
+            ...classify(
+              common.fontBold,
+              common.textSm,
+              common.textWhite,
+              common.my4,
+              common.mb2,
+              common.borderB,
+              common.borderGray300,
+              common.py1
+            ),
+          },
+          '🎵 Stock Instruments'
+        ),
+        div(
+          { ...classify(common.grid) },
           ...Object.entries(sampleMetadata).map(([index, patch]) => {
             const patchIndex = Number(index)
             const isSelected = selectedInstrument.val === patchIndex && !selectedSampleId.val
             return div(
               {
-                class: `${styles.patchItem} ${isSelected ? styles.selected : ''}`,
-                onclick: () => handleStockInstrumentSelect(patchIndex),
+                ...classify(
+                  common.flex,
+                  common.itemsCenter,
+                  common.gapMedium,
+                  common.p3,
+                  common.border,
+                  common.borderGray300,
+                  common.rounded,
+                  common.cursorPointer,
+                  common.transition,
+                  common.hoverBgGray200,
+                  common.hoverBorderGray700,
+                  isSelected ? common.bgGray300 + ' ' + common.borderAccent : ''
+                ),
+                ...clickify(handleStockInstrumentInteraction(patchIndex)),
               },
-              div({ class: styles.patchIcon }, patch.emoji),
+              div({ ...classify(common.textIconLarge, common.w32, common.textCenter) }, patch.emoji),
               div(
-                { class: styles.patchInfo },
-                div({ class: styles.patchName }, patch.longName),
-                div({ class: styles.patchDescription }, patch.description)
+                { ...classify(common.flex1) },
+                div({ ...classify(common.fontBold, common.textWhite, common.mb1) }, patch.longName),
+                div({ ...classify(common.textXs, common.textGray) }, patch.description)
               )
             )
           })
@@ -63,23 +97,54 @@ export const PatchModal = ({
         // Custom samples section (only show if there are custom samples)
         customSamples.length > 0
           ? div(
-              div({ class: styles.sectionTitle }, '🎛️ Custom Samples'),
               div(
-                { class: styles.patchGrid },
+                {
+                  ...classify(
+                    common.fontBold,
+                    common.textSm,
+                    common.textWhite,
+                    common.my4,
+                    common.mb2,
+                    common.borderB,
+                    common.borderGray300,
+                    common.py1
+                  ),
+                },
+                '🎛️ Custom Samples'
+              ),
+              div(
+                { ...classify(common.grid) },
                 ...customSamples.map((sample) => {
                   const isSelected = selectedSampleId.val === sample.id
                   const fallbackPatch = sampleMetadata[sample.fallbackIdx]
                   return div(
                     {
-                      class: `${styles.patchItem} ${styles.customSample} ${isSelected ? styles.selected : ''}`,
-                      onclick: () => handleCustomSampleSelect(sample.id, sample.fallbackIdx),
+                      ...classify(
+                        common.flex,
+                        common.itemsCenter,
+                        common.gapMedium,
+                        common.p3,
+                        common.border,
+                        common.borderGray300,
+                        common.rounded,
+                        common.cursorPointer,
+                        common.transition,
+                        common.hoverBgGray200,
+                        common.hoverBorderGray700,
+                        common.borderLAccent,
+                        isSelected ? common.bgGray300 + ' ' + common.borderAccent : ''
+                      ),
+                      ...clickify(handleCustomSampleInteraction(sample.id, sample.fallbackIdx)),
                     },
-                    div({ class: styles.patchIcon }, fallbackPatch?.emoji || '🎵'),
                     div(
-                      { class: styles.patchInfo },
-                      div({ class: styles.patchName }, sample.name),
+                      { ...classify(common.textIconLarge, common.w32, common.textCenter) },
+                      fallbackPatch?.emoji || '🎵'
+                    ),
+                    div(
+                      { ...classify(common.flex1) },
+                      div({ ...classify(common.fontBold, common.textWhite, common.mb1) }, sample.name),
                       div(
-                        { class: styles.patchDescription },
+                        { ...classify(common.textXs, common.textGray) },
                         `Custom sample (${fallbackPatch?.shortName || 'Unknown'} fallback)`
                       )
                     )
@@ -90,9 +155,12 @@ export const PatchModal = ({
           : null
       )
     },
-    primaryButton: {
-      text: 'Close',
-      onClick: onClose,
-    },
+    buttons: [
+      {
+        text: 'Close',
+        variant: ButtonVariant.Cancel,
+        onClick: onClose,
+      },
+    ],
   })
 }

@@ -6,10 +6,20 @@ export { ctx }
 import { playCustomSample } from './audioUtils'
 import { loadSamplesFromStorage } from './storage'
 
+export enum InstrumentType {
+  Kick = 'K',
+  Snare = 'S',
+  HiHat = 'H',
+  Crash = 'C',
+  Tom = 'T',
+  Clap = 'P',
+  Bell = 'B',
+}
+
 // Sample metadata type
 export type SampleMetadata = {
   guid: string
-  shortName: string
+  shortName: InstrumentType
   emoji: string
   longName: string
   description: string
@@ -19,49 +29,49 @@ export type SampleMetadata = {
 export const sampleMetadata: Record<number, SampleMetadata> = {
   0: {
     guid: 'kick-1',
-    shortName: 'K',
+    shortName: InstrumentType.Kick,
     emoji: '🥁',
     longName: 'Kick Drum',
     description: 'Deep bass drum sound with pitch decay',
   },
   1: {
     guid: 'snare-1',
-    shortName: 'S',
+    shortName: InstrumentType.Snare,
     emoji: '🎯',
     longName: 'Snare Drum',
     description: 'Sharp snare with noise and filter',
   },
   2: {
     guid: 'hihat-1',
-    shortName: 'H',
+    shortName: InstrumentType.HiHat,
     emoji: '🔔',
     longName: 'Hi-Hat',
     description: 'Bright high-frequency cymbal sound',
   },
   3: {
     guid: 'crash-1',
-    shortName: 'C',
+    shortName: InstrumentType.Crash,
     emoji: '💥',
     longName: 'Crash Cymbal',
     description: 'Loud, sustained cymbal crash',
   },
   4: {
     guid: 'tom-1',
-    shortName: 'T',
+    shortName: InstrumentType.Tom,
     emoji: '🥁',
     longName: 'Tom-Tom',
     description: 'Medium-pitched drum with pitch sweep',
   },
   5: {
     guid: 'clap-1',
-    shortName: 'P',
+    shortName: InstrumentType.Clap,
     emoji: '👏',
     longName: 'Clap',
     description: 'Sharp hand clap sound',
   },
   6: {
     guid: 'bell-1',
-    shortName: 'B',
+    shortName: InstrumentType.Bell,
     emoji: '🔔',
     longName: 'Cowbell',
     description: 'Metallic bell sound with two tones',

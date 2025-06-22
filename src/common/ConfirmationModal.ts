@@ -1,4 +1,5 @@
 import { State } from 'vanjs-core'
+import { ButtonVariant } from './Button'
 import { Modal } from './Modal'
 import { div } from './tags'
 
@@ -8,7 +9,7 @@ export interface ConfirmationModalProps {
   message: string | (() => string)
   confirmText?: string
   cancelText?: string
-  confirmVariant?: 'primary' | 'danger'
+  confirmVariant?: ButtonVariant
   onConfirm: () => void
   onCancel: () => void
 }
@@ -19,7 +20,7 @@ export const ConfirmationModal = ({
   message,
   confirmText = 'Confirm',
   cancelText = 'Cancel',
-  confirmVariant = 'primary',
+  confirmVariant = ButtonVariant.Primary,
   onConfirm,
   onCancel,
 }: ConfirmationModalProps) => {
@@ -27,14 +28,17 @@ export const ConfirmationModal = ({
     isOpen,
     title,
     content: () => div(typeof message === 'function' ? message() : message),
-    primaryButton: {
-      text: confirmText,
-      onClick: onConfirm,
-      variant: confirmVariant,
-    },
-    secondaryButton: {
-      text: cancelText,
-      onClick: onCancel,
-    },
+    buttons: [
+      {
+        text: confirmText,
+        onClick: onConfirm,
+        variant: confirmVariant,
+      },
+      {
+        text: cancelText,
+        onClick: onCancel,
+        variant: ButtonVariant.Cancel,
+      },
+    ],
   })
 }

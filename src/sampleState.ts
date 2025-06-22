@@ -8,9 +8,12 @@ export const currentSampleName = van.state('Untitled Sample')
 export const savedSamples = van.state<Sample[]>([])
 export const currentSampleId = van.state<string>('')
 export const originalSampleName = van.state<string>('')
-export const sampleIsModified = van.state(false)
 
 // Sample editing state
+export const maxSamplesForSharing = 3000 // About 375ms at 8kHz - fits in ~4KB base64 for URL sharing
+export const windowSizeInSamples = van.state(maxSamplesForSharing)
+export const windowPositionInSamples = van.state(0)
+export const totalSampleCount = van.state(0)
 export const windowedSampleData = van.state<string>('') // Base64 audio data (downsampled)
 export const fullSampleData = van.state<string>('') // Base64 audio data (original quality)
 export const currentSampleFallback = van.state<number>(0) // Fallback stock sample index
@@ -35,21 +38,16 @@ export const saveSample = (name: string, authors: string[]) => {
   const samples = loadSamplesFromStorage()
   const existingSample = currentSampleId.val ? samples.find((s) => s.id === currentSampleId.val) : undefined
 
-  // Get the effective sample data (windowed if windowing is active)
-  const effectiveSampleData = getEffectiveSampleData()
-
-  // Get effective duration
-
   const sample = createSampleData(
     {
       id: currentSampleId.val,
       name,
-      audioData: effectiveSampleData || windowedSampleData.val, // Use windowed version or fallback to full
+      audioData: windowedSampleData.val, // Use windowed version or fallback to full
       originalAudioData: fullSampleData.val,
       fallbackIdx: currentSampleFallback.val,
       authors,
-      windowPosition: getWindowPosition ? getWindowPosition() : 0,
-      windowSize: getWindowSize ? getWindowSize() : 3000,
+      windowPosition: windowPositionInSamples.val,
+      windowSize: windowSizeInSamples.val,
     },
     existingSample
   )
@@ -66,15 +64,8 @@ export const saveSample = (name: string, authors: string[]) => {
   currentSampleName.val = name
   originalSampleName.val = name
   currentSampleId.val = sample.id
-  sampleIsModified.val = false
   return true
 }
-
-// Function to get effective sample data and duration (from SampleEditor)
-// This will be set by SampleEditor component
-let getEffectiveSampleData: () => string = () => windowedSampleData.val
-let getWindowPosition: (() => number) | null = null
-let getWindowSize: (() => number) | null = null
 
 export const loadSample = (sample: Sample) => {
   windowedSampleData.val = sample.audioData
@@ -83,7 +74,6 @@ export const loadSample = (sample: Sample) => {
   currentSampleName.val = sample.name
   originalSampleName.val = sample.name
   currentSampleId.val = sample.id
-  sampleIsModified.val = false
   sharedSampleAuthors.val = sample.authors || []
 }
 
@@ -94,7 +84,6 @@ export const newSample = () => {
   currentSampleName.val = 'Untitled Sample'
   originalSampleName.val = 'Untitled Sample'
   currentSampleId.val = ''
-  sampleIsModified.val = false
   sharedSampleAuthors.val = []
 }
 
