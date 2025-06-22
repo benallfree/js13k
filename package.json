@@ -16,7 +16,7 @@
     "prettier": "prettier --write ."
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "^1.6.0",
+    "@changesets/cli": "^2.29.5",
     "@tsconfig/node16": "^16.1.4",
     "@types/node": "^24.0.1",
     "chokidar-cli": "^3.0.0",
