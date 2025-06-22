@@ -1,8 +1,32 @@
+import van from 'vanjs-core'
 import { div } from '../common/tags'
 import globalStyles from '../components/common.module.css'
+import { classify } from './classify'
 import { base, visible } from './StatusBar.module.css'
-import { statusMessage, statusVisible } from './statusManager'
-import { classify } from './utils'
+
+// Global status state
+const statusMessage = van.state('')
+const statusVisible = van.state(false)
+
+let statusTimeoutId: ReturnType<typeof setTimeout>
+
+/**
+ * Flash a status message globally
+ * @param message - The message to display
+ * @param duration - How long to show the message in milliseconds (default: 2000)
+ */
+export const flash = (message: string, duration = 4000) => {
+  if (statusTimeoutId) {
+    clearTimeout(statusTimeoutId)
+  }
+
+  statusMessage.val = message
+  statusVisible.val = true
+
+  statusTimeoutId = setTimeout(() => {
+    statusVisible.val = false
+  }, duration)
+}
 
 export const StatusBar = () =>
   div(

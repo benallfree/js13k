@@ -1,9 +1,10 @@
 import van from 'vanjs-core'
 import { div, h1, h2, p } from '../common/tags'
-import { classify } from '../common/utils'
 import globalStyles from '../components/common.module.css'
 import { Button, ButtonVariant } from './Button'
+import { classify } from './classify'
 import { Modal } from './Modal'
+import splashStyles from './Splash.module.css'
 
 export interface SplashProps {
   title: string
@@ -40,12 +41,7 @@ export const Splash = ({
       { ...classify(globalStyles.maxW600, globalStyles.mxAuto, globalStyles.p5, globalStyles.textCenter) },
       h1(
         {
-          ...classify(
-            globalStyles.textPrimary,
-            globalStyles.text3xl,
-            globalStyles.mb7,
-            'text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2)'
-          ),
+          ...classify(globalStyles.textPrimary, globalStyles.text3xl, globalStyles.mb7, splashStyles.title),
         },
         title
       ),
@@ -54,7 +50,7 @@ export const Splash = ({
           { ...classify(globalStyles.mb7, globalStyles.textLeft) },
           h2({ ...classify(globalStyles.textPrimary, globalStyles.mb5) }, section.title),
           ...section.content.map((text) =>
-            p({ ...classify(globalStyles.textCcc, globalStyles.my5, 'line-height: 1.5') }, text)
+            p({ ...classify(globalStyles.textCcc, globalStyles.my5, splashStyles.content) }, text)
           )
         )
       )

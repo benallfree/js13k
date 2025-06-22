@@ -1,9 +1,48 @@
-import { State } from 'vanjs-core'
-import { classify } from '../common/utils'
+import van, { State } from 'vanjs-core'
 import globalStyles from '../components/common.module.css'
 import { Button, ButtonVariant } from './Button'
+import { classify } from './classify'
 import { clickify } from './clickify'
 import { div } from './tags'
+
+/**
+ * Modal state management utility
+ * Provides consistent modal state and operations across the application
+ */
+export interface ModalManager {
+  isOpen: State<boolean>
+  open: () => void
+  close: () => void
+  toggle: () => void
+}
+
+/**
+ * Creates a modal state manager with consistent operations
+ * @param initialState - Initial modal state (default: false)
+ * @returns ModalManager object with state and operations
+ */
+export const useModal = (initialState: boolean = false): ModalManager => {
+  const isOpen = van.state(initialState)
+
+  const open = () => {
+    isOpen.val = true
+  }
+
+  const close = () => {
+    isOpen.val = false
+  }
+
+  const toggle = () => {
+    isOpen.val = !isOpen.val
+  }
+
+  return {
+    isOpen,
+    open,
+    close,
+    toggle,
+  }
+}
 
 export interface ButtonProps {
   text: string

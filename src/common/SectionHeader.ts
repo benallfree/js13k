@@ -1,6 +1,6 @@
 import globalStyles from '../components/common.module.css'
+import { classify } from './classify'
 import { div, h2 } from './tags'
-import { classify } from './utils'
 
 interface SectionHeaderProps {
   title: string | (() => string)

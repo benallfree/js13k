@@ -1,8 +1,8 @@
 import styles from './Breadcrumb.module.css'
+import { classify } from './classify'
 import { clickify } from './clickify'
 import { Link } from './router'
 import { div, span } from './tags'
-import { classify } from './utils'
 
 export interface BreadcrumbItem {
   label: string | (() => string)

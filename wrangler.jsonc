@@ -4,7 +4,7 @@
  */
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "beatthreads",
+  "name": "van13k",
   "compatibility_date": "2025-06-13",
   "assets": {
     "directory": "./dist",
