@@ -198,16 +198,3 @@ export const playSound = (
     stockSound()
   }
 }
-
-// Legacy sounds object for backwards compatibility
-export const sounds = {
-  0: () => playSound(0),
-  1: () => playSound(1),
-  2: () => playSound(2),
-  3: () => playSound(3),
-  4: () => playSound(4),
-  5: () => playSound(5),
-  6: () => playSound(6),
-}
-
-export const instruments = ['K', 'S', 'H', 'C', 'T', 'P', 'B'] // Kick, Snare, Hi-hat, Crash, Tom, Clap, Bell
