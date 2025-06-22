@@ -1,0 +1,23 @@
+.breadcrumb {
+  position: sticky;
+  top: 0;
+  background: #111;
+  margin-bottom: 15px;
+  padding: 10px 0;
+  border-bottom: 1px solid #333;
+  z-index: 10;
+}
+
+.breadcrumbTitle {
+  cursor: pointer;
+  color: #fff;
+  text-decoration: none;
+}
+
+.breadcrumbTitle:hover {
+  color: #4a9eff;
+}
+
+.breadcrumbModified {
+  color: #f44;
+}
