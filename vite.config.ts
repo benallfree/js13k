@@ -1,5 +1,7 @@
 import { cloudflare } from '@cloudflare/vite-plugin'
+import { resolve } from 'path'
 import { defineConfig } from 'vite'
+import { optimizeCssModules } from 'vite-plugin-optimize-css-modules'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -7,9 +9,6 @@ export default defineConfig({
     alias: {
       '@': resolve(__dirname, 'src'),
     },
-  },
-  css: {
-    transformer: 'lightningcss',
   },
   build: {
     minify: 'terser',
@@ -41,9 +40,7 @@ export default defineConfig({
         eval: true,
         toplevel: true,
         // Also mangle property names for maximum compression
-        properties: {
-          regex: /^_/,
-        },
+        // properties: true,
       },
       format: {
         // Remove comments
@@ -51,5 +48,5 @@ export default defineConfig({
       },
     },
   },
-  plugins: [cloudflare()],
+  plugins: [optimizeCssModules(), cloudflare()],
 })
