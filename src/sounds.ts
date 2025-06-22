@@ -3,7 +3,7 @@ const ctx = new AudioContext()
 export { ctx }
 
 // Import custom sample functions
-import { playCustomSample } from './audioUtils'
+import { playCustomSample } from './SampleManager/audioUtils'
 import { loadSamplesFromStorage } from './storage'
 
 export enum InstrumentType {

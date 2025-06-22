@@ -1,10 +1,3 @@
-import {
-  generateWaveform,
-  getSampleCount,
-  getTrimmedAudioData,
-  playCustomSample,
-  processAudioFileWithOriginal,
-} from '@/audioUtils'
 import { ConfirmationModal, InputModal } from '@/common'
 import { BottomTray } from '@/common/BottomTray'
 import { Breadcrumb } from '@/common/Breadcrumb'
@@ -13,6 +6,13 @@ import { flash } from '@/common/statusManager'
 import { canvas, div, input } from '@/common/tags'
 import { classify, useModal } from '@/common/utils'
 import { xHandle } from '@/common/xHandleManager'
+import {
+  generateWaveform,
+  getSampleCount,
+  getTrimmedAudioData,
+  playCustomSample,
+  processAudioFileWithOriginal,
+} from '@/SampleManager/audioUtils'
 import {
   currentSampleFallback,
   currentSampleId,
