@@ -1,54 +1,163 @@
 import van, { State } from 'vanjs-core'
-import { Button } from './Button'
-import styles from './Modal.module.css'
+import globalStyles from '../components/common.module.css'
+import { Button, ButtonVariant } from './Button'
+import { classify } from './classify'
+import { clickify } from './clickify'
+import { div } from './tags'
 
-const { div } = van.tags
+/**
+ * Modal state management utility
+ * Provides consistent modal state and operations across the application
+ */
+export interface ModalManager {
+  isOpen: State<boolean>
+  open: () => void
+  close: () => void
+  toggle: () => void
+}
+
+/**
+ * Creates a modal state manager with consistent operations
+ * @param initialState - Initial modal state (default: false)
+ * @returns ModalManager object with state and operations
+ */
+export const useModal = (initialState: boolean = false): ModalManager => {
+  const isOpen = van.state(initialState)
+
+  const open = () => {
+    isOpen.val = true
+  }
+
+  const close = () => {
+    isOpen.val = false
+  }
+
+  const toggle = () => {
+    isOpen.val = !isOpen.val
+  }
+
+  return {
+    isOpen,
+    open,
+    close,
+    toggle,
+  }
+}
+
+export interface ButtonProps {
+  text: string
+  onClick: () => void
+  variant?: ButtonVariant
+}
 
 export interface ModalProps {
   isOpen: State<boolean>
   title?: string
   content: () => any
-  primaryButton?: {
-    text: string
-    onClick: () => void
-  }
-  secondaryButton?: {
-    text: string
-    onClick: () => void
-  }
+  buttons?: ButtonProps[]
 }
 
 export const Modal =
-  ({ isOpen, title, content, primaryButton, secondaryButton }: ModalProps) =>
-  () =>
-    isOpen.val
+  ({ isOpen, title, content, buttons }: ModalProps) =>
+  () => {
+    const handleOutsideClick = (e: Event) => {
+      const target = e.target as HTMLElement
+      if (target.classList.contains(globalStyles.bgOverlay)) {
+        const cancelButton = buttons?.find((button) => button.variant === ButtonVariant.Cancel)
+        cancelButton?.onClick()
+        isOpen.val = false
+      }
+    }
+
+    return isOpen.val
       ? div(
-          { class: styles.overlay },
+          {
+            ...classify(
+              globalStyles.fixed,
+              globalStyles.top0,
+              globalStyles.left0,
+              globalStyles.right0,
+              globalStyles.bottom0,
+              globalStyles.bgOverlay,
+              globalStyles.flex,
+              globalStyles.itemsCenter,
+              globalStyles.justifyCenter,
+              globalStyles.zIndexHighest,
+              globalStyles.overflowHidden,
+              globalStyles.pointerAuto
+            ),
+            ...clickify(handleOutsideClick),
+          },
           div(
-            { class: styles.modal },
-            title && div({ class: styles.title }, title),
-            div({ class: styles.content }, content()),
+            {
+              ...classify(
+                globalStyles.bgGray200,
+                globalStyles.border2,
+                globalStyles.borderGray500,
+                globalStyles.roundedLg,
+                globalStyles.w90vw,
+                globalStyles.maxW600,
+                globalStyles.maxH90vh,
+                globalStyles.flex,
+                globalStyles.flexCol,
+                globalStyles.relative,
+                globalStyles.shadowLg,
+                globalStyles.overflowHidden,
+                globalStyles.pointerAuto
+              ),
+            },
+            title &&
+              div(
+                {
+                  ...classify(
+                    globalStyles.textLg,
+                    globalStyles.fontBold,
+                    globalStyles.p6,
+                    globalStyles.pb5,
+                    globalStyles.textWhite
+                  ),
+                },
+                title
+              ),
             div(
-              { class: styles.buttons },
-              primaryButton &&
-                Button({
-                  onClick: () => {
-                    primaryButton.onClick()
-                    isOpen.val = false
-                  },
-                  variant: 'primary',
-                  children: primaryButton.text,
-                }),
-              secondaryButton &&
-                Button({
-                  onClick: () => {
-                    secondaryButton.onClick()
-                    isOpen.val = false
-                  },
-                  variant: 'secondary',
-                  children: secondaryButton.text,
-                })
-            )
+              {
+                ...classify(
+                  globalStyles.px6,
+                  globalStyles.overflowYAuto,
+                  globalStyles.flex1,
+                  globalStyles.textCcc,
+                  globalStyles.lineHeightNormal,
+                  globalStyles.pb5
+                ),
+              },
+              content()
+            ),
+            () =>
+              buttons?.length &&
+              div(
+                {
+                  ...classify(
+                    globalStyles.flex,
+                    globalStyles.gap4,
+                    globalStyles.justifyEnd,
+                    globalStyles.p6,
+                    globalStyles.borderT,
+                    globalStyles.borderGray400,
+                    globalStyles.bgGray200
+                  ),
+                },
+                buttons?.map((button) =>
+                  Button({
+                    onClick: () => {
+                      button.onClick()
+                      isOpen.val = false
+                    },
+                    variant: button.variant || ButtonVariant.Primary,
+                    children: button.text,
+                  })
+                )
+              )
           )
         )
       : ''
+  }
