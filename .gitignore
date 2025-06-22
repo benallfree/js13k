@@ -27,3 +27,4 @@ dist-ssr
 analyse.html
 src/terrain/AssetEditor/Preview.svelte
 dist
+.wrangler
