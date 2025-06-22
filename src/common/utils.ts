@@ -1,5 +1,6 @@
+import { generateGuid } from '@/util/generateGuid'
 import van, { State } from 'vanjs-core'
-import { Beat, Sample, generateGuid } from '../storage'
+import { Beat, Sample } from '../storage'
 
 /**
  * Format a timestamp into a human-readable date string

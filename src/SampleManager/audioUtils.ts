@@ -210,7 +210,7 @@ const base64ToUint8Array = (base64: string): Uint8Array => {
 /**
  * Convert ArrayBuffer to base64 string
  */
-const arrayBufferToBase64 = (buffer: ArrayBuffer): string => {
+export const arrayBufferToBase64 = (buffer: ArrayBuffer): string => {
   const bytes = new Uint8Array(buffer)
   let binary = ''
   for (let i = 0; i < bytes.length; i++) {
@@ -222,7 +222,7 @@ const arrayBufferToBase64 = (buffer: ArrayBuffer): string => {
 /**
  * Convert base64 string to ArrayBuffer
  */
-const base64ToArrayBuffer = (base64: string): ArrayBuffer => {
+export const base64ToArrayBuffer = (base64: string): ArrayBuffer => {
   const binary = atob(base64)
   const bytes = new Uint8Array(binary.length)
   for (let i = 0; i < binary.length; i++) {

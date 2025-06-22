@@ -7,12 +7,12 @@ import { classify, useModal } from '@/common/utils'
 import {
   Beat,
   Sample,
-  generateGuid,
   loadBeatsFromStorage,
   loadSamplesFromStorage,
   saveBeatsToStorage,
   saveSamplesToStorage,
 } from '@/storage'
+import { generateGuid } from '@/util/generateGuid'
 import van from 'vanjs-core'
 import styles from './common.module.css'
 

@@ -1,5 +1,5 @@
 import { State } from 'vanjs-core'
-import { InputModal } from '../common'
+import { InputModal } from '../../common'
 
 export const RenameBeatModal =
   (

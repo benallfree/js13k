@@ -13,6 +13,11 @@ import {
   playCustomSample,
   processAudioFileWithOriginal,
 } from '@/SampleManager/audioUtils'
+import { sampleMetadata } from '@/sounds'
+import { Sample, loadSamplesFromStorage } from '@/storage'
+import { generateGuid } from '@/util/generateGuid'
+import { shareSample } from '@/util/url'
+import van from 'vanjs-core'
 import {
   currentSampleFallback,
   currentSampleId,
@@ -30,11 +35,7 @@ import {
   windowPositionInSamples,
   windowSizeInSamples,
   windowedSampleData,
-} from '@/sampleState'
-import { sampleMetadata } from '@/sounds'
-import { Sample, generateGuid, loadSamplesFromStorage } from '@/storage'
-import { shareSample } from '@/url'
-import van from 'vanjs-core'
+} from '../SampleManager/sampleState'
 import { AuthorsDisplay } from './AuthorsDisplay'
 import styles from './common.module.css'
 import { ShareModal } from './ShareModal'

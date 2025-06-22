@@ -1,8 +1,8 @@
 import { State } from 'vanjs-core'
-import { Button, ButtonSize, ButtonVariant } from '../common/Button'
-import { div } from '../common/tags'
-import { classify } from '../common/utils'
-import { sampleMetadata } from '../sounds'
+import { Button, ButtonSize, ButtonVariant } from '../../common/Button'
+import { div } from '../../common/tags'
+import { classify } from '../../common/utils'
+import { sampleMetadata } from '../../sounds'
 import styles from './common.module.css'
 
 export const MainControls = (

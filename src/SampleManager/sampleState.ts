@@ -1,7 +1,7 @@
 import van from 'vanjs-core'
-import { createSampleData, mergeAuthors } from './common/utils'
-import { xHandle } from './common/xHandleManager'
-import { Sample, loadSamplesFromStorage, saveSamplesToStorage } from './storage'
+import { createSampleData, mergeAuthors } from '../common/utils'
+import { xHandle } from '../common/xHandleManager'
+import { Sample, loadSamplesFromStorage, saveSamplesToStorage } from '../storage'
 
 // Sample editor state
 export const currentSampleName = van.state('Untitled Sample')
