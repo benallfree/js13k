@@ -1,7 +1,54 @@
-import van, { State } from 'vanjs-core'
-import styles from './StatusBar.module.css'
+import van from 'vanjs-core'
+import { div } from '../common/tags'
+import globalStyles from '../components/common.module.css'
+import { classify } from './classify'
+import { base, visible } from './StatusBar.module.css'
 
-const { div } = van.tags
+// Global status state
+const statusMessage = van.state('')
+const statusVisible = van.state(false)
 
-export const StatusBar = (statusMessage: State<string>, statusVisible: State<boolean>) =>
-  div({ class: () => `${styles.statusBar} ${statusVisible.val ? styles.visible : ''}` }, () => statusMessage.val)
+let statusTimeoutId: ReturnType<typeof setTimeout>
+
+/**
+ * Flash a status message globally
+ * @param message - The message to display
+ * @param duration - How long to show the message in milliseconds (default: 2000)
+ */
+export const flash = (message: string, duration = 4000) => {
+  if (statusTimeoutId) {
+    clearTimeout(statusTimeoutId)
+  }
+
+  statusMessage.val = message
+  statusVisible.val = true
+
+  statusTimeoutId = setTimeout(() => {
+    statusVisible.val = false
+  }, duration)
+}
+
+export const StatusBar = () =>
+  div(
+    {
+      ...classify(
+        base,
+        globalStyles.fixed,
+        globalStyles.left0,
+        globalStyles.right0,
+        globalStyles.bgAccent,
+        globalStyles.textAccentDark,
+        globalStyles.px6,
+        globalStyles.py3,
+        globalStyles.textSm,
+        globalStyles.zIndexMax,
+        globalStyles.backdropBlur,
+        globalStyles.textCenter,
+        globalStyles.minH20,
+        globalStyles.transitionSlow,
+        globalStyles.shadowMedium,
+        () => (statusVisible.val ? visible : '')
+      ),
+    },
+    () => statusMessage.val
+  )
