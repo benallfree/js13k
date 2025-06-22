@@ -1,6 +1,14 @@
-# JS13K Starter Kit 🚀
+# Van13k - the js13k Starter Kit 🚀
 
-A production-ready starter template for JS13K game development featuring modern tooling, aggressive optimization, and real-time size monitoring.
+## 📊 Build Stats
+
+| Spec  | Info               |
+| ----- | ------------------ |
+| Build | <!-- BUILD -->847    |
+| Bytes | <!-- BYTES -->2650 |
+
+
+A **2.6k** production-ready starter template for js13k game development featuring modern tooling, aggressive optimization, and real-time size monitoring.
 
 ## ✨ Features
 
@@ -22,7 +30,7 @@ A production-ready starter template for JS13K game development featuring modern 
 
 ### 📏 **Real-time Size Monitoring**
 
-- **Base starter size: ~4.5KB** (leaves 8.5KB for your game!)
+- **Base starter size: ~2.6k** (leaves 10.4k for your game!)
 - Automated 13KB limit checking after each build
 - Live file watching with `bun size:watch`
 - macOS notifications when approaching size limit
@@ -70,12 +78,6 @@ bun size:watch
 bun analyze
 ```
 
-## 📊 Build Stats
-
-| Spec  | Info               |
-| ----- | ------------------ |
-| Build | <!-- BUILD -->28    |
-| Bytes | <!-- BYTES -->4555 |
 
 ## 🎯 Why This Starter?
 
