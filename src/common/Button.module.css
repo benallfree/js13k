@@ -1,14 +1,16 @@
 /* Button Base */
 .btn {
   padding: 8px 16px;
-  border: none;
+  border: 1px solid #383838;
   border-radius: 6px;
   color: white;
   cursor: pointer;
   transition: all 0.2s ease;
   font-weight: 500;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  font-family: monospace;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn:hover {
@@ -16,47 +18,90 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
+/* Icon-specific styles */
+.btnIcon {
+  width: 48px;
+  height: 48px;
+}
+
+.btnIcon.btnActive {
+  background: #d1d5db;
+  border-color: #111827;
+}
+
+.btnIcon.btnActive:hover {
+  background: #9ca3af;
+  border-color: #111827;
+}
+
 /* Button Variants */
-.btn-primary {
+.btnPrimary {
   background: #4a9eff;
 }
 
-.btn-primary:hover {
+.btnPrimary:hover {
   background: #3a8eef;
   box-shadow: 0 4px 8px rgba(74, 158, 255, 0.4);
 }
 
-.btn-danger {
+.btnDanger {
   background: #d44;
 }
 
-.btn-danger:hover {
+.btnDanger:hover {
   background: #e55;
   box-shadow: 0 4px 8px rgba(221, 68, 68, 0.4);
 }
 
-.btn-secondary {
+.btnSecondary {
   background: #444;
 }
 
-.btn-secondary:hover {
+.btnSecondary:hover {
   background: #555;
 }
 
+.btnCancel {
+  background: transparent;
+  color: #fff;
+}
+
+.btnCancel:hover {
+  background: #555;
+}
+
+.btnSuccess {
+  background: #0f0;
+}
+
+.btnSuccess:hover {
+  background: #0e0;
+}
+
 /* Button Sizes */
-.btn-sm {
+.btnSm {
   padding: 6px 12px;
   font-size: 12px;
 }
 
+.btnMd {
+  padding: 8px 16px;
+  font-size: 14px;
+}
+
+.btnLg {
+  padding: 12px 24px;
+  font-size: 16px;
+}
+
 /* Button States */
-.btn-active {
+.btnActive {
   background: #4a9eff !important;
   color: white !important;
   box-shadow: 0 2px 4px rgba(74, 158, 255, 0.3) !important;
 }
 
-.btn-active:hover {
+.btnActive:hover {
   background: #3a8eef !important;
   box-shadow: 0 4px 8px rgba(74, 158, 255, 0.4) !important;
-} 
+}
