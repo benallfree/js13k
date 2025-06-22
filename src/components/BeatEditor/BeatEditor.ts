@@ -1,3 +1,21 @@
+import { Breadcrumb, ConfirmationModal, InputModal } from '@/common'
+import { BottomTray } from '@/common/BottomTray'
+import { ButtonVariant } from '@/common/Button'
+import { _routerPathname } from '@/common/router/_state'
+import { flash } from '@/common/statusManager'
+import { div } from '@/common/tags'
+import { classify, mergeAuthors, useModal } from '@/common/utils'
+import { xHandle } from '@/common/xHandleManager'
+import { playSound, sampleMetadata } from '@/sounds'
+import { Beat, generateGuid, loadBeatsFromStorage, loadSamplesFromStorage } from '@/storage'
+import { shareBeat as createShareUrl } from '@/url'
+import van from 'vanjs-core'
+import { AuthorsDisplay } from '../AuthorsDisplay'
+import { ShareModal } from '../ShareModal'
+import { SplashPage } from '../SplashPage'
+import styles from '../common.module.css'
+import { Grid } from './Grid'
+import { PatchModal } from './PatchModal'
 import {
   currentBeatId,
   currentBeatName,
@@ -18,25 +36,7 @@ import {
   sharedBeatAuthors,
   stepHistory,
   updateSampleMapping,
-} from '@/beatState'
-import { Breadcrumb, ConfirmationModal, InputModal } from '@/common'
-import { BottomTray } from '@/common/BottomTray'
-import { ButtonVariant } from '@/common/Button'
-import { _routerPathname } from '@/common/router/_state'
-import { flash } from '@/common/statusManager'
-import { div } from '@/common/tags'
-import { classify, mergeAuthors, useModal } from '@/common/utils'
-import { xHandle } from '@/common/xHandleManager'
-import { playSound, sampleMetadata } from '@/sounds'
-import { Beat, generateGuid, loadBeatsFromStorage, loadSamplesFromStorage } from '@/storage'
-import { shareBeat as createShareUrl } from '@/url'
-import van from 'vanjs-core'
-import { AuthorsDisplay } from '../AuthorsDisplay'
-import { ShareModal } from '../ShareModal'
-import { SplashPage } from '../SplashPage'
-import styles from '../common.module.css'
-import { Grid } from './Grid'
-import { PatchModal } from './PatchModal'
+} from './beatState'
 
 // Modal state management using useModal utility
 const deleteModal = useModal()
