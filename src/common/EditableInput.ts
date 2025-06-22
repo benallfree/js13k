@@ -1,8 +1,10 @@
 import van, { State } from 'vanjs-core'
-import styles from './EditableInput.module.css'
-import { Modal } from './Modal'
-
-const { div, span, input } = van.tags
+import { div, input, span } from '../common/tags'
+import globalStyles from '../components/common.module.css'
+import { ButtonVariant } from './Button'
+import { classify } from './classify'
+import { clickify } from './clickify'
+import { Modal, useModal } from './Modal'
 
 export interface EditableInputProps {
   value: State<string>
@@ -27,37 +29,43 @@ export const EditableInput = ({
   saveButtonText = 'Save',
   cancelButtonText = 'Cancel',
 }: EditableInputProps) => {
-  const showModal = van.state(false)
+  const modal = useModal()
   const tempValue = van.state('')
 
   const openModal = () => {
     tempValue.val = value.val
-    showModal.val = true
+    modal.open()
   }
 
   const handleSave = () => {
     if (tempValue.val.trim()) {
       onSave(tempValue.val.trim())
     }
-    showModal.val = false
+    modal.close()
   }
 
   const handleCancel = () => {
-    showModal.val = false
+    modal.close()
   }
 
   return div(
-    { class: `${styles.container} ${className}` },
+    { ...classify(globalStyles.flex, globalStyles.itemsCenter, globalStyles.gapMedium, globalStyles.mb3, className) },
     span(
       {
-        class: styles.text,
-        onclick: openModal,
+        ...classify(
+          globalStyles.textWhite,
+          globalStyles.cursorPointer,
+          globalStyles.p2,
+          globalStyles.rounded,
+          globalStyles.transitionBg
+        ),
+        ...clickify(openModal),
       },
       () => value.val,
-      () => (isModified?.val ? span({ class: styles.modified }, modifiedIndicator) : '')
+      () => (isModified?.val ? span({ ...classify(globalStyles.textYellow) }, modifiedIndicator) : '')
     ),
     Modal({
-      isOpen: showModal,
+      isOpen: modal.isOpen,
       title: modalTitle,
       content: () =>
         div(
@@ -75,14 +83,18 @@ export const EditableInput = ({
             },
           })
         ),
-      primaryButton: {
-        text: saveButtonText,
-        onClick: handleSave,
-      },
-      secondaryButton: {
-        text: cancelButtonText,
-        onClick: handleCancel,
-      },
+      buttons: [
+        {
+          text: saveButtonText,
+          onClick: handleSave,
+          variant: ButtonVariant.Primary,
+        },
+        {
+          text: cancelButtonText,
+          onClick: handleCancel,
+          variant: ButtonVariant.Secondary,
+        },
+      ],
     })
   )
 }
