@@ -1,5 +1,5 @@
+import styles from '@/styles.module.css'
 import van from 'vanjs-core'
-import styles from '../components/common.module.css'
 import { ButtonVariant } from './Button'
 import { Modal } from './Modal'
 import { div, input, VanValue } from './tags'

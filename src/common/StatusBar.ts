@@ -1,6 +1,6 @@
+import { div } from '@/common/tags'
+import globalStyles from '@/styles.module.css'
 import van from 'vanjs-core'
-import { div } from '../common/tags'
-import globalStyles from '../components/common.module.css'
 import { classify } from './classify'
 import { base, visible } from './StatusBar.module.css'
 

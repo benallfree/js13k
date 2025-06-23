@@ -1,14 +1,14 @@
+import { Button, ButtonSize, ButtonVariant } from '@/common/Button'
 import { clickify } from '@/common/clickify'
 import { navigate } from '@/common/router'
 import { SectionHeader } from '@/common/SectionHeader'
+import { div, h3, p } from '@/common/tags'
 import { classify, formatDate } from '@/common/utils'
+import globalStyles from '@/styles.module.css'
 import { generateGuid } from '@/util/generateGuid'
-import { Button, ButtonSize, ButtonVariant } from '../common/Button'
-import { div, h3, p } from '../common/tags'
-import { savedBeats } from '../components/BeatEditor/beatState'
-import { Beat } from '../storage'
-import { AuthorsDisplay } from './AuthorsDisplay'
-import globalStyles from './common.module.css'
+import { Beat } from '../../storage'
+import { AuthorsDisplay } from '../AuthorsDisplay'
+import { savedBeats } from '../BeatEditor/beatState'
 
 // Create new beat
 const createNewBeat = () => {

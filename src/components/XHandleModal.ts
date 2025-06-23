@@ -1,9 +1,9 @@
 import { ButtonVariant } from '@/common/Button'
+import { Modal } from '@/common/Modal'
+import { div, input } from '@/common/tags'
 import { classify } from '@/common/utils'
+import globalStyles from '@/styles.module.css'
 import { State } from 'vanjs-core'
-import { Modal } from '../common/Modal'
-import { div, input } from '../common/tags'
-import globalStyles from './common.module.css'
 
 export const XHandleModal =
   (

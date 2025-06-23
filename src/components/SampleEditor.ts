@@ -15,6 +15,7 @@ import {
 } from '@/SampleManager/audioUtils'
 import { sampleMetadata } from '@/sounds'
 import { Sample, loadSamplesFromStorage } from '@/storage'
+import styles from '@/styles.module.css'
 import { generateGuid } from '@/util/generateGuid'
 import { shareSample } from '@/util/url'
 import van from 'vanjs-core'
@@ -37,7 +38,6 @@ import {
   windowedSampleData,
 } from '../SampleManager/sampleState'
 import { AuthorsDisplay } from './AuthorsDisplay'
-import styles from './common.module.css'
 import { ShareModal } from './ShareModal'
 
 // Modal state management

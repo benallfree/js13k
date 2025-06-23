@@ -1,4 +1,4 @@
-import { Splash } from '../common/Splash'
+import { Splash } from '@/common/Splash'
 
 export const SplashPage = () => {
   return Splash({

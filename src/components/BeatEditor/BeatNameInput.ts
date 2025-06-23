@@ -1,5 +1,5 @@
+import { EditableInput } from '@/common/EditableInput'
 import { State } from 'vanjs-core'
-import { EditableInput } from '../../common/EditableInput'
 
 export const BeatNameInput = (
   currentBeatName: State<string>,

@@ -1,7 +1,7 @@
+import { a, p } from '@/common/tags'
 import { classify } from '@/common/utils'
+import styles from '@/styles.module.css'
 import { State } from 'vanjs-core'
-import { a, p } from '../common/tags'
-import styles from './common.module.css'
 
 interface AuthorsDisplayProps {
   authors: string[] | State<string[]>

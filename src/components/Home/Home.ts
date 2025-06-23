@@ -1,13 +1,13 @@
+import { div, h1, p } from '@/common/tags'
 import { classify } from '@/common/utils'
+import globalStyles from '@/styles.module.css'
 import { BEAT_EDITOR_FLAG, SAMPLE_EDITOR_FLAG } from '@/util/constants'
-import { div, h1, p } from '../common/tags'
-import { savedBeats } from '../components/BeatEditor/beatState'
-import { savedSamples } from '../SampleManager/sampleState'
-import { loadBeatsFromStorage, loadSamplesFromStorage } from '../storage'
+import { savedSamples } from '../../SampleManager/sampleState'
+import { loadBeatsFromStorage, loadSamplesFromStorage } from '../../storage'
+import { savedBeats } from '../BeatEditor/beatState'
+import { SplashPage } from '../SplashPage'
 import { BeatLibrary } from './BeatLibrary'
-import globalStyles from './common.module.css'
 import { SampleLibrary } from './SampleLibrary'
-import { SplashPage } from './SplashPage'
 
 export const Home = () => {
   // Initialize app

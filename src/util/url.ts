@@ -1,4 +1,4 @@
-import { chunkString, mergeAuthors } from '../common/utils'
+import { chunkString, mergeAuthors } from '@/common/utils'
 import { encodeGrid } from '../components/BeatEditor/grid-utils'
 import { Beat, Sample } from '../storage'
 

@@ -1,5 +1,5 @@
+import globalStyles from '@/styles.module.css'
 import van, { State } from 'vanjs-core'
-import globalStyles from '../components/common.module.css'
 import { Button, ButtonVariant } from './Button'
 import { classify } from './classify'
 import { clickify } from './clickify'

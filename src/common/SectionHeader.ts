@@ -1,4 +1,4 @@
-import globalStyles from '../components/common.module.css'
+import globalStyles from '@/styles.module.css'
 import { classify } from './classify'
 import { div, h2 } from './tags'
 

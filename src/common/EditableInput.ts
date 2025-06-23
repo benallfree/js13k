@@ -1,6 +1,6 @@
+import { div, input, span } from '@/common/tags'
+import globalStyles from '@/styles.module.css'
 import van, { State } from 'vanjs-core'
-import { div, input, span } from '../common/tags'
-import globalStyles from '../components/common.module.css'
 import { ButtonVariant } from './Button'
 import { classify } from './classify'
 import { clickify } from './clickify'

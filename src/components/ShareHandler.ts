@@ -12,9 +12,9 @@ import {
   saveBeatsToStorage,
   saveSamplesToStorage,
 } from '@/storage'
+import styles from '@/styles.module.css'
 import { generateGuid } from '@/util/generateGuid'
 import van from 'vanjs-core'
-import styles from './common.module.css'
 
 export const ImportHandler = ({ chunks }: { chunks: string[] }) => {
   const conflictModal = useModal()
