@@ -6,9 +6,9 @@ import { div, h3, p } from '@/common/tags'
 import { classify, formatDate } from '@/common/utils'
 import globalStyles from '@/styles.module.css'
 import { generateGuid } from '@/util/generateGuid'
-import { savedSamples } from '../../SampleManager/sampleState'
 import { Sample } from '../../storage'
 import { AuthorsDisplay } from '../AuthorsDisplay'
+import { savedSamples } from '../SampleManager/sampleState'
 
 // Create new sample
 const createNewSample = () => {

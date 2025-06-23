@@ -1,7 +1,7 @@
-import { loadXHandleFromStorage, saveXHandleToStorage } from '@/storage'
+import { flash } from '@/common/statusManager'
+import { useModal } from '@/common/utils'
 import van from 'vanjs-core'
-import { flash } from './statusManager'
-import { useModal } from './utils'
+import { loadXHandleFromStorage, saveXHandleToStorage } from './XHandleModal'
 
 // Global X Handle state
 export const xHandle = van.state('')

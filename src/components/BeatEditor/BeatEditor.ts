@@ -1,20 +1,20 @@
 import { Breadcrumb, ConfirmationModal, InputModal } from '@/common'
 import { BottomTray } from '@/common/BottomTray'
 import { ButtonVariant } from '@/common/Button'
+import { ShareModal } from '@/common/ShareModal'
 import { _routerPathname } from '@/common/router/_state'
 import { flash } from '@/common/statusManager'
 import { div } from '@/common/tags'
 import { classify, mergeAuthors } from '@/common/utils'
-import { xHandle } from '@/common/xHandleManager'
+import { AuthorsDisplay } from '@/components/AuthorsDisplay'
+import { loadSamplesFromStorage } from '@/components/SampleManager/storage'
+import { SplashPage } from '@/components/SplashPage'
+import { xHandle } from '@/components/XHandle/xHandleManager'
 import { playSound, sampleMetadata } from '@/sounds'
-import { Beat, loadBeatsFromStorage, loadSamplesFromStorage } from '@/storage'
 import styles from '@/styles.module.css'
 import { generateGuid } from '@/util/generateGuid'
 import { shareBeat as createShareUrl } from '@/util/url'
 import van from 'vanjs-core'
-import { AuthorsDisplay } from '../AuthorsDisplay'
-import { ShareModal } from '../ShareModal'
-import { SplashPage } from '../SplashPage'
 import { Grid } from './Grid'
 import { PatchModal } from './PatchModal'
 import {
@@ -38,6 +38,7 @@ import {
   stepHistory,
   updateSampleMapping,
 } from './beatState'
+import { Beat, loadBeatsFromStorage } from './storage'
 
 interface BeatEditorProps {
   beatId: string

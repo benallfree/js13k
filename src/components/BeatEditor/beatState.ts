@@ -1,7 +1,7 @@
 import { createBeatData, mergeAuthors } from '@/common/utils'
-import { xHandle } from '@/common/xHandleManager'
+import { xHandle } from '@/components/XHandle/xHandleManager'
 import van from 'vanjs-core'
-import { Beat, loadBeatsFromStorage, saveBeatsToStorage } from '../../storage'
+import { Beat, loadBeatsFromStorage, saveBeatsToStorage } from './storage'
 
 // Beat maker state
 export const playing = van.state(false)

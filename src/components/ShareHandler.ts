@@ -4,17 +4,11 @@ import { navigate } from '@/common/router'
 import { flash } from '@/common/statusManager'
 import { div } from '@/common/tags'
 import { classify, useModal } from '@/common/utils'
-import {
-  Beat,
-  Sample,
-  loadBeatsFromStorage,
-  loadSamplesFromStorage,
-  saveBeatsToStorage,
-  saveSamplesToStorage,
-} from '@/storage'
+import { Beat, loadBeatsFromStorage, saveBeatsToStorage } from '@/components/BeatEditor/storage'
 import styles from '@/styles.module.css'
 import { generateGuid } from '@/util/generateGuid'
 import van from 'vanjs-core'
+import { loadSamplesFromStorage, Sample, saveSamplesToStorage } from './SampleManager/storage'
 
 export const ImportHandler = ({ chunks }: { chunks: string[] }) => {
   const conflictModal = useModal()
@@ -194,39 +188,40 @@ export const ImportHandler = ({ chunks }: { chunks: string[] }) => {
     }
   })
 
+  const confirmModal = Modal({
+    title: contentType.val === 'beat' ? 'Beat Already Exists' : 'Sample Already Exists',
+    content: () =>
+      div(
+        div(
+          contentType.val === 'beat'
+            ? `A beat named "${existingBeat.val?.name}" already exists in your library.`
+            : `A sample named "${existingSample.val?.name}" already exists in your library.`
+        ),
+        div('What would you like to do?'),
+        div({ ...classify(styles.flex, styles.gapSmall, styles.mt4, styles.justifyCenter) })
+      ),
+    buttons: [
+      {
+        onClick: handleOverwrite,
+        variant: ButtonVariant.Danger,
+        text: 'Overwrite',
+      },
+      {
+        onClick: handleMakeCopy,
+        variant: ButtonVariant.Primary,
+        text: 'Make Copy',
+      },
+      {
+        onClick: handleCancel,
+        variant: ButtonVariant.Cancel,
+        text: 'Cancel',
+      },
+    ],
+  })
+
   return div(
     // Conflict resolution modal
-    Modal({
-      isOpen: conflictModal.isOpen,
-      title: contentType.val === 'beat' ? 'Beat Already Exists' : 'Sample Already Exists',
-      content: () =>
-        div(
-          div(
-            contentType.val === 'beat'
-              ? `A beat named "${existingBeat.val?.name}" already exists in your library.`
-              : `A sample named "${existingSample.val?.name}" already exists in your library.`
-          ),
-          div('What would you like to do?'),
-          div({ ...classify(styles.flex, styles.gapSmall, styles.mt4, styles.justifyCenter) })
-        ),
-      buttons: [
-        {
-          onClick: handleOverwrite,
-          variant: ButtonVariant.Danger,
-          text: 'Overwrite',
-        },
-        {
-          onClick: handleMakeCopy,
-          variant: ButtonVariant.Primary,
-          text: 'Make Copy',
-        },
-        {
-          onClick: handleCancel,
-          variant: ButtonVariant.Cancel,
-          text: 'Cancel',
-        },
-      ],
-    }),
+    confirmModal.render(),
 
     // Loading state
     () =>

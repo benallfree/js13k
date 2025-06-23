@@ -6,7 +6,7 @@ import { classify } from '@/common/utils'
 import common from '@/styles.module.css'
 import { State } from 'vanjs-core'
 import { sampleMetadata } from '../../sounds'
-import { loadSamplesFromStorage } from '../../storage'
+import { loadSamplesFromStorage } from '../SampleManager/storage'
 
 interface PatchModalProps {
   selectedInstrument: State<number>

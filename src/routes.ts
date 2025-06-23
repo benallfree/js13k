@@ -3,7 +3,7 @@ import { Route } from '@/common/router/router'
 import { div } from '@/common/tags'
 import { BeatEditor } from './components/BeatEditor/BeatEditor'
 import { Home } from './components/Home/Home'
-import { SampleEditor } from './components/SampleEditor'
+import { SampleEditor } from './components/SampleManager/SampleEditor'
 import { ImportHandler } from './components/ShareHandler'
 import { BEAT_EDITOR_FLAG, SAMPLE_EDITOR_FLAG } from './util/constants'
 

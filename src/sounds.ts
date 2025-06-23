@@ -3,8 +3,8 @@ const ctx = new AudioContext()
 export { ctx }
 
 // Import custom sample functions
-import { playCustomSample } from './SampleManager/audioUtils'
-import { loadSamplesFromStorage } from './storage'
+import { playCustomSample } from '@/components/SampleManager/audioUtils'
+import { loadSamplesFromStorage } from '@/components/SampleManager/storage'
 
 export enum InstrumentType {
   Kick = 'K',

@@ -5,20 +5,21 @@ import { ButtonVariant } from '@/common/Button'
 import { flash } from '@/common/statusManager'
 import { canvas, div, input } from '@/common/tags'
 import { classify, useModal } from '@/common/utils'
-import { xHandle } from '@/common/xHandleManager'
 import {
   generateWaveform,
   getSampleCount,
   getTrimmedAudioData,
   playCustomSample,
   processAudioFileWithOriginal,
-} from '@/SampleManager/audioUtils'
+} from '@/components/SampleManager/audioUtils'
+import { xHandle } from '@/components/XHandle/xHandleManager'
 import { sampleMetadata } from '@/sounds'
-import { Sample, loadSamplesFromStorage } from '@/storage'
 import styles from '@/styles.module.css'
 import { generateGuid } from '@/util/generateGuid'
 import { shareSample } from '@/util/url'
 import van from 'vanjs-core'
+import { ShareModal } from '../../common/ShareModal'
+import { AuthorsDisplay } from '../AuthorsDisplay'
 import {
   currentSampleFallback,
   currentSampleId,
@@ -36,9 +37,8 @@ import {
   windowPositionInSamples,
   windowSizeInSamples,
   windowedSampleData,
-} from '../SampleManager/sampleState'
-import { AuthorsDisplay } from './AuthorsDisplay'
-import { ShareModal } from './ShareModal'
+} from './sampleState'
+import { Sample, loadSamplesFromStorage } from './storage'
 
 // Modal state management
 const deleteModal = useModal()
