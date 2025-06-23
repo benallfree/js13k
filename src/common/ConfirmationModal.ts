@@ -1,10 +1,8 @@
-import { State } from 'vanjs-core'
 import { ButtonVariant } from './Button'
 import { Modal } from './Modal'
 import { div } from './tags'
 
 export interface ConfirmationModalProps {
-  isOpen: State<boolean>
   title: string
   message: string | (() => string)
   confirmText?: string
@@ -15,7 +13,6 @@ export interface ConfirmationModalProps {
 }
 
 export const ConfirmationModal = ({
-  isOpen,
   title,
   message,
   confirmText = 'Confirm',
@@ -25,7 +22,6 @@ export const ConfirmationModal = ({
   onCancel,
 }: ConfirmationModalProps) => {
   return Modal({
-    isOpen,
     title,
     content: () => div(typeof message === 'function' ? message() : message),
     buttons: [

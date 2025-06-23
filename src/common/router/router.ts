@@ -3,12 +3,12 @@ import { _routerBasename, _routerParams, _routerPathname, _routerQuery } from '.
 
 const _PATH_PARAM_REGEX = /:([^\\d|^/]([^/]+)?)(\*)?/
 
-interface Route {
+export interface Route {
   path: string | '*'
   component: () => HTMLElement
 }
 
-interface RouterProps extends Partial<HTMLDivElement> {
+export interface RouterProps extends Partial<HTMLDivElement> {
   routes: Route[]
   basename?: string
 }

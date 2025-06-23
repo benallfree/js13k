@@ -1,40 +1,39 @@
-import { State } from 'vanjs-core'
+import van from 'vanjs-core'
 import styles from '../components/common.module.css'
 import { ButtonVariant } from './Button'
 import { Modal } from './Modal'
-import { div, input } from './tags'
+import { div, input, VanValue } from './tags'
 
 export interface InputModalProps {
-  isOpen: State<boolean>
-  title: string
-  prompt: string
-  inputValue: State<string>
+  title: VanValue
+  prompt: VanValue
+  initialValue?: string
   placeholder?: string
-  confirmText?: string
-  cancelText?: string
+  confirmText?: VanValue
+  cancelText?: VanValue
   onConfirm: (value: string) => void
   onCancel: () => void
 }
 
 export const InputModal = ({
-  isOpen,
   title,
   prompt,
-  inputValue,
+  initialValue = '',
   placeholder = '',
   confirmText = 'Save',
   cancelText = 'Cancel',
   onConfirm,
   onCancel,
 }: InputModalProps) => {
+  const inputValue = van.state(initialValue)
+
   const handleConfirm = () => {
     if (inputValue.val.trim()) {
       onConfirm(inputValue.val.trim())
     }
   }
 
-  return Modal({
-    isOpen,
+  const modal = Modal({
     title,
     content: () =>
       div(
@@ -67,4 +66,12 @@ export const InputModal = ({
       },
     ],
   })
+
+  return {
+    ...modal,
+    open: (initialValue: string) => {
+      inputValue.val = initialValue
+      modal.open()
+    },
+  }
 }

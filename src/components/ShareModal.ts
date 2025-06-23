@@ -1,19 +1,20 @@
 import { clickify } from '@/common/clickify'
 import { classify } from '@/common/utils'
-import van, { State } from 'vanjs-core'
+import van from 'vanjs-core'
 import { Button, ButtonVariant } from '../common/Button'
 import { Modal } from '../common/Modal'
 import { div, input } from '../common/tags'
 import styles from './ShareModal.module.css'
 
 interface ShareModalProps {
-  isOpen: State<boolean>
+  title: string
+  instructions: string
   shareUrl: string
   onClose: () => void
   onCopyUrl: () => void
 }
 
-export const ShareModal = ({ isOpen, shareUrl, onClose, onCopyUrl }: ShareModalProps) => {
+export const ShareModal = ({ title, instructions, shareUrl, onClose, onCopyUrl }: ShareModalProps) => {
   const copied = van.state(false)
   let copyTimeout: ReturnType<typeof setTimeout>
 
@@ -35,22 +36,11 @@ export const ShareModal = ({ isOpen, shareUrl, onClose, onCopyUrl }: ShareModalP
     target.select()
   }
 
-  // Reset copied state when modal closes
-  van.derive(() => {
-    if (!isOpen.val) {
-      copied.val = false
-      if (copyTimeout) {
-        clearTimeout(copyTimeout)
-      }
-    }
-  })
-
   return Modal({
-    isOpen,
-    title: 'Share Your Beat',
+    title,
     content: () =>
       div(
-        div('Share this URL to let others listen to your beat:'),
+        div(instructions),
         div(
           { class: styles.shareUrlContainer },
           input({

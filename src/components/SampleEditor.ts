@@ -70,20 +70,9 @@ const autoSave = () => {
   saveSample(currentSampleName.val, authors)
 }
 
-// Handle sample name save
-const handleSampleNameSave = (newName: string) => {
-  const authors = getAuthorsForCurrentSample()
-  if (saveSample(newName, authors)) {
-  }
-}
-
 const openSampleNameModal = () => {
   tempSampleName.val = currentSampleName.val
   sampleNameModal.open()
-}
-
-const cancelSampleNameModal = () => {
-  sampleNameModal.close()
 }
 
 // File upload handling
@@ -298,15 +287,6 @@ const handleDeleteSample = () => {
   deleteModal.open()
 }
 
-const confirmDeleteSample = () => {
-  if (currentSampleId.val && currentSampleName.val) {
-    deleteSample(currentSampleId.val)
-    flash(`🗑️ Sample "${currentSampleName.val}" deleted`)
-    window.history.pushState({}, '', '/')
-    window.dispatchEvent(new PopStateEvent('popstate'))
-  }
-}
-
 const cancelDeleteSample = () => {
   deleteModal.close()
 }
@@ -384,6 +364,41 @@ export const SampleEditor = ({ sampleId }: SampleEditorProps) => {
   // Initialize on component creation
   initializeEditor()
 
+  const deleteModal = ConfirmationModal({
+    title: 'Delete Sample',
+    message: () => `Are you sure you want to delete "${currentSampleName.val}"? This action cannot be undone.`,
+    confirmText: 'Delete',
+    confirmVariant: ButtonVariant.Danger,
+    onConfirm: () => {
+      if (currentSampleId.val && currentSampleName.val) {
+        deleteSample(currentSampleId.val)
+        flash(`🗑️ Sample "${currentSampleName.val}" deleted`)
+        window.history.pushState({}, '', '/')
+        window.dispatchEvent(new PopStateEvent('popstate'))
+      }
+    },
+    onCancel: () => deleteModal.close(),
+  })
+
+  const renameModal = InputModal({
+    title: 'Rename Sample',
+    prompt: 'Enter a new name for your sample:',
+    confirmText: 'Rename',
+    onConfirm: (newName: string) => {
+      const authors = getAuthorsForCurrentSample()
+      saveSample(newName, authors)
+    },
+    onCancel: () => renameModal.close(),
+  })
+
+  const shareModal = ShareModal({
+    title: 'Share Your Sample',
+    instructions: 'Share this URL to let others use to your sample:',
+    shareUrl: shareUrl.val,
+    onClose: handleCloseShareModal,
+    onCopyUrl: handleCopyUrl,
+  })
+
   return div(
     div(
       { ...classify(styles.mainContent) },
@@ -397,38 +412,12 @@ export const SampleEditor = ({ sampleId }: SampleEditorProps) => {
           },
           {
             label: () => currentSampleName.val || 'New Sample',
-            onClick: openSampleNameModal,
+            onClick: () => renameModal.open(currentSampleName.val),
           },
         ],
       }),
 
       // Modals
-      ConfirmationModal({
-        isOpen: deleteModal.isOpen,
-        title: 'Delete Sample',
-        message: () => `Are you sure you want to delete "${currentSampleName.val}"? This action cannot be undone.`,
-        confirmText: 'Delete',
-        confirmVariant: ButtonVariant.Danger,
-        onConfirm: confirmDeleteSample,
-        onCancel: cancelDeleteSample,
-      }),
-
-      InputModal({
-        isOpen: sampleNameModal.isOpen,
-        title: 'Rename Sample',
-        prompt: 'Enter a new name for your sample:',
-        inputValue: tempSampleName,
-        confirmText: 'Rename',
-        onConfirm: handleSampleNameSave,
-        onCancel: cancelSampleNameModal,
-      }),
-
-      ShareModal({
-        isOpen: shareModal.isOpen,
-        shareUrl: shareUrl.val,
-        onClose: handleCloseShareModal,
-        onCopyUrl: handleCopyUrl,
-      }),
 
       // File upload section
       div(

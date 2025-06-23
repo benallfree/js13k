@@ -3,7 +3,7 @@ import globalStyles from '../components/common.module.css'
 import { Button, ButtonVariant } from './Button'
 import { classify } from './classify'
 import { clickify } from './clickify'
-import { div } from './tags'
+import { div, VanValue } from './tags'
 
 /**
  * Modal state management utility
@@ -45,30 +45,37 @@ export const useModal = (initialState: boolean = false): ModalManager => {
 }
 
 export interface ButtonProps {
-  text: string
+  text: VanValue
   onClick: () => void
   variant?: ButtonVariant
 }
 
 export interface ModalProps {
-  isOpen: State<boolean>
-  title?: string
-  content: () => any
+  title?: VanValue
+  content: VanValue
   buttons?: ButtonProps[]
 }
 
-export const Modal =
-  ({ isOpen, title, content, buttons }: ModalProps) =>
-  () => {
-    const handleOutsideClick = (e: Event) => {
-      const target = e.target as HTMLElement
-      if (target.classList.contains(globalStyles.bgOverlay)) {
-        const cancelButton = buttons?.find((button) => button.variant === ButtonVariant.Cancel)
-        cancelButton?.onClick()
-        isOpen.val = false
-      }
+export const Modal = ({ title, content, buttons }: ModalProps) => {
+  const isOpen = van.state(false)
+  const handleOutsideClick = (e: Event) => {
+    const target = e.target as HTMLElement
+    if (target.classList.contains(globalStyles.bgOverlay)) {
+      const cancelButton = buttons?.find((button) => button.variant === ButtonVariant.Cancel)
+      cancelButton?.onClick()
+      isOpen.val = false
     }
+  }
 
+  const open = () => {
+    isOpen.val = true
+  }
+
+  const close = () => {
+    isOpen.val = false
+  }
+
+  const render = () => {
     return isOpen.val
       ? div(
           {
@@ -130,7 +137,7 @@ export const Modal =
                   globalStyles.pb5
                 ),
               },
-              content()
+              content
             ),
             () =>
               buttons?.length &&
@@ -161,3 +168,9 @@ export const Modal =
         )
       : ''
   }
+  return {
+    open,
+    close,
+    render,
+  }
+}

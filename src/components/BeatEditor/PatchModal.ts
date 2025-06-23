@@ -9,20 +9,13 @@ import { loadSamplesFromStorage } from '../../storage'
 import common from '../common.module.css'
 
 interface PatchModalProps {
-  isOpen: State<boolean>
   selectedInstrument: State<number>
   selectedSampleId: State<string>
   onSelectPatch: (index: number, sampleId?: string) => void
   onClose: () => void
 }
 
-export const PatchModal = ({
-  isOpen,
-  selectedInstrument,
-  selectedSampleId,
-  onSelectPatch,
-  onClose,
-}: PatchModalProps) => {
+export const PatchModal = ({ selectedInstrument, selectedSampleId, onSelectPatch, onClose }: PatchModalProps) => {
   const handleStockInstrumentSelect = (index: number) => {
     onSelectPatch(index)
     onClose()
@@ -38,7 +31,6 @@ export const PatchModal = ({
     handleCustomSampleSelect(sampleId, fallbackIdx)
 
   return Modal({
-    isOpen,
     title: 'Select Instrument',
     content: () => {
       // Load custom samples

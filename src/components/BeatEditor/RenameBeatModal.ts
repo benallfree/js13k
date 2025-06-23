@@ -1,21 +1,17 @@
-import { State } from 'vanjs-core'
 import { InputModal } from '../../common'
 
-export const RenameBeatModal =
-  (
-    showRenameModal: State<boolean>,
-    originalName: State<string>,
-    newName: State<string>,
-    onConfirm: (value: string) => void,
-    onCancel: () => void
-  ) =>
-  () =>
-    InputModal({
-      isOpen: showRenameModal,
-      title: 'Rename Beat',
-      prompt: 'Enter a new name for your beat:',
-      inputValue: newName,
-      confirmText: 'Rename',
-      onConfirm,
-      onCancel,
-    })
+export const RenameBeatModal = (onConfirm: (value: string) => void, onCancel: () => void) => () => {
+  const modal = InputModal({
+    title: 'Rename Beat',
+    prompt: 'Enter a new name for your beat:',
+    confirmText: 'Rename',
+    onConfirm,
+    onCancel,
+  })
+  return {
+    ...modal,
+    open(initialValue: string) {
+      modal.open(initialValue)
+    },
+  }
+}
