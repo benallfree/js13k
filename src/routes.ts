@@ -3,9 +3,7 @@ import { Route } from '@/common/router/router'
 import { div } from '@/common/tags'
 import { BeatEditor } from './components/BeatEditor/BeatEditor'
 import { Home } from './components/Home/Home'
-import { SampleEditor } from './components/SampleManager/SampleEditor'
 import { ImportHandler } from './components/ShareHandler'
-import { BEAT_EDITOR_FLAG, SAMPLE_EDITOR_FLAG } from './util/constants'
 
 export const Routes = () => {
   const routes: Route[] = [
@@ -14,7 +12,6 @@ export const Routes = () => {
       path: '/import/:chunks*',
       component: () => {
         return div(() => {
-          console.log('ImportHandler', getRouterParams())
           const { chunks } = getRouterParams()
           if (!chunks) {
             return div('Invalid import link')
@@ -25,35 +22,18 @@ export const Routes = () => {
     },
   ]
 
-  if (BEAT_EDITOR_FLAG) {
-    routes.push({
-      path: '/beats/:beatId',
-      component: () => {
-        return div(() => {
-          const { beatId } = getRouterParams()
-          if (!beatId) {
-            return div(`Loading...`)
-          }
-          return BeatEditor({ beatId })
-        })
-      },
-    })
-  }
-
-  if (SAMPLE_EDITOR_FLAG) {
-    routes.push({
-      path: '/samples/:sampleId',
-      component: () => {
-        return div(() => {
-          const { sampleId } = getRouterParams()
-          if (!sampleId) {
-            return div(`Loading...`)
-          }
-          return SampleEditor({ sampleId })
-        })
-      },
-    })
-  }
+  routes.push({
+    path: '/beats/:beatId',
+    component: () => {
+      return div(() => {
+        const { beatId } = getRouterParams()
+        if (!beatId) {
+          return `Loading...`
+        }
+        return BeatEditor({ beatId })
+      })
+    },
+  })
 
   return Router({
     routes,

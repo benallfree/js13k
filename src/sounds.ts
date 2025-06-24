@@ -3,9 +3,6 @@ const ctx = new AudioContext()
 export { ctx }
 
 // Import custom sample functions
-import { playCustomSample } from '@/components/SampleManager/audioUtils'
-import { loadSamplesFromStorage } from '@/components/SampleManager/storage'
-
 export enum InstrumentType {
   Kick = 'K',
   Snare = 'S',
@@ -164,34 +161,7 @@ const stockSounds = {
  * @param hitIdx - The instrument index (0-6)
  * @param sampleMapping - Optional mapping of custom samples
  */
-export const playSound = (
-  hitIdx: number,
-  sampleMapping?: { [hitIdx: number]: { sampleGuid: string; fallbackIdx: number } }
-) => {
-  // Check if there's a custom sample mapping for this hit
-  if (sampleMapping && sampleMapping[hitIdx]) {
-    const mapping = sampleMapping[hitIdx]
-    const samples = loadSamplesFromStorage()
-    const customSample = samples.find((s) => s.id === mapping.sampleGuid)
-
-    if (customSample && customSample.audioData) {
-      try {
-        playCustomSample(customSample.audioData)
-        return
-      } catch (error) {
-        console.warn('Failed to play custom sample, falling back to stock:', error)
-        // Fall through to fallback
-      }
-    }
-
-    // Use fallback sample
-    const fallbackSound = stockSounds[mapping.fallbackIdx as keyof typeof stockSounds]
-    if (fallbackSound) {
-      fallbackSound()
-      return
-    }
-  }
-
+export const playSound = (hitIdx: number) => {
   // Use stock sound for this hit index
   const stockSound = stockSounds[hitIdx as keyof typeof stockSounds]
   if (stockSound) {

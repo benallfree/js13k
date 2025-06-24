@@ -5,7 +5,6 @@ export const clickify = (onClick: (e: Event) => void) => {
   const threshold = 10 // Pixels to allow minor movement for a tap
 
   const handleClick = (e: Event) => {
-    console.log({ e })
     e.stopPropagation()
     e.preventDefault()
     onClick(e)

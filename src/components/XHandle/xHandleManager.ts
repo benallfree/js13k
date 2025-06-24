@@ -1,4 +1,4 @@
-import { flash } from '@/common/statusManager'
+import { flash } from '@/common/StatusBar'
 import { useModal } from '@/common/utils'
 import van from 'vanjs-core'
 import { loadXHandleFromStorage, saveXHandleToStorage } from './XHandleModal'

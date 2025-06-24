@@ -2,30 +2,24 @@ import { Breadcrumb, ConfirmationModal, InputModal } from '@/common'
 import { BottomTray } from '@/common/BottomTray'
 import { ButtonVariant } from '@/common/Button'
 import { ShareModal } from '@/common/ShareModal'
+import { flash } from '@/common/StatusBar'
 import { _routerPathname } from '@/common/router/_state'
-import { flash } from '@/common/statusManager'
 import { div } from '@/common/tags'
-import { classify, mergeAuthors } from '@/common/utils'
+import { classify } from '@/common/utils'
 import { AuthorsDisplay } from '@/components/AuthorsDisplay'
-import { loadSamplesFromStorage } from '@/components/SampleManager/storage'
 import { SplashPage } from '@/components/SplashPage'
-import { xHandle } from '@/components/XHandle/xHandleManager'
 import { playSound, sampleMetadata } from '@/sounds'
 import styles from '@/styles.module.css'
-import { generateGuid } from '@/util/generateGuid'
-import { shareBeat as createShareUrl } from '@/util/url'
 import van from 'vanjs-core'
 import { Grid } from './Grid'
 import { PatchModal } from './PatchModal'
 import {
   currentBeatId,
   currentBeatName,
-  currentSampleMapping,
   currentStep,
   deleteBeat,
   getAuthorsForCurrentBeat,
   grid,
-  isModified,
   loadBeat,
   newBeat,
   playing,
@@ -33,12 +27,10 @@ import {
   saveBeat,
   savedBeats,
   selectedInstrument,
-  selectedSampleId,
   sharedBeatAuthors,
   stepHistory,
-  updateSampleMapping,
 } from './beatState'
-import { Beat, loadBeatsFromStorage } from './storage'
+import { loadBeatsFromStorage } from './storage'
 
 interface BeatEditorProps {
   beatId: string
@@ -63,7 +55,6 @@ export const BeatEditor = ({ beatId }: BeatEditorProps) => {
   }
 
   // Share modal state
-  const shareUrl = van.state('')
 
   let intervalId: ReturnType<typeof setInterval>
 
@@ -87,14 +78,8 @@ export const BeatEditor = ({ beatId }: BeatEditorProps) => {
     saveBeat(currentBeatName.val, authors)
   }
 
-  // Get current beat's sample mapping
-  const getCurrentBeatSampleMapping = () => {
-    return currentSampleMapping.val
-  }
-
   // Cell interaction handling
   const toggleCell = (row: number, col: number) => {
-    console.log(`toggling`)
     const newGrid = [...grid.val]
     if (!newGrid[row]) newGrid[row] = new Array(16).fill(0)
 
@@ -102,7 +87,6 @@ export const BeatEditor = ({ beatId }: BeatEditorProps) => {
     newGrid[row][col] = currentValue === selectedInstrument.val + 1 ? 0 : selectedInstrument.val + 1
 
     grid.val = newGrid
-    isModified.val = true
 
     // Auto-save after each edit
     autoSave()
@@ -110,8 +94,7 @@ export const BeatEditor = ({ beatId }: BeatEditorProps) => {
     // Play sample immediately when placed
     if (newGrid[row][col]) {
       const soundIndex = newGrid[row][col] - 1
-      const sampleMapping = getCurrentBeatSampleMapping()
-      playSound(soundIndex, sampleMapping)
+      playSound(soundIndex)
     }
   }
 
@@ -123,14 +106,13 @@ export const BeatEditor = ({ beatId }: BeatEditorProps) => {
     playingCells.val = new Set()
 
     const newPlayingCells = new Set<string>()
-    const sampleMapping = getCurrentBeatSampleMapping()
 
     // Play sounds for current step
     grid.val.forEach((row, rowIndex) => {
       if (row && row[currentStep.val]) {
         const soundIndex = row[currentStep.val] - 1
         newPlayingCells.add(`${rowIndex}-${currentStep.val}`)
-        playSound(soundIndex, sampleMapping)
+        playSound(soundIndex)
       }
     })
 
@@ -171,40 +153,20 @@ export const BeatEditor = ({ beatId }: BeatEditorProps) => {
   // Initialize on component creation
   initializeEditor()
 
-  const handleShowShareModal = () => {
-    const existingBeat = savedBeats.val.find((b) => b.id === currentBeatId.val)
-    const beatData: Beat = {
-      id: currentBeatId.val || generateGuid(),
-      name: currentBeatName.val,
-      grid: grid.val,
-      authors: mergeAuthors(existingBeat?.authors, sharedBeatAuthors.val),
-      created: Date.now(),
-      modified: Date.now(),
-      sampleMapping: Object.keys(currentSampleMapping.val).length > 0 ? currentSampleMapping.val : undefined,
-    }
+  const handleShowShareModal = async () => {
+    // const existingBeat = savedBeats.val.find((b) => b.id === currentBeatId.val)
+    // const beatData: Beat = {
+    //   id: currentBeatId.val || generateGuid(),
+    //   name: currentBeatName.val,
+    //   grid: grid.val,
+    //   authors: mergeAuthors(existingBeat?.authors, sharedBeatAuthors.val),
+    //   created: Date.now(),
+    //   modified: Date.now(),
+    //   sampleMapping: Object.keys(currentSampleMapping.val).length > 0 ? currentSampleMapping.val : undefined,
+    // }
 
-    shareUrl.val = createShareUrl(beatData, xHandle.val)
-    shareModal.open()
-  }
-
-  const handleCloseShareModal = () => {
-    shareModal.close()
-  }
-
-  const handleCopyUrl = () => {
-    navigator.clipboard
-      .writeText(shareUrl.val)
-      .then(() => {
-        flash(`📋 Beat URL copied to clipboard!`)
-      })
-      .catch(() => {
-        prompt('Copy this URL to share your beat:', shareUrl.val)
-        flash('🔗 Share URL generated')
-      })
-  }
-
-  const handleDeleteBeat = () => {
-    deleteModal.open()
+    // const url = await shareBeat(beatData, xHandle.val)
+    shareModal.open({ shareUrl: 'foo' })
   }
 
   const confirmDeleteBeat = () => {
@@ -242,27 +204,12 @@ export const BeatEditor = ({ beatId }: BeatEditorProps) => {
         flash(`💾 Beat renamed to "${newName}"`)
       }
     },
-    onCancel: () => renameModal.close(),
   })
 
   const patchModal = PatchModal({
     selectedInstrument,
-    selectedSampleId,
-    onSelectPatch: (index: number, sampleId?: string) => {
+    onSelectPatch: (index: number) => {
       selectedInstrument.val = index
-      if (sampleId) {
-        selectedSampleId.val = sampleId
-        // Find the custom sample to get its fallback index
-        const customSamples = loadSamplesFromStorage()
-        const sample = customSamples.find((s) => s.id === sampleId)
-        if (sample) {
-          updateSampleMapping(index, sampleId, sample.fallbackIdx)
-        }
-      } else {
-        selectedSampleId.val = ''
-        // Remove any custom sample mapping for this instrument
-        updateSampleMapping(index, '', 0)
-      }
     },
     onClose: () => patchModal.close(),
   })
@@ -270,9 +217,7 @@ export const BeatEditor = ({ beatId }: BeatEditorProps) => {
   const shareModal = ShareModal({
     title: 'Share Your Beat',
     instructions: 'Share this URL to let others listen to your beat.',
-    shareUrl: shareUrl.val,
-    onClose: handleCloseShareModal,
-    onCopyUrl: handleCopyUrl,
+    // onCopyUrl: () => flash(`📋 Beat URL copied to clipboard!`),
   })
 
   return div(
@@ -288,15 +233,14 @@ export const BeatEditor = ({ beatId }: BeatEditorProps) => {
           },
           {
             label: () => currentBeatName.val || 'New Beat',
-            onClick: () => renameModal.open(currentBeatName.val),
-            isModified: () => isModified.val,
+            onClick: () => renameModal.open({ initialValue: currentBeatName.val }),
           },
         ],
       }),
-      deleteModal.render(),
-      renameModal.render(),
-      patchModal.render(),
-      shareModal.render(),
+      deleteModal(),
+      renameModal(),
+      patchModal(),
+      shareModal(),
       Grid(grid, playing, playingCells, stepHistory, toggleCell),
       AuthorsDisplay({
         authors: sharedBeatAuthors,
@@ -311,16 +255,8 @@ export const BeatEditor = ({ beatId }: BeatEditorProps) => {
         },
         {
           children: () => {
-            // Show custom sample name if selected, otherwise show stock instrument
-            if (selectedSampleId.val) {
-              const customSamples = loadSamplesFromStorage()
-              const sample = customSamples.find((s) => s.id === selectedSampleId.val)
-              const fallbackPatch = sampleMetadata[sample?.fallbackIdx || 0]
-              return sample ? `${fallbackPatch?.emoji || '🎵'}` : '🥁'
-            } else {
-              const patch = sampleMetadata[selectedInstrument.val]
-              return patch ? patch.emoji : '🥁'
-            }
+            const patch = sampleMetadata[selectedInstrument.val]
+            return patch ? patch.emoji : '🥁'
           },
           onClick: () => patchModal.open(),
         },
@@ -330,7 +266,7 @@ export const BeatEditor = ({ beatId }: BeatEditorProps) => {
         },
         {
           children: '🗑️',
-          onClick: handleDeleteBeat,
+          onClick: () => deleteModal.open(),
         },
       ],
     })

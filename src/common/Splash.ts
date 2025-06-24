@@ -29,34 +29,10 @@ export const Splash = ({
   const dismissSplash = () => {
     localStorage.setItem(storageKey, 'true')
     isOpen.val = false
+    SplashModal.close()
   }
 
-  // Lock body scroll when modal is open
-  van.derive(() => {
-    document.body.style.overflow = isOpen.val ? 'hidden' : ''
-  })
-
-  const content = () =>
-    div(
-      { ...classify(globalStyles.maxW600, globalStyles.mxAuto, globalStyles.p5, globalStyles.textCenter) },
-      h1(
-        {
-          ...classify(globalStyles.textPrimary, globalStyles.text3xl, globalStyles.mb7, splashStyles.title),
-        },
-        title
-      ),
-      ...sections.map((section) =>
-        div(
-          { ...classify(globalStyles.mb7, globalStyles.textLeft) },
-          h2({ ...classify(globalStyles.textPrimary, globalStyles.mb5) }, section.title),
-          ...section.content.map((text) =>
-            p({ ...classify(globalStyles.textCcc, globalStyles.my5, splashStyles.content) }, text)
-          )
-        )
-      )
-    )
-
-  const helpButton = () =>
+  const HelpButton = () =>
     div(
       {
         ...classify(
@@ -69,36 +45,42 @@ export const Splash = ({
         ),
       },
       Button({
-        onClick: () => (isOpen.val = true),
+        onClick: () => {
+          SplashModal.open()
+        },
         variant: ButtonVariant.Secondary,
         children: helpButtonText,
       })
     )
 
-  return () =>
-    div(
-      {
-        ...classify(
-          globalStyles.fixed,
-          globalStyles.top0,
-          globalStyles.left0,
-          globalStyles.widthFull,
-          globalStyles.heightFull,
-          globalStyles.pointerNone,
-          globalStyles.zIndexHighest
-        ),
-      },
-      Modal({
-        isOpen,
-        content,
-        buttons: [
+  const SplashModal = Modal({
+    content: () =>
+      div(
+        { ...classify(globalStyles.maxW600, globalStyles.mxAuto, globalStyles.p5, globalStyles.textCenter) },
+        h1(
           {
-            text: primaryButtonText,
-            onClick: dismissSplash,
-            variant: ButtonVariant.Primary,
+            ...classify(globalStyles.textPrimary, globalStyles.text3xl, globalStyles.mb7, splashStyles.title),
           },
-        ],
-      }),
-      helpButton()
-    )
+          title
+        ),
+        ...sections.map((section) =>
+          div(
+            { ...classify(globalStyles.mb7, globalStyles.textLeft) },
+            h2({ ...classify(globalStyles.textPrimary, globalStyles.mb5) }, section.title),
+            ...section.content.map((text) =>
+              p({ ...classify(globalStyles.textCcc, globalStyles.my5, splashStyles.content) }, text)
+            )
+          )
+        )
+      ),
+    buttons: [
+      {
+        text: primaryButtonText,
+        onClick: dismissSplash,
+        variant: ButtonVariant.Primary,
+      },
+    ],
+  })
+
+  return div(HelpButton(), SplashModal())
 }

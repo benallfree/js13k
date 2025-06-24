@@ -13,5 +13,5 @@ export const App = () => {
 
   const xHandleModal = XHandleModal({ saveXHandle, skipXHandle })
 
-  return div({ ...classify(m20) }, StatusBar(), xHandleModal.render(), Routes())
+  return div({ ...classify(m20) }, StatusBar(), xHandleModal(), Routes())
 }

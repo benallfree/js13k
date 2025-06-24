@@ -1,23 +1,19 @@
 import { ButtonVariant } from '@/common/Button'
 import { Modal } from '@/common/Modal'
 import { navigate } from '@/common/router'
-import { flash } from '@/common/statusManager'
+import { flash } from '@/common/StatusBar'
 import { div } from '@/common/tags'
 import { classify, useModal } from '@/common/utils'
 import { Beat, loadBeatsFromStorage, saveBeatsToStorage } from '@/components/BeatEditor/storage'
 import styles from '@/styles.module.css'
 import { generateGuid } from '@/util/generateGuid'
 import van from 'vanjs-core'
-import { loadSamplesFromStorage, Sample, saveSamplesToStorage } from './SampleManager/storage'
 
 export const ImportHandler = ({ chunks }: { chunks: string[] }) => {
   const conflictModal = useModal()
   const sharedBeat = van.state<Beat | null>(null)
-  const sharedSample = van.state<Sample | null>(null)
   const existingBeat = van.state<Beat | null>(null)
-  const existingSample = van.state<Sample | null>(null)
   const isProcessing = van.state(true)
-  const contentType = van.state<'beat' | 'sample' | null>(null)
 
   const processBeat = (beat: Beat, shouldOverwrite: boolean = false) => {
     const beats = loadBeatsFromStorage()
@@ -56,49 +52,8 @@ export const ImportHandler = ({ chunks }: { chunks: string[] }) => {
     navigate(`/beats/${beat.id}`)
   }
 
-  const processSample = (sample: Sample, shouldOverwrite: boolean = false) => {
-    const samples = loadSamplesFromStorage()
-    const existing = samples.find((s) => s.id === sample.id)
-
-    if (existing && !shouldOverwrite) {
-      // Show conflict modal
-      sharedSample.val = sample
-      existingSample.val = existing
-      conflictModal.open()
-      isProcessing.val = false
-      return
-    }
-
-    if (shouldOverwrite && existing) {
-      // Overwrite existing sample
-      const sampleIndex = samples.findIndex((s) => s.id === sample.id)
-      samples[sampleIndex] = sample
-      saveSamplesToStorage(samples)
-      flash(`🔄 Sample "${sample.name}" overwritten`)
-    } else if (!existing) {
-      // Add new sample
-      samples.push(sample)
-      saveSamplesToStorage(samples)
-      flash(`📥 Sample "${sample.name}" imported`)
-    } else {
-      // Make a copy
-      const newSample = { ...sample, id: generateGuid() }
-      samples.push(newSample)
-      saveSamplesToStorage(samples)
-      flash(`📋 Sample "${sample.name}" copied`)
-      sample = newSample
-    }
-
-    // Redirect to sample editor
-    navigate(`/samples/${sample.id}`)
-  }
-
   const handleOverwrite = () => {
-    if (sharedBeat.val) {
-      processBeat(sharedBeat.val, true)
-    } else if (sharedSample.val) {
-      processSample(sharedSample.val, true)
-    }
+    processBeat(sharedBeat.val!, true)
     conflictModal.close()
   }
 
@@ -106,9 +61,6 @@ export const ImportHandler = ({ chunks }: { chunks: string[] }) => {
     if (sharedBeat.val) {
       const newBeat = { ...sharedBeat.val, id: generateGuid() }
       processBeat(newBeat, false)
-    } else if (sharedSample.val) {
-      const newSample = { ...sharedSample.val, id: generateGuid() }
-      processSample(newSample, false)
     }
     conflictModal.close()
   }
@@ -130,52 +82,26 @@ export const ImportHandler = ({ chunks }: { chunks: string[] }) => {
       const guid = Object.keys(data)[0]
       const info = data[guid]
 
-      // Detect content type based on properties
-      if (info.audioData) {
-        contentType.val = 'sample'
-        if (typeof info.audioData !== 'string') {
-          throw new Error('Invalid sample data')
-        }
-
-        // Create a complete Sample object
-        const sample: Sample = {
-          id: guid,
-          name: info.name || 'Shared Sample',
-          audioData: info.audioData,
-          originalAudioData: info.audioData, // Use same data for both since it's already processed
-          fallbackIdx: info.fallbackIdx || 0,
-          authors: info.authors || [],
-          created: info.created || Date.now(),
-          modified: Date.now(),
-          windowPosition: 0,
-          windowSize: info.audioData.length,
-        }
-
-        processSample(sample)
-      } else if (info.grid) {
-        contentType.val = 'beat'
-        if (!Array.isArray(info.grid)) {
-          throw new Error('Invalid beat data')
-        }
-
-        // Create a complete Beat object
-        const beat: Beat = {
-          id: guid,
-          name: info.name || 'Shared Beat',
-          grid: info.grid,
-          authors: info.authors || [],
-          created: info.created || Date.now(),
-          modified: Date.now(),
-          // Include sample mapping if present
-          ...(info.sampleMapping && { sampleMapping: info.sampleMapping }),
-        }
-
-        processBeat(beat)
-      } else {
-        throw new Error('Invalid import data')
+      // Validate beat data
+      if (!info.grid || !Array.isArray(info.grid)) {
+        throw new Error('Invalid beat data')
       }
+
+      // Create a complete Beat object
+      const beat: Beat = {
+        id: guid,
+        name: info.name || 'Shared Beat',
+        grid: info.grid,
+        authors: info.authors || [],
+        created: info.created || Date.now(),
+        modified: Date.now(),
+        // Include sample mapping if present
+        ...(info.sampleMapping && { sampleMapping: info.sampleMapping }),
+      }
+
+      processBeat(beat)
     } catch (e) {
-      console.error('Error processing imported content:', e)
+      console.error('Error processing imported beat:', e)
       flash('❌ Invalid import link', 3000)
       navigate('/')
     }
@@ -188,15 +114,11 @@ export const ImportHandler = ({ chunks }: { chunks: string[] }) => {
     }
   })
 
-  const confirmModal = Modal({
-    title: contentType.val === 'beat' ? 'Beat Already Exists' : 'Sample Already Exists',
+  const conflictModalComponent = Modal({
+    title: 'Beat Already Exists',
     content: () =>
       div(
-        div(
-          contentType.val === 'beat'
-            ? `A beat named "${existingBeat.val?.name}" already exists in your library.`
-            : `A sample named "${existingSample.val?.name}" already exists in your library.`
-        ),
+        div(`A beat named "${existingBeat.val?.name}" already exists in your library.`),
         div('What would you like to do?'),
         div({ ...classify(styles.flex, styles.gapSmall, styles.mt4, styles.justifyCenter) })
       ),
@@ -221,22 +143,17 @@ export const ImportHandler = ({ chunks }: { chunks: string[] }) => {
 
   return div(
     // Conflict resolution modal
-    confirmModal.render(),
+    conflictModalComponent.render(),
 
     // Loading state
     () =>
       isProcessing.val
         ? div(
             { ...classify(styles.textCenter, styles.py6) },
-            div(
-              { ...classify(styles.textLg) },
-              contentType.val === 'beat' ? '🔄 Processing shared beat...' : '🔄 Processing shared sample...'
-            ),
+            div({ ...classify(styles.textLg) }, '🔄 Processing shared beat...'),
             div(
               { ...classify(styles.textSm, styles.textGray600, styles.mt2) },
-              contentType.val === 'beat'
-                ? 'Please wait while we import your beat.'
-                : 'Please wait while we import your sample.'
+              'Please wait while we import your beat.'
             )
           )
         : ''

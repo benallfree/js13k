@@ -41,7 +41,6 @@ export function Router({ routes, basename, ...props }: RouterProps) {
 
     for (const route of routes) {
       const routePathParts = sanitizePath(basename + route.path).split('/')
-      console.log({ routePathParts, pathParts })
       const hasWildcard = routePathParts.some((part) => part.endsWith('*'))
       if (!hasWildcard && routePathParts.length !== pathParts.length) continue
 
@@ -50,11 +49,9 @@ export function Router({ routes, basename, ...props }: RouterProps) {
       for (let idx = 0; idx < routePathParts.length; idx++) {
         const routePathPart = routePathParts[idx]
         const pathPart = pathParts[idx]
-        console.log({ routePathPart, pathPart })
 
         if (_PATH_PARAM_REGEX.test(routePathPart)) {
           const isWildcard = routePathPart.endsWith('*')
-          console.log({ isWildcard, routePathPart })
           const paramName = decodeURIComponent(routePathPart.slice(1, isWildcard ? -1 : undefined))
 
           if (isWildcard) {
@@ -100,7 +97,6 @@ export function Router({ routes, basename, ...props }: RouterProps) {
   }
 
   const handleWindowPopState = () => {
-    console.log('handleWindowPopState')
     const { route, params } = routeMatcher(window.location.pathname, basename || '')
 
     if (route) {

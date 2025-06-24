@@ -1,25 +1,32 @@
 import { Button, ButtonVariant } from '@/common/Button'
 import { clickify } from '@/common/clickify'
 import { Modal } from '@/common/Modal'
-import { div, input } from '@/common/tags'
+import { div, input, VanValue } from '@/common/tags'
 import { classify } from '@/common/utils'
 import van from 'vanjs-core'
 import styles from './ShareModal.module.css'
 
 interface ShareModalProps {
-  title: string
-  instructions: string
-  shareUrl: string
-  onClose: () => void
-  onCopyUrl: () => void
+  title: VanValue
+  instructions: VanValue
+  onClose?: () => void
+  onCopyUrl?: () => void
 }
 
-export const ShareModal = ({ title, instructions, shareUrl, onClose, onCopyUrl }: ShareModalProps) => {
+export const ShareModal = ({ title, instructions, onClose, onCopyUrl }: ShareModalProps) => {
   const copied = van.state(false)
   let copyTimeout: ReturnType<typeof setTimeout>
 
   const handleCopy = () => {
-    onCopyUrl()
+    navigator.clipboard
+      .writeText(shareUrl.val)
+      .then(() => {
+        onCopyUrl?.()
+      })
+      .catch(() => {
+        console.warn(`Failed to copy to clipboard`)
+      })
+
     copied.val = true
 
     // Reset the copied state after 2 seconds
@@ -36,7 +43,9 @@ export const ShareModal = ({ title, instructions, shareUrl, onClose, onCopyUrl }
     target.select()
   }
 
-  return Modal({
+  const shareUrl = van.state('')
+
+  return Modal<{ shareUrl: string }>({
     title,
     content: () =>
       div(
@@ -46,7 +55,7 @@ export const ShareModal = ({ title, instructions, shareUrl, onClose, onCopyUrl }
           input({
             class: styles.shareUrl,
             type: 'text',
-            value: shareUrl,
+            value: () => shareUrl.val || '',
             readonly: true,
             ...clickify(handleInputInteraction),
           }),
@@ -61,9 +70,12 @@ export const ShareModal = ({ title, instructions, shareUrl, onClose, onCopyUrl }
     buttons: [
       {
         text: 'Close',
-        onClick: onClose,
         variant: ButtonVariant.Cancel,
       },
     ],
+    onOpen: (params?: { shareUrl: string }) => {
+      shareUrl.val = params?.shareUrl || ''
+    },
+    onClose: () => onClose?.(),
   })
 }

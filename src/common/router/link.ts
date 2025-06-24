@@ -1,5 +1,5 @@
 import { clickify } from '../clickify'
-import { span } from '../tags'
+import { span, VanValue } from '../tags'
 import { _routerBasename, _routerPathname } from './_state'
 
 interface LinkProps extends Partial<HTMLAnchorElement> {
@@ -7,7 +7,7 @@ interface LinkProps extends Partial<HTMLAnchorElement> {
   replace?: boolean
 }
 
-export function Link({ replace, ...props }: LinkProps, ...children: (HTMLElement | string)[]) {
+export function Link({ replace, ...props }: LinkProps, ...children: VanValue[]) {
   const { href, ...rest } = props as HTMLAnchorElement
 
   const handleNavigation = (e: Event) => {

@@ -1,29 +1,17 @@
 import { div, h1, p } from '@/common/tags'
 import { classify } from '@/common/utils'
 import globalStyles from '@/styles.module.css'
-import { BEAT_EDITOR_FLAG, SAMPLE_EDITOR_FLAG } from '@/util/constants'
 import { savedBeats } from '../BeatEditor/beatState'
 import { loadBeatsFromStorage } from '../BeatEditor/storage'
-import { savedSamples } from '../SampleManager/sampleState'
-import { loadSamplesFromStorage } from '../SampleManager/storage'
 import { SplashPage } from '../SplashPage'
 import { BeatLibrary } from './BeatLibrary'
-import { SampleLibrary } from './SampleLibrary'
 
 export const Home = () => {
-  // Initialize app
-  const initializeApp = () => {
-    // Load beats library
-    savedBeats.val = loadBeatsFromStorage()
-    // Load samples library
-    savedSamples.val = loadSamplesFromStorage()
-  }
-
-  // Initialize on component creation
-  initializeApp()
+  savedBeats.val = loadBeatsFromStorage()
 
   return div(
     { ...classify('app') },
+    'Home',
     SplashPage(),
     div(
       { ...classify(globalStyles.maxW800, globalStyles.mxAuto, globalStyles.mainContent) },
@@ -42,10 +30,7 @@ export const Home = () => {
       ),
 
       // Beat Library
-      BEAT_EDITOR_FLAG ? BeatLibrary() : null,
-
-      // Sample Library
-      SAMPLE_EDITOR_FLAG ? SampleLibrary() : null
+      BeatLibrary()
     )
   )
 }

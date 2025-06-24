@@ -11,8 +11,8 @@ export interface InputModalProps {
   placeholder?: string
   confirmText?: VanValue
   cancelText?: VanValue
-  onConfirm: (value: string) => void
-  onCancel: () => void
+  onConfirm?: (value: string) => void
+  onCancel?: () => void
 }
 
 export const InputModal = ({
@@ -29,11 +29,11 @@ export const InputModal = ({
 
   const handleConfirm = () => {
     if (inputValue.val.trim()) {
-      onConfirm(inputValue.val.trim())
+      onConfirm?.(inputValue.val.trim())
     }
   }
 
-  const modal = Modal({
+  const modal = Modal<{ initialValue: string }>({
     title,
     content: () =>
       div(
@@ -61,17 +61,14 @@ export const InputModal = ({
       },
       {
         text: cancelText,
-        onClick: onCancel,
+        onClick: () => onCancel?.(),
         variant: ButtonVariant.Cancel,
       },
     ],
+    onOpen: () => {
+      inputValue.val = initialValue
+    },
   })
 
-  return {
-    ...modal,
-    open: (initialValue: string) => {
-      inputValue.val = initialValue
-      modal.open()
-    },
-  }
+  return modal
 }

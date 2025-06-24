@@ -32,7 +32,7 @@ export type XHandleModalProps = {
 
 export const XHandleModal = ({ saveXHandle, skipXHandle }: XHandleModalProps) => {
   const tempXHandle = van.state('')
-  const modal = Modal({
+  const modal = Modal<{ currentXHandle: string }>({
     title: 'Welcome to Beat Threads! 🎵',
     content: () =>
       div(
@@ -67,12 +67,9 @@ export const XHandleModal = ({ saveXHandle, skipXHandle }: XHandleModalProps) =>
         variant: ButtonVariant.Cancel,
       },
     ],
-  })
-  return {
-    ...modal,
-    open: (currentXHandle: string) => {
-      tempXHandle.val = currentXHandle
-      modal.open()
+    onOpen: (params) => {
+      tempXHandle.val = params?.currentXHandle || ''
     },
-  }
+  })
+  return modal
 }

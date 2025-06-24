@@ -2,13 +2,12 @@ import styles from './Breadcrumb.module.css'
 import { classify } from './classify'
 import { clickify } from './clickify'
 import { Link } from './router'
-import { div, span } from './tags'
+import { div, span, VanValue } from './tags'
 
 export interface BreadcrumbItem {
-  label: string | (() => string)
+  label: VanValue
   href?: string
   onClick?: () => void
-  isModified?: boolean | (() => boolean)
 }
 
 export interface BreadcrumbProps {
@@ -33,7 +32,7 @@ export const Breadcrumb = ({ items }: BreadcrumbProps) => {
             {
               href: item.href,
             },
-            typeof item.label === 'function' ? item.label() : item.label
+            item.label
           )
         )
       } else if (item.onClick) {
@@ -42,14 +41,8 @@ export const Breadcrumb = ({ items }: BreadcrumbProps) => {
             {
               ...classify(styles.breadcrumbTitle),
               ...clickify(item.onClick),
-              style: 'touch-action: manipulation',
             },
-            typeof item.label === 'function' ? item.label : item.label,
-            typeof item.isModified === 'function'
-              ? () => ((item.isModified as () => boolean)() ? span({ class: styles.breadcrumbModified }, ' *') : '')
-              : item.isModified
-                ? span({ class: styles.breadcrumbModified }, ' *')
-                : ''
+            item.label
           )
         )
       } else {

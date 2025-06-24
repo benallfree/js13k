@@ -21,7 +21,6 @@ export const stepHistory = van.state<number[]>([])
 export const currentBeatName = van.state('Untitled Beat')
 export const savedBeats = van.state<Beat[]>([])
 export const showLibrary = van.state(false)
-export const isModified = van.state(false)
 export const currentBeatId = van.state<string>('')
 export const originalBeatName = van.state<string>('')
 
@@ -67,7 +66,6 @@ export const saveBeat = (name: string, authors: string[]) => {
   currentBeatName.val = name
   originalBeatName.val = name
   currentBeatId.val = beat.id
-  isModified.val = false
   return true
 }
 
@@ -77,7 +75,6 @@ export const loadBeat = (beat: Beat) => {
   originalBeatName.val = beat.name
   currentBeatId.val = beat.id
   currentSampleMapping.val = beat.sampleMapping || {}
-  isModified.val = false
   sharedBeatAuthors.val = beat.authors || []
   selectedSampleId.val = '' // Reset selection when loading a beat
 }
@@ -90,7 +87,6 @@ export const newBeat = () => {
   originalBeatName.val = 'Untitled Beat'
   currentBeatId.val = ''
   currentSampleMapping.val = {}
-  isModified.val = false
   sharedBeatAuthors.val = []
   selectedSampleId.val = ''
 }
@@ -116,5 +112,4 @@ export const updateSampleMapping = (instrumentIndex: number, sampleId: string, f
     delete newMapping[instrumentIndex]
   }
   currentSampleMapping.val = newMapping
-  isModified.val = true
 }
