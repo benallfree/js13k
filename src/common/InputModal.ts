@@ -1,4 +1,5 @@
 import styles from '@/styles.module.css'
+import { generateGuid } from '@/util/generateGuid'
 import van from 'vanjs-core'
 import { ButtonVariant } from './Button'
 import { Modal } from './Modal'
@@ -34,6 +35,8 @@ export const InputModal = ({
     }
   }
 
+  const inputId = `input-${generateGuid()}`
+
   const modal = Modal<{ initialValue: string }>({
     title,
     content: () =>
@@ -41,6 +44,7 @@ export const InputModal = ({
         div(prompt),
         input({
           type: 'text',
+          id: inputId,
           name: 'input',
           autofocus: true,
           placeholder,
@@ -75,6 +79,13 @@ export const InputModal = ({
     ],
     onOpen: () => {
       inputValue.val = initialValue
+      setTimeout(() => {
+        const inputElement = document.getElementById(inputId) as HTMLInputElement
+        if (inputElement) {
+          inputElement.focus()
+          inputElement.select()
+        }
+      }, 10)
     },
   })
 
