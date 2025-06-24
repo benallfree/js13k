@@ -1,5 +1,4 @@
-import { classify } from '@/van13k/util/classify'
-import { Button, ButtonSize, ButtonVariant } from './Button'
+import { Button, ButtonSize, ButtonVariant, classify } from '@van13k'
 import styles from './Button.module.css'
 
 interface IconProps {

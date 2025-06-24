@@ -1,6 +1,4 @@
-import { button } from '@/van13k/tags'
-import { classify } from '@/van13k/util/classify'
-import { clickify } from '@/van13k/util/clickify'
+import { button, classify, clickify } from '@van13k'
 import styles from './Button.module.css'
 
 export enum ButtonVariant {

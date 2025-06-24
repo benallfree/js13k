@@ -1,7 +1,4 @@
-import { Link } from '@/van13k/router/link'
-import { div, span, VanValue } from '@/van13k/tags'
-import { classify } from '@/van13k/util/classify'
-import { clickify } from '@/van13k/util/clickify'
+import { classify, clickify, div, Link, span, VanValue } from '@van13k'
 import styles from './Breadcrumb.module.css'
 
 export interface BreadcrumbItem {

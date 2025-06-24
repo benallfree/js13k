@@ -1,10 +1,6 @@
-import styles from '@/styles.module.css'
-import { generateGuid } from '@/util/generateGuid'
+import styles from '@styles'
+import { ButtonVariant, classify, div, generateGuid, input, Modal, VanValue } from '@van13k'
 import van from 'vanjs-core'
-import { ButtonVariant } from './Button'
-import { Modal } from './Modal'
-import { div, input, VanValue } from './tags'
-import { classify } from './util/classify'
 
 export interface InputModalProps {
   title: VanValue

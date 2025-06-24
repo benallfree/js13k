@@ -1,9 +1,6 @@
-import globalStyles from '@/styles.module.css'
+import globalStyles from '@styles'
+import { Button, ButtonVariant, classify, clickify, div, VanValue } from '@van13k'
 import van, { State } from 'vanjs-core'
-import { Button, ButtonVariant } from './Button'
-import { div, VanValue } from './tags'
-import { classify } from './util/classify'
-import { clickify } from './util/clickify'
 
 /**
  * Modal state management utility

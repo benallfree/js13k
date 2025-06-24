@@ -1,6 +1,4 @@
-import { ButtonVariant } from './Button'
-import { Modal } from './Modal'
-import { div } from './tags'
+import { ButtonVariant, Modal, div } from '@van13k'
 
 export interface ConfirmationModalProps {
   title: string

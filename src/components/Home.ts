@@ -1,4 +1,4 @@
-import { div, h1, p, span } from '@/common/tags'
+import { div, h1, p, span } from '@van13k'
 import styles from './Home.module.scss'
 
 export const Home = () =>

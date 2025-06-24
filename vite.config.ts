@@ -1,15 +1,10 @@
 import { cloudflare } from '@cloudflare/vite-plugin'
-import { resolve } from 'path'
 import { defineConfig } from 'vite'
 import { optimizeCssModules } from 'vite-plugin-optimize-css-modules'
+import tsconfigPaths from 'vite-tsconfig-paths'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  resolve: {
-    alias: {
-      '@': resolve(__dirname, 'src'),
-    },
-  },
   build: {
     minify: 'terser',
     modulePreload: {
@@ -48,5 +43,5 @@ export default defineConfig({
       },
     },
   },
-  plugins: [optimizeCssModules(), cloudflare()],
+  plugins: [tsconfigPaths(), optimizeCssModules(), cloudflare()],
 })
