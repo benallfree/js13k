@@ -1,4 +1,4 @@
-import { classify } from '@/common/util/classify'
+import { classify } from '@/van13k/util/classify'
 import { Button, ButtonSize, ButtonVariant } from './Button'
 import styles from './Button.module.css'
 

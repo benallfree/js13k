@@ -1,8 +1,8 @@
-import { Button, ButtonVariant } from '@/common/Button'
-import { Modal } from '@/common/Modal'
-import { div, input, VanValue } from '@/common/tags'
-import { classify } from '@/common/util/classify'
-import { clickify } from '@/common/util/clickify'
+import { Button, ButtonVariant } from '@/van13k/Button'
+import { Modal } from '@/van13k/Modal'
+import { div, input, VanValue } from '@/van13k/tags'
+import { classify } from '@/van13k/util/classify'
+import { clickify } from '@/van13k/util/clickify'
 import van from 'vanjs-core'
 import styles from './ShareModal.module.css'
 

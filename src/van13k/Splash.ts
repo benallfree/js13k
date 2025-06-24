@@ -1,6 +1,6 @@
-import { div, h1, h2, p } from '@/common/tags'
-import { classify } from '@/common/util/classify'
 import globalStyles from '@/styles.module.css'
+import { div, h1, h2, p } from '@/van13k/tags'
+import { classify } from '@/van13k/util/classify'
 import van from 'vanjs-core'
 import { Button, ButtonVariant } from './Button'
 import { Modal } from './Modal'
