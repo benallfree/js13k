@@ -129,7 +129,7 @@ const tags = [
 ]
 
 const purgeFromJs = (content: string): ExtractorResultDetailed => {
-  const regex = /"([A-Za-z_]{1,2})"/g
+  const regex = /"([A-Za-z_-]{1,2})"/g
   const matches: string[] = []
   let match: RegExpExecArray | null
 
