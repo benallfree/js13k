@@ -1,9 +1,9 @@
 .carBody {
-  width: 30px;
-  height: 15px;
+  width: 15px;
+  height: 30px;
   border: 2px solid #fff;
-  margin-left: -15px;
-  margin-top: -7.5px;
+  margin-left: -7.5px;
+  margin-top: -15px;
 }
 
 .headlight {
@@ -16,11 +16,11 @@
 }
 
 .headlightTop {
-  left: 6px;
+  left: 2px;
   top: -2px;
 }
 
 .headlightBottom {
-  right: 6px;
+  right: 2px;
   top: -2px;
 }
