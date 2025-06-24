@@ -1,5 +1,5 @@
 import { a, p } from '@/common/tags'
-import { classify } from '@/common/utils'
+import { classify } from '@/common/util/classify'
 import styles from '@/styles.module.css'
 import { State } from 'vanjs-core'
 

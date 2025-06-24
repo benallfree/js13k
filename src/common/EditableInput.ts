@@ -2,9 +2,9 @@ import { div, input, span } from '@/common/tags'
 import globalStyles from '@/styles.module.css'
 import van, { State } from 'vanjs-core'
 import { ButtonVariant } from './Button'
-import { classify } from './classify'
-import { clickify } from './clickify'
 import { Modal, useModal } from './Modal'
+import { classify } from './util/classify'
+import { clickify } from './util/clickify'
 
 export interface EditableInputProps {
   value: State<string>

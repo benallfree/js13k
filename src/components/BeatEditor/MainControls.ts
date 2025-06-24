@@ -1,6 +1,6 @@
 import { Button, ButtonSize, ButtonVariant } from '@/common/Button'
 import { div } from '@/common/tags'
-import { classify } from '@/common/utils'
+import { classify } from '@/common/util/classify'
 import styles from '@/styles.module.css'
 import { State } from 'vanjs-core'
 import { sampleMetadata } from '../../sounds'

@@ -1,5 +1,5 @@
 import { div, h1, p } from '@/common/tags'
-import { classify } from '@/common/utils'
+import { classify } from '@/common/util/classify'
 import globalStyles from '@/styles.module.css'
 import { savedBeats } from '../BeatEditor/beatState'
 import { loadBeatsFromStorage } from '../BeatEditor/storage'

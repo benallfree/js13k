@@ -1,8 +1,8 @@
 import styles from './Breadcrumb.module.css'
-import { classify } from './classify'
-import { clickify } from './clickify'
 import { Link } from './router'
 import { div, span, VanValue } from './tags'
+import { classify } from './util/classify'
+import { clickify } from './util/clickify'
 
 export interface BreadcrumbItem {
   label: VanValue

@@ -1,8 +1,8 @@
 import { div } from '@/common/tags'
 import globalStyles from '@/styles.module.css'
 import van from 'vanjs-core'
-import { classify } from './classify'
 import { base, visible } from './StatusBar.module.css'
+import { classify } from './util/classify'
 
 // Global status state
 const statusMessage = van.state('')

@@ -11,7 +11,6 @@ export interface Beat {
   created: number
   modified: number
   authors: string[] // Array of X handles who have edited this beat
-  sampleMapping?: { [hitIdx: number]: { sampleGuid: string; fallbackIdx: number } } // Custom sample mappings
 }
 
 // Beat storage functions

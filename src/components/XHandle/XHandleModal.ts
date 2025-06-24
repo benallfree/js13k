@@ -1,29 +1,9 @@
 import { ButtonVariant } from '@/common/Button'
 import { Modal } from '@/common/Modal'
 import { div, input } from '@/common/tags'
-import { classify } from '@/common/utils'
+import { classify } from '@/common/util/classify'
 import globalStyles from '@/styles.module.css'
 import van from 'vanjs-core'
-
-export const X_HANDLE_STORAGE_KEY = 'js13k-x-handle'
-
-// X Handle storage functions
-export const loadXHandleFromStorage = (): string => {
-  try {
-    return localStorage.getItem(X_HANDLE_STORAGE_KEY) || ''
-  } catch {
-    return ''
-  }
-}
-
-export const saveXHandleToStorage = (handle: string): void => {
-  try {
-    localStorage.setItem(X_HANDLE_STORAGE_KEY, handle)
-  } catch (e) {
-    console.error('Failed to save X handle:', e)
-    throw new Error('Failed to save X handle')
-  }
-}
 
 export type XHandleModalProps = {
   saveXHandle: (value: string) => void

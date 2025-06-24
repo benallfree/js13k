@@ -3,14 +3,14 @@ import { Modal } from '@/common/Modal'
 import { navigate } from '@/common/router'
 import { flash } from '@/common/StatusBar'
 import { div } from '@/common/tags'
-import { classify, useModal } from '@/common/utils'
+import { classify } from '@/common/util/classify'
 import { Beat, loadBeatsFromStorage, saveBeatsToStorage } from '@/components/BeatEditor/storage'
 import styles from '@/styles.module.css'
+import { decompressFromBase64 } from '@/util/compress'
 import { generateGuid } from '@/util/generateGuid'
 import van from 'vanjs-core'
 
 export const ImportHandler = ({ chunks }: { chunks: string[] }) => {
-  const conflictModal = useModal()
   const sharedBeat = van.state<Beat | null>(null)
   const existingBeat = van.state<Beat | null>(null)
   const isProcessing = van.state(true)
@@ -71,32 +71,15 @@ export const ImportHandler = ({ chunks }: { chunks: string[] }) => {
   }
 
   // Process the import payload
-  const processImport = () => {
+  const processImport = async () => {
     try {
       // Join chunks and decode the base64 payload
       const joinedPayload = chunks.join('')
-      const json = atob(decodeURIComponent(joinedPayload))
-      const data = JSON.parse(json)
-
-      // Get the first (and only) key which is the GUID
-      const guid = Object.keys(data)[0]
-      const info = data[guid]
+      const beat = await decompressFromBase64<Beat>(joinedPayload)
 
       // Validate beat data
-      if (!info.grid || !Array.isArray(info.grid)) {
+      if (!beat.grid || !Array.isArray(beat.grid)) {
         throw new Error('Invalid beat data')
-      }
-
-      // Create a complete Beat object
-      const beat: Beat = {
-        id: guid,
-        name: info.name || 'Shared Beat',
-        grid: info.grid,
-        authors: info.authors || [],
-        created: info.created || Date.now(),
-        modified: Date.now(),
-        // Include sample mapping if present
-        ...(info.sampleMapping && { sampleMapping: info.sampleMapping }),
       }
 
       processBeat(beat)
@@ -114,7 +97,7 @@ export const ImportHandler = ({ chunks }: { chunks: string[] }) => {
     }
   })
 
-  const conflictModalComponent = Modal({
+  const conflictModal = Modal({
     title: 'Beat Already Exists',
     content: () =>
       div(
@@ -143,7 +126,7 @@ export const ImportHandler = ({ chunks }: { chunks: string[] }) => {
 
   return div(
     // Conflict resolution modal
-    conflictModalComponent.render(),
+    conflictModal(),
 
     // Loading state
     () =>

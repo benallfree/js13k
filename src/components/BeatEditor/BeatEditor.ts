@@ -5,8 +5,9 @@ import { ShareModal } from '@/common/ShareModal'
 import { flash } from '@/common/StatusBar'
 import { _routerPathname } from '@/common/router/_state'
 import { div } from '@/common/tags'
-import { classify } from '@/common/utils'
+import { classify } from '@/common/util/classify'
 import { AuthorsDisplay } from '@/components/AuthorsDisplay'
+import { shareBeat } from '@/components/BeatEditor/shareBeat'
 import { SplashPage } from '@/components/SplashPage'
 import { playSound, sampleMetadata } from '@/sounds'
 import styles from '@/styles.module.css'
@@ -154,19 +155,10 @@ export const BeatEditor = ({ beatId }: BeatEditorProps) => {
   initializeEditor()
 
   const handleShowShareModal = async () => {
-    // const existingBeat = savedBeats.val.find((b) => b.id === currentBeatId.val)
-    // const beatData: Beat = {
-    //   id: currentBeatId.val || generateGuid(),
-    //   name: currentBeatName.val,
-    //   grid: grid.val,
-    //   authors: mergeAuthors(existingBeat?.authors, sharedBeatAuthors.val),
-    //   created: Date.now(),
-    //   modified: Date.now(),
-    //   sampleMapping: Object.keys(currentSampleMapping.val).length > 0 ? currentSampleMapping.val : undefined,
-    // }
+    const existingBeat = savedBeats.val.find((b) => b.id === currentBeatId.val)!
 
-    // const url = await shareBeat(beatData, xHandle.val)
-    shareModal.open({ shareUrl: 'foo' })
+    const url = await shareBeat(existingBeat)
+    shareModal.open({ shareUrl: url })
   }
 
   const confirmDeleteBeat = () => {
@@ -217,7 +209,7 @@ export const BeatEditor = ({ beatId }: BeatEditorProps) => {
   const shareModal = ShareModal({
     title: 'Share Your Beat',
     instructions: 'Share this URL to let others listen to your beat.',
-    // onCopyUrl: () => flash(`📋 Beat URL copied to clipboard!`),
+    onCopyUrl: () => flash(`📋 Beat URL copied to clipboard!`),
   })
 
   return div(
