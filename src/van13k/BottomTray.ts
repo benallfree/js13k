@@ -1,6 +1,5 @@
+import { Icon, div } from '@van13k'
 import styles from './BottomTray.module.css'
-import { Icon } from './Icon'
-import { div } from './tags'
 
 export interface BottomTrayIconConfig {
   children: string | (() => string)

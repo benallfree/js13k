@@ -1,6 +1,5 @@
-import { Button, ButtonSize, ButtonVariant } from './Button'
+import { Button, ButtonSize, ButtonVariant, classify } from '@van13k'
 import styles from './Button.module.css'
-import { classify } from './util/classify'
 
 interface IconProps {
   onClick: () => void

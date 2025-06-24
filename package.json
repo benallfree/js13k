@@ -1,7 +1,7 @@
 {
   "name": "van13k",
   "private": true,
-  "version": "0.0.2",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite dev",
@@ -41,6 +41,7 @@
     "vite": "^6.3.5",
     "vite-bundle-visualizer": "^1.2.1",
     "vite-plugin-optimize-css-modules": "^1.2.0",
+    "vite-tsconfig-paths": "^5.1.4",
     "wrangler": "^4.20.4"
   },
   "prettier": {

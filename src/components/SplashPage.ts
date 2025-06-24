@@ -1,4 +1,4 @@
-import { Splash } from '@/common/Splash'
+import { Splash } from '@van13k'
 
 export const SplashPage = () => {
   return Splash({

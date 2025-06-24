@@ -1,5 +1,4 @@
-import { span, VanValue } from '../tags'
-import { clickify } from '../util/clickify'
+import { clickify, span, VanValue } from '@van13k'
 import { _routerBasename, _routerPathname } from './_state'
 
 interface LinkProps extends Partial<HTMLAnchorElement> {

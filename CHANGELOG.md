@@ -1,5 +1,21 @@
 # van13k
 
+## 0.1.0
+
+### Minor Changes
+
+- 9a7cac6: Modal API overhaul
+- 4165f20: Add b62 compression
+- d77d151: Update aliases
+- 28c45c5: Export Route and RouterProps interfaces in router.ts
+
+### Patch Changes
+
+- 1b06b5b: Refactor Link component to use updated imports and support VanValue type for children
+- 48fffc1: Remove console.log statements from Router component for cleaner code
+- 8dba006: Update regex in stripcss.ts to support hyphens in class names
+- 1f85b69: Add VanValue and VanValueBase types
+
 ## 0.0.2
 
 ### Patch Changes
