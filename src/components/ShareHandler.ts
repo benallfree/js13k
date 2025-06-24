@@ -6,11 +6,12 @@ import { div } from '@/common/tags'
 import { classify } from '@/common/util/classify'
 import { Beat, loadBeatsFromStorage, saveBeatsToStorage } from '@/components/BeatEditor/storage'
 import styles from '@/styles.module.css'
-import { decompressFromBase64 } from '@/util/compress'
+import { decompressFromBase62 } from '@/util/compress'
 import { generateGuid } from '@/util/generateGuid'
 import van from 'vanjs-core'
 
 export const ImportHandler = ({ chunks }: { chunks: string[] }) => {
+  console.log('ImportHandler', chunks)
   const sharedBeat = van.state<Beat | null>(null)
   const existingBeat = van.state<Beat | null>(null)
   const isProcessing = van.state(true)
@@ -32,21 +33,15 @@ export const ImportHandler = ({ chunks }: { chunks: string[] }) => {
       // Overwrite existing beat
       const beatIndex = beats.findIndex((b) => b.id === beat.id)
       beats[beatIndex] = beat
-      saveBeatsToStorage(beats)
-      flash(`🔄 Beat "${beat.name}" overwritten`)
     } else if (!existing) {
       // Add new beat
       beats.push(beat)
-      saveBeatsToStorage(beats)
       flash(`📥 Beat "${beat.name}" imported`)
     } else {
       // Make a copy
-      const newBeat = { ...beat, id: generateGuid() }
-      beats.push(newBeat)
-      saveBeatsToStorage(beats)
-      flash(`📋 Beat "${beat.name}" copied`)
-      beat = newBeat
+      beats.push(beat)
     }
+    saveBeatsToStorage(beats)
 
     // Redirect to beat editor
     navigate(`/beats/${beat.id}`)
@@ -54,14 +49,14 @@ export const ImportHandler = ({ chunks }: { chunks: string[] }) => {
 
   const handleOverwrite = () => {
     processBeat(sharedBeat.val!, true)
+    flash(`🔄 Beat "${sharedBeat.val!.name}" overwritten`)
     conflictModal.close()
   }
 
   const handleMakeCopy = () => {
-    if (sharedBeat.val) {
-      const newBeat = { ...sharedBeat.val, id: generateGuid() }
-      processBeat(newBeat, false)
-    }
+    const newBeat = { ...sharedBeat.val!, id: generateGuid(), name: `${sharedBeat.val!.name} (Copy)` }
+    processBeat(newBeat, false)
+    flash(`📋 Beat "${sharedBeat.val!.name}" copied`)
     conflictModal.close()
   }
 
@@ -75,7 +70,7 @@ export const ImportHandler = ({ chunks }: { chunks: string[] }) => {
     try {
       // Join chunks and decode the base64 payload
       const joinedPayload = chunks.join('')
-      const beat = await decompressFromBase64<Beat>(joinedPayload)
+      const beat = await decompressFromBase62<Beat>(joinedPayload)
 
       // Validate beat data
       if (!beat.grid || !Array.isArray(beat.grid)) {

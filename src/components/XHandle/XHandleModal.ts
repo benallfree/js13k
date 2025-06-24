@@ -21,6 +21,9 @@ export const XHandleModal = ({ saveXHandle, skipXHandle }: XHandleModalProps) =>
         div(
           { ...classify(globalStyles.mt5) },
           input({
+            ...classify(globalStyles.input),
+            name: 'xHandle',
+            autofocus: true,
             type: 'text',
             placeholder: 'username (without @)',
             value: () => tempXHandle.val,
@@ -30,6 +33,7 @@ export const XHandleModal = ({ saveXHandle, skipXHandle }: XHandleModalProps) =>
             onkeydown: (e: KeyboardEvent) => {
               if (e.key === 'Enter') {
                 saveXHandle(tempXHandle.val)
+                modal.close()
               }
             },
           })

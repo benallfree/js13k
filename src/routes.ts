@@ -13,6 +13,7 @@ export const Routes = () => {
       component: () => {
         return div(() => {
           const { chunks } = getRouterParams()
+          console.log('chunks', chunks)
           if (!chunks) {
             return div('Invalid import link')
           }

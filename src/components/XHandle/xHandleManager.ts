@@ -1,7 +1,7 @@
 import { flash } from '@/common/StatusBar'
 import van from 'vanjs-core'
 
-export const X_HANDLE_STORAGE_KEY = 'js13k-x-handle'
+export const X_HANDLE_STORAGE_KEY = 'van13k-x-handle'
 
 // X Handle storage functions
 export const loadXHandleFromStorage = (): string => {
