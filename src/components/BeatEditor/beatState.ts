@@ -1,5 +1,6 @@
 import { generateGuid } from '@/util/generateGuid'
 import van from 'vanjs-core'
+import { getXHandle } from '../XHandle/xHandleManager'
 import { Beat, loadBeatsFromStorage, saveBeatsToStorage } from './storage'
 
 /**
@@ -52,10 +53,8 @@ export const sharedBeatAuthors = van.state<string[]>([])
 export const getAuthorsForCurrentBeat = (): string[] => {
   const beats = loadBeatsFromStorage()
   const existingBeat = currentBeatId.val ? beats.find((b) => b.id === currentBeatId.val) : null
-  if (!existingBeat) {
-    throw new Error('No existing beat found')
-  }
-  return existingBeat.authors
+  const thisAuthor = getXHandle()
+  return [...new Set([thisAuthor, ...(existingBeat?.authors || [])].filter(Boolean))]
 }
 
 export const saveBeat = (name: string, authors: string[]) => {

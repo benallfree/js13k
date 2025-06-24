@@ -3,6 +3,7 @@ import van from 'vanjs-core'
 import { ButtonVariant } from './Button'
 import { Modal } from './Modal'
 import { div, input, VanValue } from './tags'
+import { classify } from './util/classify'
 
 export interface InputModalProps {
   title: VanValue
@@ -40,15 +41,22 @@ export const InputModal = ({
         div(prompt),
         input({
           type: 'text',
+          name: 'input',
+          autofocus: true,
           placeholder,
           value: () => inputValue.val,
-          className: styles.input,
+          ...classify(styles.input),
           oninput: (e: Event) => {
             inputValue.val = (e.target as HTMLInputElement).value
           },
           onkeydown: (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+              onCancel?.()
+              modal.close()
+            }
             if (e.key === 'Enter') {
               handleConfirm()
+              modal.close()
             }
           },
         })

@@ -54,6 +54,8 @@ export const ShareModal = ({ title, instructions, onClose, onCopyUrl }: ShareMod
           { class: styles.shareUrlContainer },
           input({
             class: styles.shareUrl,
+            name: 'shareUrl',
+            autofocus: true,
             type: 'text',
             value: () => shareUrl.val || '',
             readonly: true,
