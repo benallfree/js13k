@@ -1,4 +1,4 @@
-import van from 'vanjs-core'
+import van, { State } from 'vanjs-core'
 
 // Components
 export * from './BottomTray'
@@ -27,3 +27,4 @@ export * from './tags'
 
 // VanJS
 export { van }
+export type { State }

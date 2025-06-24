@@ -1,0 +1,26 @@
+.carBody {
+  width: 30px;
+  height: 15px;
+  border: 2px solid #fff;
+  margin-left: -15px;
+  margin-top: -7.5px;
+}
+
+.headlight {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background-color: #ffff00;
+  border-radius: 50%;
+  box-shadow: 0 0 4px #ffff00;
+}
+
+.headlightTop {
+  left: 6px;
+  top: -2px;
+}
+
+.headlightBottom {
+  right: 6px;
+  top: -2px;
+}

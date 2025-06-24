@@ -1,2 +1,2 @@
+export * from '../NetManager/RoomIdHud'
 export * from './HUD'
-export * from './RoomId'

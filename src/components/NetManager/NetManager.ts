@@ -1,4 +1,12 @@
-import { createRoom, flash, RoomEventType, service } from '@van13k'
+import { Player } from '@/types'
+import { createRoom, flash, PlayerId, Room, RoomEventType, service, State, van } from '@van13k'
+
+export type NetManagerService = {
+  room: Room
+  isConnected: State<boolean>
+  localPlayer: State<Player | null>
+  otherPlayers: Map<PlayerId, State<Player>>
+}
 
 export const NetManager = () => {
   // Connect to a room with optional custom endpoint
@@ -11,29 +19,45 @@ export const NetManager = () => {
   // Connect to the room (must be called explicitly)
   room.connect()
 
+  const isConnected = van.state(false)
+
   // Listen for connection events
   room.on(RoomEventType.Connected, ({ data }) => {
     flash(`🌐 Connected`)
+    isConnected.val = true
     console.log('Connected to room')
   })
 
   room.on(RoomEventType.Disconnected, ({ data }) => {
     flash(`🔴 Disconnected`)
+    isConnected.val = false
     console.log('Disconnected from room')
   })
 
+  const updatePlayer = (player: Player) => {
+    if (player.isLocal) {
+      console.log('Local player updated:', player)
+      localPlayer.val = player
+    } else {
+      const otherPlayer = otherPlayers.get(player.id)
+      if (otherPlayer) {
+        console.log('Other player updated:', player)
+        otherPlayer.val = player
+      } else {
+        console.log('New other player:', player)
+        otherPlayers.set(player.id, van.state(player))
+      }
+    }
+  }
+
   // Handle player updates
   room.on(RoomEventType.PlayerUpdated, ({ data: player }) => {
-    console.log('Player updated:', player.id)
-    console.log('Position:', player.position)
-    console.log('Rotation:', player.rotation)
-    console.log('Color:', player.color)
+    updatePlayer(player)
   })
 
   // Handle player joins/leaves
   room.on(RoomEventType.PlayerJoined, ({ data: player }) => {
-    console.log('New player:', player.id)
-    console.log('Color:', player.color)
+    updatePlayer(player)
   })
 
   room.on(RoomEventType.PlayerLeft, ({ data: player }) => {
@@ -49,7 +73,20 @@ export const NetManager = () => {
     console.log('Message sent:', jsonMessage)
   })
 
-  service('room', room)
+  room.on(RoomEventType.PlayerMutated, ({ data: player }) => {
+    console.log('Player mutated:', player)
+    updatePlayer(player)
+  })
+
+  const localPlayer = van.state<Player | null>(room.getLocalPlayer())
+  const otherPlayers = new Map<PlayerId, State<Player>>()
+
+  service<NetManagerService>('net', { room, isConnected, localPlayer, otherPlayers })
+}
+
+export const useNetManager = () => {
+  const netManager = service<NetManagerService>('net')
+  return netManager
 }
 
 /*

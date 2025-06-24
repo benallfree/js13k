@@ -47,6 +47,10 @@
   position: relative;
 }
 
+.absolute {
+  position: absolute;
+}
+
 .top0 {
   top: 0;
 }
@@ -642,4 +646,9 @@
 
 .transitionSlow {
   transition: all 0.3s ease;
+}
+
+/* Transform Utilities */
+.transform {
+  transform-origin: center;
 }

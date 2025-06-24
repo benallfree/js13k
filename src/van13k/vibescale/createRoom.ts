@@ -75,6 +75,7 @@ export function createRoom<TPlayer extends PlayerBase>(roomName: string, options
       if (ws?.readyState === WebSocket.OPEN) {
         ws.send(jsonMessage)
       }
+      emitter.emit(RoomEventType.PlayerMutated, newState)
       return newState
     },
 

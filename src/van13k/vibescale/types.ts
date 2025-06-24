@@ -82,6 +82,7 @@ export enum RoomEventType {
   PlayerLeft = 'player:left',
   PlayerUpdated = 'player:updated',
   PlayerError = 'player:error',
+  PlayerMutated = 'player:mutated',
 
   // WebSocket events
   WebSocketInfo = 'websocket:info',
@@ -106,6 +107,7 @@ export interface RoomEventPayloads<TPlayer extends PlayerBase = PlayerBase> {
   [RoomEventType.PlayerJoined]: TPlayer
   [RoomEventType.PlayerLeft]: TPlayer
   [RoomEventType.PlayerUpdated]: TPlayer
+  [RoomEventType.PlayerMutated]: TPlayer
   [RoomEventType.PlayerError]: { type: string; error: string; details?: any }
 
   [RoomEventType.WebSocketInfo]: Record<string, any>
