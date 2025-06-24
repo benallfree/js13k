@@ -1,7 +1,7 @@
-import { button } from '../common/tags'
+import { button } from '@/common/tags'
+import { classify } from '@/common/util/classify'
+import { clickify } from '@/common/util/clickify'
 import styles from './Button.module.css'
-import { classify } from './classify'
-import { clickify } from './clickify'
 
 export enum ButtonVariant {
   Primary = 'primary',

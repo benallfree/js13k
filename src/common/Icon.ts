@@ -1,6 +1,6 @@
+import { classify } from '@/common/util/classify'
 import { Button, ButtonSize, ButtonVariant } from './Button'
 import styles from './Button.module.css'
-import { classify } from './classify'
 
 interface IconProps {
   onClick: () => void
