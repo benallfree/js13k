@@ -1,4 +1,4 @@
-import { InputModal } from '@/common'
+import { InputModal } from '@van13k'
 
 export const RenameBeatModal = (onConfirm: (value: string) => void, onCancel: () => void) => () => {
   const modal = InputModal({
@@ -11,7 +11,7 @@ export const RenameBeatModal = (onConfirm: (value: string) => void, onCancel: ()
   return {
     ...modal,
     open(initialValue: string) {
-      modal.open(initialValue)
+      modal.open({ initialValue })
     },
   }
 }

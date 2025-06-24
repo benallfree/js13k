@@ -1,5 +1,4 @@
-import { div } from '@/common/tags'
-import { clickify } from '@/common/util/clickify'
+import { clickify, div } from '@van13k'
 import { State } from 'vanjs-core'
 import { InstrumentType, sampleMetadata } from '../../sounds'
 import styles from './Grid.module.css'

@@ -1,4 +1,4 @@
-import van from 'vanjs-core'
+import { van } from '@van13k'
 
 const { div, span, button, input, textarea, select, option, label, form, h1, h2, h3, h4, h5, h6, a, p, img, canvas } =
   van.tags

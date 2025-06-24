@@ -1,14 +1,8 @@
-import { ButtonVariant } from '@/common/Button'
-import { Modal } from '@/common/Modal'
-import { navigate } from '@/common/router'
-import { flash } from '@/common/StatusBar'
-import { div } from '@/common/tags'
-import { classify } from '@/common/util/classify'
 import { Beat, loadBeatsFromStorage, saveBeatsToStorage } from '@/components/BeatEditor/storage'
 import styles from '@/styles.module.css'
 import { decompressFromBase62 } from '@/util/compress'
 import { generateGuid } from '@/util/generateGuid'
-import van from 'vanjs-core'
+import { ButtonVariant, Modal, classify, div, flash, navigate, van } from '@van13k'
 
 export const ImportHandler = ({ chunks }: { chunks: string[] }) => {
   console.log('ImportHandler', chunks)

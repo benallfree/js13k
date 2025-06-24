@@ -1,5 +1,6 @@
 import { generateGuid } from '@/util/generateGuid'
-import van from 'vanjs-core'
+import { van } from '@van13k'
+
 import { getXHandle } from '../XHandle/xHandleManager'
 import { Beat, loadBeatsFromStorage, saveBeatsToStorage } from './storage'
 

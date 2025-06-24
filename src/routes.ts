@@ -1,6 +1,4 @@
-import { getRouterParams, Router } from '@/common/router'
-import { Route } from '@/common/router/router'
-import { div } from '@/common/tags'
+import { div, getRouterParams, Route, Router } from '@van13k'
 import { BeatEditor } from './components/BeatEditor/BeatEditor'
 import { Home } from './components/Home/Home'
 import { ImportHandler } from './components/ShareHandler'

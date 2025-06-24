@@ -1,5 +1,4 @@
-import { flash } from '@/common/StatusBar'
-import van from 'vanjs-core'
+import { flash, van } from '@van13k'
 
 export const X_HANDLE_STORAGE_KEY = 'van13k-x-handle'
 

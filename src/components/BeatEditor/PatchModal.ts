@@ -1,9 +1,5 @@
-import { ButtonVariant } from '@/common/Button'
-import { Modal } from '@/common/Modal'
-import { div } from '@/common/tags'
-import { classify } from '@/common/util/classify'
-import { clickify } from '@/common/util/clickify'
 import common from '@/styles.module.css'
+import { ButtonVariant, Modal, classify, clickify, div } from '@van13k'
 import { State } from 'vanjs-core'
 import { sampleMetadata } from '../../sounds'
 

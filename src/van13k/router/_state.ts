@@ -1,4 +1,4 @@
-import van from 'vanjs-core'
+import { van } from '@van13k'
 
 export const _routerBasename = van.state('')
 export const _routerPathname = van.state(window.location.pathname)

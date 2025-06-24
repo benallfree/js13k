@@ -1,4 +1,4 @@
-import { generateGuid } from '@/util/generateGuid'
+import { generateGuid } from '@van13k'
 
 // Storage keys
 export const BEATS_STORAGE_KEY = 'van13k-beats-library'

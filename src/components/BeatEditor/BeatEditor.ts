@@ -1,19 +1,22 @@
-import { BottomTray } from '@/common/BottomTray'
-import { Breadcrumb } from '@/common/Breadcrumb'
-import { ButtonVariant } from '@/common/Button'
-import { ConfirmationModal } from '@/common/ConfirmationModal'
-import { InputModal } from '@/common/InputModal'
-import { ShareModal } from '@/common/ShareModal'
-import { flash } from '@/common/StatusBar'
-import { _routerPathname } from '@/common/router/_state'
-import { div } from '@/common/tags'
-import { classify } from '@/common/util/classify'
 import { AuthorsDisplay } from '@/components/AuthorsDisplay'
 import { shareBeat } from '@/components/BeatEditor/shareBeat'
 import { SplashPage } from '@/components/SplashPage'
 import { playSound, sampleMetadata } from '@/sounds'
 import styles from '@/styles.module.css'
-import van from 'vanjs-core'
+import {
+  _routerPathname,
+  BottomTray,
+  Breadcrumb,
+  ButtonVariant,
+  classify,
+  ConfirmationModal,
+  div,
+  flash,
+  InputModal,
+  ShareModal,
+  van,
+} from '@van13k'
+
 import { Grid } from './Grid'
 import { PatchModal } from './PatchModal'
 import {

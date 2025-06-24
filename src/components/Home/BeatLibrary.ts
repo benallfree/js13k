@@ -1,15 +1,21 @@
-import { Button, ButtonSize, ButtonVariant } from '@/common/Button'
-import { navigate } from '@/common/router'
-import { SectionHeader } from '@/common/SectionHeader'
-import { div, h3, p } from '@/common/tags'
-import { classify } from '@/common/util/classify'
-import { clickify } from '@/common/util/clickify'
-import { formatDate } from '@/common/util/formatDate'
-import globalStyles from '@/styles.module.css'
-import { generateGuid } from '@/util/generateGuid'
-import { Beat } from '../../storage'
+import globalStyles from '@styles'
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+  classify,
+  clickify,
+  div,
+  formatDate,
+  generateGuid,
+  h3,
+  navigate,
+  p,
+  SectionHeader,
+} from '@van13k'
 import { AuthorsDisplay } from '../AuthorsDisplay'
 import { savedBeats } from '../BeatEditor/beatState'
+import { Beat } from '../BeatEditor/storage'
 
 // Create new beat
 const createNewBeat = () => {

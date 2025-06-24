@@ -1,4 +1,5 @@
-import van from 'vanjs-core'
+import { van } from '@van13k'
+
 import { _routerBasename, _routerParams, _routerPathname, _routerQuery } from './_state'
 
 const _PATH_PARAM_REGEX = /:([^\\d|^/]([^/]+)?)(\*)?/

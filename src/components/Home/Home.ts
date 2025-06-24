@@ -1,6 +1,19 @@
-import { div, h1, p } from '@/common/tags'
-import { classify } from '@/common/util/classify'
-import globalStyles from '@/styles.module.css'
+import {
+  borderB,
+  mainContent,
+  maxW800,
+  mb2,
+  mt0,
+  mxAuto,
+  my7,
+  py5,
+  text2xl,
+  textCenter,
+  textGray,
+  textSm,
+  textWhite,
+} from '@/styles.module.css'
+import { classify, div, h1, p } from '@van13k'
 import { savedBeats } from '../BeatEditor/beatState'
 import { loadBeatsFromStorage } from '../BeatEditor/storage'
 import { SplashPage } from '../SplashPage'
@@ -14,19 +27,13 @@ export const Home = () => {
     'Home',
     SplashPage(),
     div(
-      { ...classify(globalStyles.maxW800, globalStyles.mxAuto, globalStyles.mainContent) },
+      { ...classify(maxW800, mxAuto, mainContent) },
 
       // Header
       div(
-        { ...classify(globalStyles.textCenter, globalStyles.my7, globalStyles.py5, globalStyles.borderB) },
-        h1(
-          { ...classify(globalStyles.textWhite, globalStyles.text2xl, globalStyles.mb2, globalStyles.mt0) },
-          '🎵 Beat Threads'
-        ),
-        p(
-          { ...classify(globalStyles.textGray, globalStyles.textSm, globalStyles.mt0) },
-          'Create, edit, and share your beats and samples'
-        )
+        { ...classify(textCenter, my7, py5, borderB) },
+        h1({ ...classify(textWhite, text2xl, mb2, mt0) }, '🎵 Beat Threads'),
+        p({ ...classify(textGray, textSm, mt0) }, 'Create, edit, and share your beats and samples')
       ),
 
       // Beat Library

@@ -1,6 +1,5 @@
-import { chunkString } from '@/common/util/chunkString'
-import { Beat } from '@/components/BeatEditor/storage'
-import { compressToBase62 } from '@/util/compress'
+import { chunkString, compressToBase62 } from '@van13k'
+import { Beat } from './storage'
 
 export const shareBeat = async (beat: Beat) => {
   const compressedBeatData = await compressToBase62(beat)
