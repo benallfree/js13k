@@ -6,6 +6,7 @@ export type NetManagerService = {
   isConnected: State<boolean>
   localPlayer: State<Player | null>
   otherPlayers: Map<PlayerId, State<Player>>
+  otherPlayerIds: State<Set<string>>
 }
 
 export const NetManager = () => {
@@ -36,6 +37,9 @@ export const NetManager = () => {
   room.connect()
 
   const isConnected = van.state(false)
+  const localPlayer = van.state<Player | null>(room.getLocalPlayer())
+  const otherPlayers = new Map<PlayerId, State<Player>>()
+  const otherPlayerIds = van.state<Set<string>>(new Set())
 
   // Listen for connection events
   room.on(RoomEventType.Connected, ({ data }) => {
@@ -62,6 +66,8 @@ export const NetManager = () => {
       } else {
         console.log('New other player:', player)
         otherPlayers.set(player.id, van.state(player))
+        // Trigger reactivity for player list changes
+        otherPlayerIds.val = new Set(otherPlayers.keys())
       }
     }
   }
@@ -78,6 +84,9 @@ export const NetManager = () => {
 
   room.on(RoomEventType.PlayerLeft, ({ data: player }) => {
     console.log('Player left:', player.id)
+    otherPlayers.delete(player.id)
+    // Trigger reactivity for player list changes
+    otherPlayerIds.val = new Set(otherPlayers.keys())
   })
 
   // Handle WebSocket events
@@ -94,10 +103,7 @@ export const NetManager = () => {
     updatePlayer(player)
   })
 
-  const localPlayer = van.state<Player | null>(room.getLocalPlayer())
-  const otherPlayers = new Map<PlayerId, State<Player>>()
-
-  service<NetManagerService>('net', { room, isConnected, localPlayer, otherPlayers })
+  service<NetManagerService>('net', { room, isConnected, localPlayer, otherPlayers, otherPlayerIds })
 }
 
 export const useNetManager = () => {

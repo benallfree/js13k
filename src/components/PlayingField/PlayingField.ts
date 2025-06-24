@@ -8,6 +8,7 @@ import { RoomIdHud } from '../NetManager/RoomIdHud'
 import { Car } from './Car'
 import { KeyboardController } from './KeyboardController'
 import { playingField } from './PlayingField.module.css'
+import { RemoteCars } from './RemoteCars'
 
 export const PlayingField = () => {
   const nm = useNetManager()
@@ -27,7 +28,7 @@ export const PlayingField = () => {
     HUD({ items: [RoomIdHud(), NetStatusHud(), PlayerPositionHud()] }),
     div(
       { class: `${flex} ${justifyCenter} ${itemsCenter} ${minH20} ${p5}` },
-      div({ class: `${playingField} ${relative} ${overflowHidden}` }, Car({ player: localPlayer }))
+      div({ class: `${playingField} ${relative} ${overflowHidden}` }, Car({ player: localPlayer }), RemoteCars())
     )
   )
 }
