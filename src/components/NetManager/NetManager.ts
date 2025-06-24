@@ -12,7 +12,23 @@ export const NetManager = () => {
   // Connect to a room with optional custom endpoint
   const room = createRoom('craz2d23k', {
     stateChangeDetectorFn: (oldState, newState) => {
-      return oldState !== newState
+      // Position threshold: 3 pixels
+      const positionThreshold = 3
+      const positionChanged =
+        Math.abs(oldState.position.x - newState.position.x) >= positionThreshold ||
+        Math.abs(oldState.position.y - newState.position.y) >= positionThreshold
+
+      // Rotation threshold: 0.05 radians (~3 degrees)
+      const rotationThreshold = 0.05
+      const rotationChanged = Math.abs(oldState.rotation.z - newState.rotation.z) >= rotationThreshold
+
+      // Other properties that should always trigger updates
+      const otherPropsChanged =
+        oldState.color !== newState.color ||
+        oldState.username !== newState.username ||
+        oldState.isConnected !== newState.isConnected
+
+      return positionChanged || rotationChanged || otherPropsChanged
     },
   })
 

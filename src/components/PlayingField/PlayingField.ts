@@ -3,6 +3,7 @@ import { div, van } from '@van13k'
 import { HUD } from '../HUD'
 import { useNetManager } from '../NetManager/NetManager'
 import { NetStatusHud } from '../NetManager/NetStatusHud'
+import { PlayerPositionHud } from '../NetManager/PlayerPositionHud'
 import { RoomIdHud } from '../NetManager/RoomIdHud'
 import { Car } from './Car'
 import { KeyboardController } from './KeyboardController'
@@ -23,7 +24,7 @@ export const PlayingField = () => {
   }
 
   return div(
-    HUD({ items: [RoomIdHud(), NetStatusHud()] }),
+    HUD({ items: [RoomIdHud(), NetStatusHud(), PlayerPositionHud()] }),
     div(
       { class: `${flex} ${justifyCenter} ${itemsCenter} ${minH20} ${p5}` },
       div({ class: `${playingField} ${relative} ${overflowHidden}` }, Car({ player: localPlayer }))
