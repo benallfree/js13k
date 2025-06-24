@@ -24,8 +24,7 @@
     "baseUrl": "src",
     "paths": {
       "@/*": ["./*"],
-      "@van13k": ["./van13k/index.ts"],
-      "@styles": ["./styles.module.css"]
+      "@van13k": ["./van13k/index.ts"]
     },
     "plugins": [
       {
