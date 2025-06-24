@@ -1,55 +1,66 @@
-import { State } from 'vanjs-core'
-import styles from '../components/common.module.css'
+import styles from '@/styles.module.css'
+import { generateGuid } from '@/util/generateGuid'
+import van from 'vanjs-core'
 import { ButtonVariant } from './Button'
 import { Modal } from './Modal'
-import { div, input } from './tags'
+import { div, input, VanValue } from './tags'
+import { classify } from './util/classify'
 
 export interface InputModalProps {
-  isOpen: State<boolean>
-  title: string
-  prompt: string
-  inputValue: State<string>
+  title: VanValue
+  prompt: VanValue
+  initialValue?: string
   placeholder?: string
-  confirmText?: string
-  cancelText?: string
-  onConfirm: (value: string) => void
-  onCancel: () => void
+  confirmText?: VanValue
+  cancelText?: VanValue
+  onConfirm?: (value: string) => void
+  onCancel?: () => void
 }
 
 export const InputModal = ({
-  isOpen,
   title,
   prompt,
-  inputValue,
+  initialValue = '',
   placeholder = '',
   confirmText = 'Save',
   cancelText = 'Cancel',
   onConfirm,
   onCancel,
 }: InputModalProps) => {
+  const inputValue = van.state(initialValue)
+
   const handleConfirm = () => {
     if (inputValue.val.trim()) {
-      onConfirm(inputValue.val.trim())
+      onConfirm?.(inputValue.val.trim())
     }
   }
 
-  return Modal({
-    isOpen,
+  const inputId = `input-${generateGuid()}`
+
+  const modal = Modal<{ initialValue: string }>({
     title,
     content: () =>
       div(
         div(prompt),
         input({
           type: 'text',
+          id: inputId,
+          name: 'input',
+          autofocus: true,
           placeholder,
           value: () => inputValue.val,
-          className: styles.input,
+          ...classify(styles.input),
           oninput: (e: Event) => {
             inputValue.val = (e.target as HTMLInputElement).value
           },
           onkeydown: (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+              onCancel?.()
+              modal.close()
+            }
             if (e.key === 'Enter') {
               handleConfirm()
+              modal.close()
             }
           },
         })
@@ -62,9 +73,21 @@ export const InputModal = ({
       },
       {
         text: cancelText,
-        onClick: onCancel,
+        onClick: () => onCancel?.(),
         variant: ButtonVariant.Cancel,
       },
     ],
+    onOpen: () => {
+      inputValue.val = initialValue
+      setTimeout(() => {
+        const inputElement = document.getElementById(inputId) as HTMLInputElement
+        if (inputElement) {
+          inputElement.focus()
+          inputElement.select()
+        }
+      }, 10)
+    },
   })
+
+  return modal
 }
