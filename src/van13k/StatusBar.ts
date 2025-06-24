@@ -1,6 +1,6 @@
 import globalStyles from '@styles'
-import { classify, div } from '@van13k'
-import van from 'vanjs-core'
+import { classify, div, van } from '@van13k'
+
 import { base, visible } from './StatusBar.module.css'
 
 // Global status state

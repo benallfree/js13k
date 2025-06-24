@@ -1,4 +1,5 @@
-import van from 'vanjs-core'
+import { van } from '@van13k'
+
 import { App } from './App'
 import './global.css'
 

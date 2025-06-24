@@ -1,3 +1,5 @@
+import van from 'vanjs-core'
+
 // Components
 export * from './BottomTray'
 export * from './Breadcrumb'
@@ -19,3 +21,6 @@ export * from './router'
 
 // Tags
 export * from './tags'
+
+// VanJS
+export { van }

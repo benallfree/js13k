@@ -1,6 +1,5 @@
 import styles from '@styles'
-import { ButtonVariant, classify, div, generateGuid, input, Modal, VanValue } from '@van13k'
-import van from 'vanjs-core'
+import { ButtonVariant, classify, div, generateGuid, input, Modal, van, VanValue } from '@van13k'
 
 export interface InputModalProps {
   title: VanValue

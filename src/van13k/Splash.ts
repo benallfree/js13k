@@ -1,6 +1,6 @@
 import globalStyles from '@styles'
-import { Button, ButtonVariant, Modal, classify, div, h1, h2, p } from '@van13k'
-import van from 'vanjs-core'
+import { Button, ButtonVariant, Modal, classify, div, h1, h2, p, van } from '@van13k'
+
 import splashStyles from './Splash.module.css'
 
 export interface SplashProps {
