@@ -1,5 +1,16 @@
 import { button, classify, clickify } from '@van13k'
-import styles from './Button.module.css'
+import {
+  btn,
+  btnActive,
+  btnCancel,
+  btnDanger,
+  btnLg,
+  btnMd,
+  btnPrimary,
+  btnSecondary,
+  btnSm,
+  btnSuccess,
+} from './Button.module.css'
 
 export enum ButtonVariant {
   Primary = 'primary',
@@ -16,17 +27,17 @@ export enum ButtonSize {
 }
 
 const VARIANT_MAP = {
-  [ButtonVariant.Primary]: styles.btnPrimary,
-  [ButtonVariant.Danger]: styles.btnDanger,
-  [ButtonVariant.Secondary]: styles.btnSecondary,
-  [ButtonVariant.Cancel]: styles.btnCancel,
-  [ButtonVariant.Success]: styles.btnSuccess,
+  [ButtonVariant.Primary]: btnPrimary,
+  [ButtonVariant.Danger]: btnDanger,
+  [ButtonVariant.Secondary]: btnSecondary,
+  [ButtonVariant.Cancel]: btnCancel,
+  [ButtonVariant.Success]: btnSuccess,
 } as const
 
 const SIZE_MAP = {
-  [ButtonSize.Small]: styles.btnSm,
-  [ButtonSize.Medium]: styles.btnMd,
-  [ButtonSize.Large]: styles.btnLg,
+  [ButtonSize.Small]: btnSm,
+  [ButtonSize.Medium]: btnMd,
+  [ButtonSize.Large]: btnLg,
 } as const
 
 interface ButtonProps {
@@ -49,7 +60,7 @@ export const Button = ({
   return button(
     {
       ...clickify(onClick),
-      ...classify(styles.btn, VARIANT_MAP[variant], SIZE_MAP[size], isActive ? styles.btnActive : '', className),
+      ...classify(btn, VARIANT_MAP[variant], SIZE_MAP[size], isActive ? btnActive : '', className),
     },
     children
   )

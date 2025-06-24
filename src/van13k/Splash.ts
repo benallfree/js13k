@@ -1,7 +1,24 @@
-import globalStyles from '@styles'
 import { Button, ButtonVariant, Modal, classify, div, h1, h2, p, van } from '@van13k'
+import {
+  fixed,
+  maxW600,
+  mb5,
+  mb7,
+  mxAuto,
+  my5,
+  p5,
+  pointerAuto,
+  right0,
+  text3xl,
+  textCcc,
+  textCenter,
+  textLeft,
+  textPrimary,
+  top0,
+  zIndexHigh,
+} from '../styles.module.css'
 
-import splashStyles from './Splash.module.css'
+import { content } from './Splash.module.css'
 
 export interface SplashProps {
   title: string
@@ -32,14 +49,7 @@ export const Splash = ({
   const HelpButton = () =>
     div(
       {
-        ...classify(
-          globalStyles.fixed,
-          globalStyles.top0,
-          globalStyles.right0,
-          globalStyles.p5,
-          globalStyles.pointerAuto,
-          globalStyles.zIndexHigh
-        ),
+        ...classify(fixed, top0, right0, p5, pointerAuto, zIndexHigh),
       },
       Button({
         onClick: () => {
@@ -53,20 +63,18 @@ export const Splash = ({
   const SplashModal = Modal({
     content: () =>
       div(
-        { ...classify(globalStyles.maxW600, globalStyles.mxAuto, globalStyles.p5, globalStyles.textCenter) },
+        { ...classify(maxW600, mxAuto, p5, textCenter) },
         h1(
           {
-            ...classify(globalStyles.textPrimary, globalStyles.text3xl, globalStyles.mb7, splashStyles.title),
+            ...classify(textPrimary, text3xl, mb7, title),
           },
           title
         ),
         ...sections.map((section) =>
           div(
-            { ...classify(globalStyles.mb7, globalStyles.textLeft) },
-            h2({ ...classify(globalStyles.textPrimary, globalStyles.mb5) }, section.title),
-            ...section.content.map((text) =>
-              p({ ...classify(globalStyles.textCcc, globalStyles.my5, splashStyles.content) }, text)
-            )
+            { ...classify(mb7, textLeft) },
+            h2({ ...classify(textPrimary, mb5) }, section.title),
+            ...section.content.map((text) => p({ ...classify(textCcc, my5, content) }, text))
           )
         )
       ),

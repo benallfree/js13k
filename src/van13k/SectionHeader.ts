@@ -1,5 +1,5 @@
-import globalStyles from '@styles'
 import { classify, div, h2 } from '@van13k'
+import { flex, itemsCenter, justifyBetween, mb0, mb3, mt0, textWhite, textXl } from '../styles.module.css'
 
 interface SectionHeaderProps {
   title: string | (() => string)
@@ -10,16 +10,9 @@ interface SectionHeaderProps {
 export const SectionHeader = ({ title, controls, className }: SectionHeaderProps) => {
   return div(
     {
-      ...classify(
-        globalStyles.flex,
-        globalStyles.itemsCenter,
-        globalStyles.justifyBetween,
-        globalStyles.mb3,
-        globalStyles.mt0,
-        ...(className ? [className] : [])
-      ),
+      ...classify(flex, itemsCenter, justifyBetween, mb3, mt0, ...(className ? [className] : [])),
     },
-    h2({ ...classify(globalStyles.textWhite, globalStyles.textXl, globalStyles.mb0) }, title),
+    h2({ ...classify(textWhite, textXl, mb0) }, title),
     controls
   )
 }

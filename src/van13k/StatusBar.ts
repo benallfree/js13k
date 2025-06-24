@@ -1,5 +1,20 @@
-import globalStyles from '@styles'
 import { classify, div, van } from '@van13k'
+import {
+  backdropBlur,
+  bgAccent,
+  fixed,
+  left0,
+  minH20,
+  px6,
+  py3,
+  right0,
+  shadowMedium,
+  textAccentDark,
+  textCenter,
+  textSm,
+  transitionSlow,
+  zIndexMax,
+} from '../styles.module.css'
 
 import { base, visible } from './StatusBar.module.css'
 
@@ -32,20 +47,20 @@ export const StatusBar = () =>
     {
       ...classify(
         base,
-        globalStyles.fixed,
-        globalStyles.left0,
-        globalStyles.right0,
-        globalStyles.bgAccent,
-        globalStyles.textAccentDark,
-        globalStyles.px6,
-        globalStyles.py3,
-        globalStyles.textSm,
-        globalStyles.zIndexMax,
-        globalStyles.backdropBlur,
-        globalStyles.textCenter,
-        globalStyles.minH20,
-        globalStyles.transitionSlow,
-        globalStyles.shadowMedium,
+        fixed,
+        left0,
+        right0,
+        bgAccent,
+        textAccentDark,
+        px6,
+        py3,
+        textSm,
+        zIndexMax,
+        backdropBlur,
+        textCenter,
+        minH20,
+        transitionSlow,
+        shadowMedium,
         () => (statusVisible.val ? visible : '')
       ),
     },

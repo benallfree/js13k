@@ -1,6 +1,6 @@
 import { Button, ButtonVariant, classify, clickify, div, input, Modal, van, VanValue } from '@van13k'
 
-import styles from './ShareModal.module.css'
+import { copyButton, copySuccess, shareUrlContainer } from './ShareModal.module.css'
 
 interface ShareModalProps {
   title: VanValue
@@ -47,9 +47,9 @@ export const ShareModal = ({ title, instructions, onClose, onCopyUrl }: ShareMod
       div(
         div(instructions),
         div(
-          { class: styles.shareUrlContainer },
+          { class: shareUrlContainer },
           input({
-            class: styles.shareUrl,
+            class: shareUrl,
             name: 'shareUrl',
             autofocus: true,
             type: 'text',
@@ -60,7 +60,7 @@ export const ShareModal = ({ title, instructions, onClose, onCopyUrl }: ShareMod
           Button({
             onClick: handleCopy,
             variant: copied.val ? ButtonVariant.Primary : ButtonVariant.Primary,
-            ...classify(styles.copyButton, copied.val ? styles.copySuccess : ''),
+            ...classify(copyButton, copied.val ? copySuccess : ''),
             children: () => (copied.val ? '✅ Copied!' : '📋 Copy to Clipboard'),
           })
         )
