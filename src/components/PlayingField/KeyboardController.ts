@@ -96,12 +96,27 @@ export class KeyboardController {
 
     // Apply changes if any movement occurred
     if (deltaX !== 0 || deltaY !== 0 || deltaRotation !== 0) {
+      // Calculate new position
+      const newX = localPlayer.position.x + deltaX
+      const newY = localPlayer.position.y + deltaY
+
+      // Constrain position to playing field bounds
+      // Playing field is 640x640, so coordinates range from -320 to +320
+      // Car is 15px wide and 30px tall, so we need half-width/height margins
+      const fieldHalfWidth = 320
+      const fieldHalfHeight = 320
+      const carHalfWidth = 7.5
+      const carHalfHeight = 15
+
+      const constrainedX = Math.max(-fieldHalfWidth + carHalfWidth, Math.min(fieldHalfWidth - carHalfWidth, newX))
+      const constrainedY = Math.max(-fieldHalfHeight + carHalfHeight, Math.min(fieldHalfHeight - carHalfHeight, newY))
+
       this.room.mutatePlayer((oldState) => ({
         ...oldState,
         position: {
           ...oldState.position,
-          x: oldState.position.x + deltaX,
-          y: oldState.position.y + deltaY,
+          x: constrainedX,
+          y: constrainedY,
         },
         rotation: {
           ...oldState.rotation,
