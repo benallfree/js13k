@@ -1,13 +1,13 @@
-import { clickify } from '../clickify'
-import { span } from '../tags'
-import { _routerBasename, _routerPathname } from './_state'
+import { _routerBasename, _routerPathname } from '@/common/router/_state'
+import { span, VanValue } from '@/common/tags'
+import { clickify } from '@/common/util/clickify'
 
 interface LinkProps extends Partial<HTMLAnchorElement> {
   href: string
   replace?: boolean
 }
 
-export function Link({ replace, ...props }: LinkProps, ...children: (HTMLElement | string)[]) {
+export function Link({ replace, ...props }: LinkProps, ...children: VanValue[]) {
   const { href, ...rest } = props as HTMLAnchorElement
 
   const handleNavigation = (e: Event) => {
