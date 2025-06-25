@@ -4,8 +4,8 @@
 
 | Spec  | Info               |
 | ----- | ------------------ |
-| Build | <!-- BUILD -->1214    |
-| Bytes | <!-- BYTES -->7466 |
+| Build | <!-- BUILD -->1303    |
+| Bytes | <!-- BYTES -->10081 |
 
 
 A **2.6k** production-ready starter template for js13k game development featuring modern tooling, aggressive optimization, and real-time size monitoring.

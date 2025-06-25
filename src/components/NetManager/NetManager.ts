@@ -31,7 +31,7 @@ export const NetManager = () => {
     },
     worldToServer: (worldPos: Vector3) => {
       const serverPos = baseCoordinateConverter.worldToServer(worldPos)
-      serverPos.y = serverPos.z
+      serverPos.z = serverPos.y
       return serverPos
     },
   }
