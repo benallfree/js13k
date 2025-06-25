@@ -14,7 +14,7 @@ export * from './Splash'
 export * from './StatusBar'
 
 // Vibescale
-export * from './vibescale'
+export * from 'vibescale/ts'
 
 // Utilities
 export * from './util'

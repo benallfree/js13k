@@ -124,6 +124,7 @@ export class KeyboardController {
       deltaRotation += rotationSpeed
     }
 
+    console.log('applyMovement', JSON.stringify({ deltaX, deltaY, deltaRotation }))
     // Apply changes if any movement occurred
     if (deltaX !== 0 || deltaY !== 0 || deltaRotation !== 0) {
       // Calculate new position
@@ -199,19 +200,12 @@ export class KeyboardController {
         }
       }
 
-      this.room.mutatePlayer((oldState) => ({
-        ...oldState,
-        position: {
-          ...oldState.position,
-          x: constrainedX,
-          y: constrainedY,
-        },
-        rotation: {
-          ...oldState.rotation,
-          z: oldState.rotation.z + deltaRotation,
-        },
-        collision: collisionPlayerId, // Set collision field (undefined if no collision)
-      }))
+      this.room.mutatePlayer((draft) => {
+        draft.position.x = constrainedX
+        draft.position.y = constrainedY
+        draft.rotation.z = draft.rotation.z + deltaRotation
+        draft.collision = collisionPlayerId
+      })
     }
   }
 }

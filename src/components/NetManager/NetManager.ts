@@ -1,5 +1,17 @@
 import { Player } from '@/types'
-import { createRoom, flash, PlayerId, Room, RoomEventType, service, State, van } from '@van13k'
+import {
+  createCoordinateConverter,
+  createRoom,
+  createStateChangeDetector,
+  flash,
+  PlayerId,
+  Room,
+  RoomEventType,
+  service,
+  State,
+  van,
+  Vector3,
+} from '@van13k'
 
 export type NetManagerService = {
   room: Room
@@ -10,28 +22,26 @@ export type NetManagerService = {
 }
 
 export const NetManager = () => {
+  const baseCoordinateConverter = createCoordinateConverter(320)
+  const coordinateConverter = {
+    serverToWorld: (serverPos: Vector3) => {
+      const worldPos = baseCoordinateConverter.serverToWorld(serverPos)
+      worldPos.y = worldPos.z
+      return worldPos
+    },
+    worldToServer: (worldPos: Vector3) => {
+      const serverPos = baseCoordinateConverter.worldToServer(worldPos)
+      serverPos.y = serverPos.z
+      return serverPos
+    },
+  }
   // Connect to a room with optional custom endpoint
   const room = createRoom<Player>('craz2d23k', {
-    stateChangeDetectorFn: (oldState, newState) => {
-      // Position threshold: 3 pixels
-      const positionThreshold = 3
-      const positionChanged =
-        Math.abs(oldState.position.x - newState.position.x) >= positionThreshold ||
-        Math.abs(oldState.position.y - newState.position.y) >= positionThreshold
-
-      // Rotation threshold: 0.05 radians (~3 degrees)
-      const rotationThreshold = 0.05
-      const rotationChanged = Math.abs(oldState.rotation.z - newState.rotation.z) >= rotationThreshold
-
-      // Other properties that should always trigger updates
-      const otherPropsChanged =
-        oldState.color !== newState.color ||
-        oldState.username !== newState.username ||
-        oldState.isConnected !== newState.isConnected ||
-        oldState.collision !== newState.collision
-
-      return positionChanged || rotationChanged || otherPropsChanged
-    },
+    stateChangeDetectorFn: createStateChangeDetector({
+      positionDistance: 3,
+      rotationAngle: 0.05,
+    }),
+    coordinateConverter,
   })
 
   // Connect to the room (must be called explicitly)
@@ -119,25 +129,3 @@ export const useNetManager = () => {
   const netManager = service<NetManagerService>('net')
   return netManager
 }
-
-/*
-// Access player data
-  const localPlayer = room.getLocalPlayer()
-  const otherPlayer = room.getPlayer('some-player-id')
-
-  // Update local player state
-  room.mutatePlayer((oldState) => {
-    return {
-      ...oldState,
-      position: { x: 10, y: 5, z: 0 },
-      rotation: { x: 0, y: Math.PI / 2, z: 0 },
-    }
-  })
-
-  // Get the room identifier
-  const roomId = room.getRoomId() // Returns 'my-game'
-
-  // Check connection status
-  const isConnected = room.isConnected() // Returns true if connected to server
-}
-  */
