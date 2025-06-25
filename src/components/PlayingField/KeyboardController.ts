@@ -142,13 +142,16 @@ export class KeyboardController {
       deltaY += -Math.cos(localPlayer.rotation.z) * this.currentSpeed * deltaTime
     }
 
-    // Handle rotation keys
-    if (this.pressedKeys.has('a') || this.pressedKeys.has('arrowleft')) {
-      deltaRotation -= rotationSpeed * deltaTime
-    }
+    // Handle rotation keys - only allow turning when moving
+    if (Math.abs(this.currentSpeed) > 10) {
+      // Only turn when speed is significant
+      if (this.pressedKeys.has('a') || this.pressedKeys.has('arrowleft')) {
+        deltaRotation -= rotationSpeed * deltaTime
+      }
 
-    if (this.pressedKeys.has('d') || this.pressedKeys.has('arrowright')) {
-      deltaRotation += rotationSpeed * deltaTime
+      if (this.pressedKeys.has('d') || this.pressedKeys.has('arrowright')) {
+        deltaRotation += rotationSpeed * deltaTime
+      }
     }
 
     // console.log('applyMovement', JSON.stringify({ deltaX, deltaY, deltaRotation, currentSpeed: this.currentSpeed }))
