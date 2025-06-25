@@ -7,6 +7,10 @@ export class KeyboardController {
   private rafId: number | null = null
   private pressedKeys = new Set<string>()
   private lastFrameTime = 0
+  private currentSpeed = 0 // Current forward/backward speed
+  private readonly maxSpeed = 300 // Maximum speed in pixels per second
+  private readonly acceleration = 600 // Speed buildup rate in pixels per second squared
+  private readonly deceleration = 300 // Speed decay rate in pixels per second squared
 
   constructor(room: Room<Player>) {
     this.room = room
@@ -35,6 +39,7 @@ export class KeyboardController {
     }
 
     this.pressedKeys.clear()
+    this.currentSpeed = 0 // Reset speed when stopping
   }
 
   private handleKeyDown(event: KeyboardEvent) {
@@ -96,31 +101,45 @@ export class KeyboardController {
 
   private applyMovement(currentTime: number) {
     const localPlayer = this.room.getLocalPlayer()
-    if (!localPlayer?.isLocal || this.pressedKeys.size === 0) return
+    if (!localPlayer?.isLocal) return
 
     // Calculate delta time in seconds
     const deltaTime = this.lastFrameTime === 0 ? 0 : (currentTime - this.lastFrameTime) / 1000
     this.lastFrameTime = currentTime
+    // console.log('deltaTime', deltaTime)
 
     // Skip if delta time is too large (e.g., tab was inactive)
     if (deltaTime > 0.1) return
 
-    const speed = 300 // pixels per second
     const rotationSpeed = 3 // radians per second
 
     let deltaX = 0
     let deltaY = 0
     let deltaRotation = 0
 
-    // Handle movement keys
-    if (this.pressedKeys.has('w') || this.pressedKeys.has('arrowup')) {
-      deltaX += Math.sin(localPlayer.rotation.z) * speed * deltaTime
-      deltaY += -Math.cos(localPlayer.rotation.z) * speed * deltaTime
+    // Handle speed buildup/decay
+    const isAccelerating = this.pressedKeys.has('w') || this.pressedKeys.has('arrowup')
+    const isReversing = this.pressedKeys.has('s') || this.pressedKeys.has('arrowdown')
+
+    if (isAccelerating) {
+      // Build up forward speed
+      this.currentSpeed = Math.min(this.maxSpeed, this.currentSpeed + this.acceleration * deltaTime)
+    } else if (isReversing) {
+      // Build up reverse speed (negative)
+      this.currentSpeed = Math.max(-this.maxSpeed, this.currentSpeed - this.acceleration * deltaTime)
+    } else {
+      // Decay speed toward zero
+      if (this.currentSpeed > 0) {
+        this.currentSpeed = Math.max(0, this.currentSpeed - this.deceleration * deltaTime)
+      } else if (this.currentSpeed < 0) {
+        this.currentSpeed = Math.min(0, this.currentSpeed + this.deceleration * deltaTime)
+      }
     }
 
-    if (this.pressedKeys.has('s') || this.pressedKeys.has('arrowdown')) {
-      deltaX += -Math.sin(localPlayer.rotation.z) * speed * deltaTime
-      deltaY += Math.cos(localPlayer.rotation.z) * speed * deltaTime
+    // Apply movement based on current speed
+    if (this.currentSpeed !== 0) {
+      deltaX += Math.sin(localPlayer.rotation.z) * this.currentSpeed * deltaTime
+      deltaY += -Math.cos(localPlayer.rotation.z) * this.currentSpeed * deltaTime
     }
 
     // Handle rotation keys
@@ -132,7 +151,7 @@ export class KeyboardController {
       deltaRotation += rotationSpeed * deltaTime
     }
 
-    console.log('applyMovement', JSON.stringify({ deltaX, deltaY, deltaRotation }))
+    // console.log('applyMovement', JSON.stringify({ deltaX, deltaY, deltaRotation, currentSpeed: this.currentSpeed }))
     // Apply changes if any movement occurred
     if (deltaX !== 0 || deltaY !== 0 || deltaRotation !== 0) {
       // Calculate new position
