@@ -94,23 +94,11 @@ export const NetManager = () => {
   })
 
   room.on(RoomEventType.PlayerLeft, ({ data: player }) => {
-    console.log('Player left:', player.id)
     otherPlayers.delete(player.id)
-    // Trigger reactivity for player list changes
     otherPlayerIds.val = new Set(otherPlayers.keys())
   })
 
-  // Handle WebSocket events
-  room.on(RoomEventType.Rx, ({ data: jsonMessage }) => {
-    console.log('Raw WebSocket message received:', jsonMessage)
-  })
-
-  room.on(RoomEventType.Tx, ({ data: jsonMessage }) => {
-    console.log('Message sent:', jsonMessage)
-  })
-
   room.on(RoomEventType.PlayerMutated, ({ data: player }) => {
-    console.log('Player mutated:', player)
     updatePlayer(player)
   })
 
