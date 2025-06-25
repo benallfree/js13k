@@ -9,6 +9,11 @@ alwaysApply: true
 * Do NOT run the application
 * We are using Bun
 
+# Tool/cli rules
+
+* Never git commit
+* Never start a server
+
 # VanJS Rules
 
 * Van.js
