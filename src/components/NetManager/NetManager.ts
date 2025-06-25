@@ -66,14 +66,6 @@ export const NetManager = () => {
   })
 
   const updatePlayer = (player: Player) => {
-    // Check for collision events and log them
-    if (player.collision) {
-      const collidedPlayer = room.getPlayer(player.collision)
-      if (collidedPlayer) {
-        console.log(`Player ${player.id} hit player ${player.collision}`)
-      }
-    }
-
     if (player.isLocal) {
       console.log('Local player updated:', player)
       localPlayer.val = player
