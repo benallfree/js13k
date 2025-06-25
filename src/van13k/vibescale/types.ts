@@ -131,6 +131,7 @@ export type PlayerMutator<TPlayer extends PlayerBase = PlayerBase> = (oldState: 
 export type Room<TPlayer extends PlayerBase = PlayerBase> = {
   getPlayer: (id: PlayerId) => TPlayer | null
   getLocalPlayer: () => TPlayer | null
+  getAllPlayers: () => TPlayer[]
   mutatePlayer: (mutator: PlayerMutator<TPlayer>) => void
   getRoomId: () => string
   disconnect: () => void

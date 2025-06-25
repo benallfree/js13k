@@ -63,6 +63,36 @@ export class KeyboardController {
     this.rafId = requestAnimationFrame(loop)
   }
 
+  private checkCollision(player1: Player, player2: Player): boolean {
+    // Car dimensions
+    const carHalfWidth = 7.5
+    const carHalfHeight = 15
+
+    // AABB collision detection
+    const p1Left = player1.position.x - carHalfWidth
+    const p1Right = player1.position.x + carHalfWidth
+    const p1Top = player1.position.y - carHalfHeight
+    const p1Bottom = player1.position.y + carHalfHeight
+
+    const p2Left = player2.position.x - carHalfWidth
+    const p2Right = player2.position.x + carHalfWidth
+    const p2Top = player2.position.y - carHalfHeight
+    const p2Bottom = player2.position.y + carHalfHeight
+
+    return !(p1Right < p2Left || p1Left > p2Right || p1Bottom < p2Top || p1Top > p2Bottom)
+  }
+
+  private isMovingAwayFrom(
+    currentPos: { x: number; y: number },
+    newPos: { x: number; y: number },
+    otherPos: { x: number; y: number }
+  ): boolean {
+    // Calculate distances to determine if moving away
+    const currentDistance = Math.sqrt(Math.pow(currentPos.x - otherPos.x, 2) + Math.pow(currentPos.y - otherPos.y, 2))
+    const newDistance = Math.sqrt(Math.pow(newPos.x - otherPos.x, 2) + Math.pow(newPos.y - otherPos.y, 2))
+    return newDistance > currentDistance
+  }
+
   private applyMovement() {
     const localPlayer = this.room.getLocalPlayer()
     if (!localPlayer?.isLocal || this.pressedKeys.size === 0) return
@@ -108,8 +138,66 @@ export class KeyboardController {
       const carHalfWidth = 7.5
       const carHalfHeight = 15
 
-      const constrainedX = Math.max(-fieldHalfWidth + carHalfWidth, Math.min(fieldHalfWidth - carHalfWidth, newX))
-      const constrainedY = Math.max(-fieldHalfHeight + carHalfHeight, Math.min(fieldHalfHeight - carHalfHeight, newY))
+      let constrainedX = Math.max(-fieldHalfWidth + carHalfWidth, Math.min(fieldHalfWidth - carHalfWidth, newX))
+      let constrainedY = Math.max(-fieldHalfHeight + carHalfHeight, Math.min(fieldHalfHeight - carHalfHeight, newY))
+
+      // Check for collisions with other players (only for position changes, not rotation)
+      let collisionPlayerId: string | undefined = undefined
+
+      if (deltaX !== 0 || deltaY !== 0) {
+        // Only check collision if there's position movement
+        const testPlayer: Player = {
+          ...localPlayer,
+          position: { ...localPlayer.position, x: constrainedX, y: constrainedY },
+        }
+
+        // Get all other players and check for collisions
+        const allPlayers = this.room.getAllPlayers()
+        for (const otherPlayer of allPlayers) {
+          if (otherPlayer.id !== localPlayer.id && otherPlayer.isConnected) {
+            if (this.checkCollision(testPlayer, otherPlayer)) {
+              // Check if we're moving away from the collision
+              const currentPos = { x: localPlayer.position.x, y: localPlayer.position.y }
+              const newPos = { x: constrainedX, y: constrainedY }
+              const otherPos = { x: otherPlayer.position.x, y: otherPlayer.position.y }
+
+              if (this.isMovingAwayFrom(currentPos, newPos, otherPos)) {
+                // Moving away from collision - allow the movement
+                break // Don't set collision, allow movement
+              } else {
+                // Moving towards or maintaining collision - handle it
+                collisionPlayerId = otherPlayer.id
+                console.log(`Player ${localPlayer.id} hit player ${otherPlayer.id}`)
+
+                // Allow sliding - try movement in individual axes
+                const testPlayerX: Player = {
+                  ...localPlayer,
+                  position: { ...localPlayer.position, x: constrainedX },
+                }
+                const testPlayerY: Player = {
+                  ...localPlayer,
+                  position: { ...localPlayer.position, y: constrainedY },
+                }
+
+                // If X movement alone doesn't cause collision, allow it
+                if (!this.checkCollision(testPlayerX, otherPlayer)) {
+                  constrainedY = localPlayer.position.y // Reset Y to original
+                }
+                // If Y movement alone doesn't cause collision, allow it
+                else if (!this.checkCollision(testPlayerY, otherPlayer)) {
+                  constrainedX = localPlayer.position.x // Reset X to original
+                }
+                // If both cause collision, don't move at all
+                else {
+                  constrainedX = localPlayer.position.x
+                  constrainedY = localPlayer.position.y
+                }
+                break // Only handle first collision
+              }
+            }
+          }
+        }
+      }
 
       this.room.mutatePlayer((oldState) => ({
         ...oldState,
@@ -122,6 +210,7 @@ export class KeyboardController {
           ...oldState.rotation,
           z: oldState.rotation.z + deltaRotation,
         },
+        collision: collisionPlayerId, // Set collision field (undefined if no collision)
       }))
     }
   }

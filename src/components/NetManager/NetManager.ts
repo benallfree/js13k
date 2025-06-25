@@ -11,7 +11,7 @@ export type NetManagerService = {
 
 export const NetManager = () => {
   // Connect to a room with optional custom endpoint
-  const room = createRoom('craz2d23k', {
+  const room = createRoom<Player>('craz2d23k', {
     stateChangeDetectorFn: (oldState, newState) => {
       // Position threshold: 3 pixels
       const positionThreshold = 3
@@ -27,7 +27,8 @@ export const NetManager = () => {
       const otherPropsChanged =
         oldState.color !== newState.color ||
         oldState.username !== newState.username ||
-        oldState.isConnected !== newState.isConnected
+        oldState.isConnected !== newState.isConnected ||
+        oldState.collision !== newState.collision
 
       return positionChanged || rotationChanged || otherPropsChanged
     },
@@ -55,6 +56,14 @@ export const NetManager = () => {
   })
 
   const updatePlayer = (player: Player) => {
+    // Check for collision events and log them
+    if (player.collision) {
+      const collidedPlayer = room.getPlayer(player.collision)
+      if (collidedPlayer) {
+        console.log(`Player ${player.id} hit player ${player.collision}`)
+      }
+    }
+
     if (player.isLocal) {
       console.log('Local player updated:', player)
       localPlayer.val = player
