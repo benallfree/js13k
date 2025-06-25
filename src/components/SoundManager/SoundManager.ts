@@ -1,5 +1,6 @@
+import { fixed, left0, p4, pointerAuto, top0, zIndexHigh } from '@/styles.module.css'
 import { Player } from '@/types'
-import { RoomEventType, service, State, van } from '@van13k'
+import { Button, ButtonVariant, classify, div, RoomEventType, service, State, van } from '@van13k'
 import { useNetManager } from '../NetManager/NetManager'
 
 export type SoundManagerService = {
@@ -33,7 +34,7 @@ type CarTrackingData = {
 }
 
 export const SoundManager = () => {
-  const isMuted = van.state(false)
+  const isMuted = van.state(true) // Default to muted
   let audioContext: AudioContext | null = null
   let activeSounds = 0
   const maxConcurrentSounds = 3
@@ -53,9 +54,9 @@ export const SoundManager = () => {
   const lastCollisionTimes = new Map<string, number>()
   const collisionDebounceMs = 500
 
-  // Initialize AudioContext lazily
-  const getAudioContext = () => {
-    if (!audioContext) {
+  // Initialize AudioContext lazily - only when not muted
+  const getAudioContext = (): AudioContext | null => {
+    if (!audioContext && !isMuted.val) {
       audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
       // Set up spatial audio listener
       if (audioContext.listener) {
@@ -110,6 +111,8 @@ export const SoundManager = () => {
 
     activeSounds++
     const ctx = getAudioContext()
+    if (!ctx) return // Don't create sounds if no audio context
+
     const oscillator = ctx.createOscillator()
     const gainNode = ctx.createGain()
 
@@ -137,6 +140,8 @@ export const SoundManager = () => {
     if (isMuted.val || cars.has(playerId)) return
 
     const ctx = getAudioContext()
+    if (!ctx) return // Don't create sounds if no audio context
+
     const characteristics = generateRumbleCharacteristics(playerId)
 
     const oscillator = ctx.createOscillator()
@@ -253,7 +258,7 @@ export const SoundManager = () => {
     if (localPlayer) {
       listenerPosition = localPlayer.position
       const ctx = getAudioContext()
-      if (ctx.listener) {
+      if (ctx && ctx.listener) {
         ctx.listener.positionX?.setValueAtTime(localPlayer.position.x * 0.01, ctx.currentTime)
         ctx.listener.positionZ?.setValueAtTime(-localPlayer.position.y * 0.01, ctx.currentTime)
       }
@@ -299,9 +304,11 @@ export const SoundManager = () => {
         const relativeY = player.position.y - listenerPosition.y
 
         const ctx = getAudioContext()
-        car.pannerNode.positionX?.setValueAtTime(relativeX * 0.01, ctx.currentTime)
-        car.pannerNode.positionY?.setValueAtTime(0, ctx.currentTime)
-        car.pannerNode.positionZ?.setValueAtTime(-relativeY * 0.01, ctx.currentTime)
+        if (ctx) {
+          car.pannerNode.positionX?.setValueAtTime(relativeX * 0.01, ctx.currentTime)
+          car.pannerNode.positionY?.setValueAtTime(0, ctx.currentTime)
+          car.pannerNode.positionZ?.setValueAtTime(-relativeY * 0.01, ctx.currentTime)
+        }
       }
     }
 
@@ -316,6 +323,7 @@ export const SoundManager = () => {
 
   function animateAllCars(currentTime: number) {
     const ctx = getAudioContext()
+    if (!ctx) return
 
     for (const [playerId, car] of cars) {
       // Smooth RPM changes
@@ -361,6 +369,10 @@ export const SoundManager = () => {
     // Play a random collision sound
     const randomFreq = collisionFrequencies[Math.floor(Math.random() * collisionFrequencies.length)]
     createCollisionSound(randomFreq, 0.3)
+  }
+
+  const toggleMute = () => {
+    isMuted.val = !isMuted.val
   }
 
   // Reactive state management
@@ -437,6 +449,20 @@ export const SoundManager = () => {
     playCollisionSound,
     isMuted,
   })
+
+  // Return UI component
+  return div(
+    {
+      ...classify(fixed, top0, left0, p4, zIndexHigh, pointerAuto),
+    },
+    () =>
+      Button({
+        onClick: toggleMute,
+        variant: ButtonVariant.Secondary,
+        isActive: !isMuted.val,
+        children: isMuted.val ? '🔇' : '🔊',
+      })
+  )
 }
 
 export const useSoundManager = () => {
