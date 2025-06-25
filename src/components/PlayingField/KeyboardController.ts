@@ -6,6 +6,7 @@ export class KeyboardController {
   private isListening = false
   private rafId: number | null = null
   private pressedKeys = new Set<string>()
+  private lastFrameTime = 0
 
   constructor(room: Room<Player>) {
     this.room = room
@@ -53,10 +54,10 @@ export class KeyboardController {
   }
 
   private startRafLoop() {
-    const loop = () => {
+    const loop = (currentTime: number) => {
       if (!this.isListening) return
 
-      this.applyMovement()
+      this.applyMovement(currentTime)
       this.rafId = requestAnimationFrame(loop)
     }
 
@@ -93,12 +94,19 @@ export class KeyboardController {
     return newDistance > currentDistance
   }
 
-  private applyMovement() {
+  private applyMovement(currentTime: number) {
     const localPlayer = this.room.getLocalPlayer()
     if (!localPlayer?.isLocal || this.pressedKeys.size === 0) return
 
-    const speed = 5
-    const rotationSpeed = 0.1 // rotation speed in radians
+    // Calculate delta time in seconds
+    const deltaTime = this.lastFrameTime === 0 ? 0 : (currentTime - this.lastFrameTime) / 1000
+    this.lastFrameTime = currentTime
+
+    // Skip if delta time is too large (e.g., tab was inactive)
+    if (deltaTime > 0.1) return
+
+    const speed = 300 // pixels per second
+    const rotationSpeed = 3 // radians per second
 
     let deltaX = 0
     let deltaY = 0
@@ -106,22 +114,22 @@ export class KeyboardController {
 
     // Handle movement keys
     if (this.pressedKeys.has('w') || this.pressedKeys.has('arrowup')) {
-      deltaX += Math.sin(localPlayer.rotation.z) * speed
-      deltaY += -Math.cos(localPlayer.rotation.z) * speed
+      deltaX += Math.sin(localPlayer.rotation.z) * speed * deltaTime
+      deltaY += -Math.cos(localPlayer.rotation.z) * speed * deltaTime
     }
 
     if (this.pressedKeys.has('s') || this.pressedKeys.has('arrowdown')) {
-      deltaX += -Math.sin(localPlayer.rotation.z) * speed
-      deltaY += Math.cos(localPlayer.rotation.z) * speed
+      deltaX += -Math.sin(localPlayer.rotation.z) * speed * deltaTime
+      deltaY += Math.cos(localPlayer.rotation.z) * speed * deltaTime
     }
 
     // Handle rotation keys
     if (this.pressedKeys.has('a') || this.pressedKeys.has('arrowleft')) {
-      deltaRotation -= rotationSpeed
+      deltaRotation -= rotationSpeed * deltaTime
     }
 
     if (this.pressedKeys.has('d') || this.pressedKeys.has('arrowright')) {
-      deltaRotation += rotationSpeed
+      deltaRotation += rotationSpeed * deltaTime
     }
 
     console.log('applyMovement', JSON.stringify({ deltaX, deltaY, deltaRotation }))
