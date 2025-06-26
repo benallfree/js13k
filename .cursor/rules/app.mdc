@@ -25,6 +25,7 @@ alwaysApply: true
 
 * Use CSS modules always. 
 * Always use named imports
+* never use inline styles unless they are dynamic
 * Utility classes should be used and added to [styles.module.css](mdc:src/styles.module.css).
 * Import [styles.module.css](mdc:src/styles.module.css) as `@/styles.module.css`
 * Component-specific styling which cannot be generalized should be added to a CSS module at the component level
