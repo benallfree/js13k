@@ -10,7 +10,7 @@ export class JoystickInputDevice implements IInputDevice {
   private readonly maxRadius = 40
   private readonly isActive = van.state(false)
 
-  constructor(private options?: { position?: string[] }) {}
+  constructor() {}
 
   private updateInputFromPosition = (clientX: number, clientY: number) => {
     const deltaX = clientX - this.centerX
@@ -116,11 +116,7 @@ export class JoystickInputDevice implements IInputDevice {
   getComponent = () =>
     div(
       {
-        ...classify(
-          joystickContainer,
-          () => (this.isActive.val ? joystickActive : ''),
-          ...(this.options?.position || [])
-        ),
+        ...classify(joystickContainer, () => (this.isActive.val ? joystickActive : '')),
         onpointerdown: this.handlePointerDown,
         onpointermove: this.handlePointerMove,
         onpointerup: this.handlePointerUp,

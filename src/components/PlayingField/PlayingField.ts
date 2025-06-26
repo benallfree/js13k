@@ -1,10 +1,22 @@
-import { absolute, bottom8, right8 } from '@/styles.module.css'
+import {
+  bottom8,
+  fixed,
+  left0,
+  opacity80,
+  p4,
+  pointerAuto,
+  relative,
+  right0,
+  right8,
+  top0,
+  zIndexHigh,
+} from '@/styles.module.css'
 import { classify, div, van } from '@van13k'
 import { HUD } from '../HUD'
 import { useNetManager } from '../NetManager/NetManager'
 import { NetStatusHud } from '../NetManager/NetStatusHud'
 import { PlayerPositionHud } from '../NetManager/PlayerPositionHud'
-import { RoomIdHud } from '../NetManager/RoomIdHud'
+import { useSoundManager } from '../SoundManager/SoundManager'
 import { Car } from './Car'
 import { JoystickInputDevice } from './JoystickInput'
 import { KeyboardInputDevice } from './KeyboardInput'
@@ -18,7 +30,7 @@ export const PlayingField = () => {
 
   // Create input devices
   const keyboardInput = new KeyboardInputDevice()
-  const joystickInput = new JoystickInputDevice({ position: [absolute, bottom8, right8] })
+  const joystickInput = new JoystickInputDevice()
 
   // Create movement controller with both input devices
   const controller = MovementController({
@@ -63,9 +75,19 @@ export const PlayingField = () => {
   window.addEventListener('resize', updateScale)
   setTimeout(updateScale, 0)
 
+  const SoundManager = useSoundManager()
+
   return div(
-    HUD({ items: [RoomIdHud(), NetStatusHud(), PlayerPositionHud()] }),
+    { ...classify(relative) },
+    div(
+      { ...classify(fixed, top0, left0, p4, zIndexHigh, pointerAuto, opacity80) },
+      HUD({
+        items: [NetStatusHud(), PlayerPositionHud()],
+      })
+    ),
+    div({ ...classify(fixed, top0, right0, p4, zIndexHigh, pointerAuto) }, SoundManager.component()),
+
     div({ ...classify(parent) }, fieldContainerElem),
-    joystickInput.getComponent()
+    div({ ...classify(fixed, bottom8, right8) }, joystickInput.getComponent())
   )
 }

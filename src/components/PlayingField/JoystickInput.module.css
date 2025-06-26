@@ -1,5 +1,5 @@
 .joystickContainer {
-  position: absolute;
+  position: relative;
   width: 120px;
   height: 120px;
   border: 2px solid #666;

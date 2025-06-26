@@ -11,6 +11,6 @@ export const RoomIdHud =
       {
         ...classify(bgGray200, textWhite, px3, py2, roundedLg, textSm, border, borderGray400),
       },
-      `Room: ${service<NetManagerService>('net').room.getRoomId()}`
+      `${service<NetManagerService>('net').room.getRoomId()}`
     )
   }

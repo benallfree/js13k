@@ -17,7 +17,7 @@ export const PlayerPositionHud =
         const x = Math.round(player.position.x)
         const y = Math.round(player.position.y)
         const z = Math.round((player.rotation.z * 180) / Math.PI) // Convert radians to degrees
-        return `Position: ${x},${y},${z}`
+        return `📍 ${x},${y},${z}`
       }
     )
   }

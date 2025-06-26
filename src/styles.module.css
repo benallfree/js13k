@@ -199,6 +199,10 @@
   line-height: 1.4;
 }
 
+.opacity80 {
+  opacity: 0.8;
+}
+
 /* Spacing */
 .mt0 {
   margin-top: 0;

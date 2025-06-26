@@ -1,11 +1,11 @@
-import { fixed, left0, p4, pointerAuto, top0, zIndexHigh } from '@/styles.module.css'
 import { Player } from '@/types'
-import { Button, ButtonVariant, classify, div, RoomEventType, service, State, van } from '@van13k'
+import { Button, ButtonVariant, div, RoomEventType, service, State, van, VanJsComponent } from '@van13k'
 import { useNetManager } from '../NetManager/NetManager'
 
 export type SoundManagerService = {
   playCollisionSound: () => void
   isMuted: State<boolean>
+  component: VanJsComponent
 }
 
 type CarTrackingData = {
@@ -33,7 +33,7 @@ type CarTrackingData = {
   isLocal: boolean
 }
 
-export const SoundManager = () => {
+export const SoundManager = (): SoundManagerService => {
   const isMuted = van.state(true) // Default to muted
   let audioContext: AudioContext | null = null
   let activeSounds = 0
@@ -428,27 +428,32 @@ export const SoundManager = () => {
     })
   })
 
-  service<SoundManagerService>('sound', {
-    playCollisionSound,
-    isMuted,
-  })
-
   // Return UI component
-  return div(
-    {
-      ...classify(fixed, top0, left0, p4, zIndexHigh, pointerAuto),
-    },
-    () =>
+  const component = () =>
+    div(() =>
       Button({
         onClick: toggleMute,
         variant: ButtonVariant.Secondary,
         isActive: !isMuted.val,
         children: isMuted.val ? '🔇' : '🔊',
       })
-  )
+    )
+
+  const soundService: SoundManagerService = {
+    playCollisionSound,
+    isMuted,
+    component,
+  }
+
+  service<SoundManagerService>('sound', soundService)
+
+  return soundService
 }
 
 export const useSoundManager = () => {
   const soundManager = service<SoundManagerService>('sound')
+  if (!soundManager) {
+    throw new Error('SoundManager not found')
+  }
   return soundManager
 }

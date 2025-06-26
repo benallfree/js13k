@@ -1,3 +1,41 @@
 .app {
   background-color: inherit;
 }
+
+.header {
+  letter-spacing: 0.1em;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+  background: linear-gradient(45deg, #fff, #ccc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text3xl {
+  font-size: 3rem;
+}
+
+.fontBold {
+  font-weight: bold;
+}
+
+.textCenter {
+  text-align: center;
+}
+
+.py4 {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.textGray {
+  color: #999;
+}
+
+.mb4 {
+  margin-bottom: 1rem;
+}
+
+.textSm {
+  font-size: 14px;
+}

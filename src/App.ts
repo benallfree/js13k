@@ -6,6 +6,6 @@ import './global.css'
 
 export const App = () => {
   NetManager()
-  const soundManagerUI = SoundManager()
-  return div(StatusBar(), Home(), soundManagerUI)
+  SoundManager()
+  return div(StatusBar(), Home())
 }

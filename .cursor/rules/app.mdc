@@ -30,6 +30,7 @@ alwaysApply: true
 * Import [styles.module.css](mdc:src/styles.module.css) as `@/styles.module.css`
 * Component-specific styling which cannot be generalized should be added to a CSS module at the component level
 * [styles.module.css](mdc:src/styles.module.css) should be for utility classes only. For all else, use custom css modules 
+* Always use [classify.ts](mdc:src/van13k/util/classify.ts). Never use raw `class` attributes.
 
 # Helpers
-* We have a [classify.ts](mdc:src/van13k/util/classify.ts) that returns { class: ... }. This generally needs to be destructured, like `div(...classify('a', 'b'))`
+* We have a [classify.ts](mdc:src/van13k/util/classify.ts) that returns { class: ... }. Use only CSS Module symbols in classify() 

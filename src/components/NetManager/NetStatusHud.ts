@@ -11,6 +11,7 @@ export const NetStatusHud =
       {
         ...classify(bgGray200, textWhite, px3, py2, roundedLg, textSm, border, borderGray400),
       },
-      () => `Net status: ${service<NetManagerService>('net').isConnected.val ? '🟢 Connected' : '🔴 Disconnected'}`
+      () =>
+        `${service<NetManagerService>('net').isConnected.val ? '🟢 ' : '🔴 '} ${service<NetManagerService>('net').room.getRoomId()}`
     )
   }
