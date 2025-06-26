@@ -1,43 +1,54 @@
 import { Player } from '@/types'
 import { Room } from '@van13k'
 
-export interface MovementControllerOptions {
-  inputs: IInputDevice[]
-  room: Room<Player>
+export interface MovementConfig {
+  maxSpeed: number // 600 px/s (unified)
+  acceleration: number // 1200 px/s²
+  deceleration: number // 600 px/s²
+  maxRotationSpeed: number // 6 rad/s
 }
 
-export interface InputState {
-  force: number // 0-1, where 0 is no input and 1 is maximum
-  radians: number // direction in radians, 0 = North, π/2 = East, π = South, 3π/2 = West
+export interface MovementState {
+  currentSpeed: number
+  // collision debounce state if needed per input
+}
+
+export interface MovementDelta {
+  deltaX: number
+  deltaY: number
+  deltaRotation: number
+  newSpeed: number
 }
 
 export interface IInputDevice {
-  getInput: () => InputState
+  getDelta(currentPlayer: Player, state: MovementState, config: MovementConfig, deltaTime: number): MovementDelta
 }
 
-export const MovementController = ({ inputs, room }: MovementControllerOptions) => {
+export interface MovementControllerOptions {
+  inputs: IInputDevice[]
+  room: Room<Player>
+  config?: Partial<MovementConfig>
+}
+
+export const MovementController = ({ inputs, room, config: configOverride }: MovementControllerOptions) => {
   let rafId: number | null = null
   let lastFrameTime = 0
-  let currentSpeed = 0
-  const maxSpeed = 300
-  const acceleration = 600
-  const deceleration = 300
-
-  const getCombinedInput = () => {
-    // Combine inputs from all controllers, prioritizing the one with highest force
-    let maxForce = 0
-    let bestInput = { force: 0, radians: 0 }
-
-    for (const input of inputs) {
-      const inputState = input.getInput()
-      if (inputState.force > maxForce) {
-        maxForce = inputState.force
-        bestInput = inputState
-      }
-    }
-
-    return bestInput
+  let movementState: MovementState = {
+    currentSpeed: 0,
   }
+
+  // Default config with overrides
+  const config: MovementConfig = {
+    maxSpeed: 400,
+    acceleration: 1200,
+    deceleration: 600,
+    maxRotationSpeed: 6,
+    ...configOverride,
+  }
+
+  // Collision debouncing per remote player
+  const isCollisionAllowed = new Map<string, boolean>()
+  const collisionSeparationDistance = 60 // One car length (30px) separation required
 
   const checkCollision = (player1: Player, player2: Player): boolean => {
     // Car dimensions
@@ -69,6 +80,28 @@ export const MovementController = ({ inputs, room }: MovementControllerOptions) 
     return newDistance > currentDistance
   }
 
+  const getCombinedDelta = (currentPlayer: Player, deltaTime: number): MovementDelta => {
+    // Combine deltas from all input devices, prioritizing the one with highest activity
+    let bestDelta: MovementDelta = { deltaX: 0, deltaY: 0, deltaRotation: 0, newSpeed: movementState.currentSpeed }
+    let maxActivity = 0
+
+    for (const input of inputs) {
+      const delta = input.getDelta(currentPlayer, movementState, config, deltaTime)
+
+      // Calculate activity from both movement and rotation
+      const movementActivity = Math.sqrt(delta.deltaX * delta.deltaX + delta.deltaY * delta.deltaY)
+      const rotationActivity = Math.abs(delta.deltaRotation) * 50 // Scale rotation to compete with movement
+      const totalActivity = movementActivity + rotationActivity
+
+      if (totalActivity > maxActivity) {
+        maxActivity = totalActivity
+        bestDelta = delta
+      }
+    }
+
+    return bestDelta
+  }
+
   const applyMovement = (currentTime: number) => {
     const localPlayer = room.getLocalPlayer()
     if (!localPlayer?.isLocal) return
@@ -80,57 +113,13 @@ export const MovementController = ({ inputs, room }: MovementControllerOptions) 
     // Skip if delta time is too large (e.g., tab was inactive)
     if (deltaTime > 0.1) return
 
-    const combinedInput = getCombinedInput()
-
-    let deltaX = 0
-    let deltaY = 0
-    let deltaRotation = 0
-
-    // Handle speed buildup/decay based on input force
-    if (combinedInput.force > 0) {
-      // Build up speed based on input force
-      const targetSpeed = maxSpeed * combinedInput.force
-      if (currentSpeed < targetSpeed) {
-        currentSpeed = Math.min(targetSpeed, currentSpeed + acceleration * deltaTime)
-      } else if (currentSpeed > targetSpeed) {
-        currentSpeed = Math.max(targetSpeed, currentSpeed - deceleration * deltaTime)
-      }
-    } else {
-      // Decay speed toward zero
-      if (currentSpeed > 0) {
-        currentSpeed = Math.max(0, currentSpeed - deceleration * deltaTime)
-      } else if (currentSpeed < 0) {
-        currentSpeed = Math.min(0, currentSpeed + deceleration * deltaTime)
-      }
-    }
-
-    // Apply movement based on current speed and input direction
-    if (currentSpeed !== 0 && combinedInput.force > 0) {
-      deltaX += Math.sin(combinedInput.radians) * currentSpeed * deltaTime
-      deltaY += -Math.cos(combinedInput.radians) * currentSpeed * deltaTime
-
-      // Apply rotation to face the movement direction
-      const targetRotation = combinedInput.radians
-      const currentRotation = localPlayer.rotation.z
-
-      // Calculate shortest rotation path (handle wrapping around 2π)
-      let rotationDiff = targetRotation - currentRotation
-      while (rotationDiff > Math.PI) rotationDiff -= 2 * Math.PI
-      while (rotationDiff < -Math.PI) rotationDiff += 2 * Math.PI
-
-      // Apply rotation smoothly
-      const rotationSpeed = 6 // radians per second
-      if (Math.abs(rotationDiff) > 0.1) {
-        const maxRotation = rotationSpeed * deltaTime
-        deltaRotation = Math.sign(rotationDiff) * Math.min(Math.abs(rotationDiff), maxRotation)
-      }
-    }
+    const delta = getCombinedDelta(localPlayer, deltaTime)
 
     // Apply changes if any movement occurred
-    if (deltaX !== 0 || deltaY !== 0 || deltaRotation !== 0) {
+    if (delta.deltaX !== 0 || delta.deltaY !== 0 || delta.deltaRotation !== 0) {
       // Calculate new position
-      const newX = localPlayer.position.x + deltaX
-      const newY = localPlayer.position.y + deltaY
+      const newX = localPlayer.position.x + delta.deltaX
+      const newY = localPlayer.position.y + delta.deltaY
 
       // Constrain position to playing field bounds
       const fieldHalfWidth = 320
@@ -144,7 +133,7 @@ export const MovementController = ({ inputs, room }: MovementControllerOptions) 
       // Check for collisions with other players
       let collisionPlayerId: string | undefined = undefined
 
-      if (deltaX !== 0 || deltaY !== 0) {
+      if (delta.deltaX !== 0 || delta.deltaY !== 0) {
         const testPlayer: Player = {
           ...localPlayer,
           position: { ...localPlayer.position, x: constrainedX, y: constrainedY },
@@ -153,15 +142,33 @@ export const MovementController = ({ inputs, room }: MovementControllerOptions) 
         const allPlayers = room.getAllPlayers()
         for (const otherPlayer of allPlayers) {
           if (otherPlayer.id !== localPlayer.id && otherPlayer.isConnected) {
+            // Check if players are far enough to reset collision flag
+            const distance = Math.sqrt(
+              Math.pow(localPlayer.position.x - otherPlayer.position.x, 2) +
+                Math.pow(localPlayer.position.y - otherPlayer.position.y, 2)
+            )
+            if (distance >= collisionSeparationDistance) {
+              isCollisionAllowed.set(otherPlayer.id, true)
+            }
+
             if (checkCollision(testPlayer, otherPlayer)) {
               const currentPos = { x: localPlayer.position.x, y: localPlayer.position.y }
               const newPos = { x: constrainedX, y: constrainedY }
               const otherPos = { x: otherPlayer.position.x, y: otherPlayer.position.y }
 
               if (isMovingAwayFrom(currentPos, newPos, otherPos)) {
-                break // Allow movement
+                // Moving away from collision - allow the movement
+                break
               } else {
-                collisionPlayerId = otherPlayer.id
+                // Check if collision is allowed for this player
+                const collisionAllowed = isCollisionAllowed.get(otherPlayer.id) ?? true
+
+                if (collisionAllowed) {
+                  // Moving towards or maintaining collision - handle it
+                  collisionPlayerId = otherPlayer.id
+                  console.log(`Player ${localPlayer.id} hit player ${otherPlayer.id} from distance ${distance}`)
+                  isCollisionAllowed.set(otherPlayer.id, false)
+                }
 
                 // Allow sliding - try movement in individual axes
                 const testPlayerX: Player = {
@@ -188,10 +195,13 @@ export const MovementController = ({ inputs, room }: MovementControllerOptions) 
         }
       }
 
+      // Update movement state
+      movementState.currentSpeed = delta.newSpeed
+
       room.mutatePlayer((draft) => {
         draft.position.x = constrainedX
         draft.position.y = constrainedY
-        draft.rotation.z = draft.rotation.z + deltaRotation
+        draft.rotation.z = draft.rotation.z + delta.deltaRotation
         draft.collision = collisionPlayerId
       })
     }
@@ -205,5 +215,17 @@ export const MovementController = ({ inputs, room }: MovementControllerOptions) 
     rafId = requestAnimationFrame(loop)
   }
 
+  const stop = () => {
+    if (rafId !== null) {
+      cancelAnimationFrame(rafId)
+      rafId = null
+    }
+    isCollisionAllowed.clear()
+  }
+
   startRafLoop()
+
+  return {
+    stop,
+  }
 }

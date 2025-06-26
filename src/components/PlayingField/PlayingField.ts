@@ -1,3 +1,4 @@
+import { absolute, bottom8, right8 } from '@/styles.module.css'
 import { classify, div, van } from '@van13k'
 import { HUD } from '../HUD'
 import { useNetManager } from '../NetManager/NetManager'
@@ -5,7 +6,9 @@ import { NetStatusHud } from '../NetManager/NetStatusHud'
 import { PlayerPositionHud } from '../NetManager/PlayerPositionHud'
 import { RoomIdHud } from '../NetManager/RoomIdHud'
 import { Car } from './Car'
-import { KeyboardController } from './KeyboardController'
+import { JoystickInputDevice } from './JoystickInput'
+import { KeyboardInputDevice } from './KeyboardInput'
+import { MovementController } from './MovementController'
 import { fieldContainer, parent, playingField } from './PlayingField.module.css'
 import { RemoteCars } from './RemoteCars'
 
@@ -13,9 +16,15 @@ export const PlayingField = () => {
   const nm = useNetManager()
   const { localPlayer, room } = nm
 
-  // Create keyboard controller when room is available
-  const controller = new KeyboardController(room)
-  controller.start()
+  // Create input devices
+  const keyboardInput = new KeyboardInputDevice()
+  const joystickInput = new JoystickInputDevice({ position: [absolute, bottom8, right8] })
+
+  // Create movement controller with both input devices
+  const controller = MovementController({
+    inputs: [keyboardInput, joystickInput],
+    room,
+  })
 
   const FIELD_SIZE = 640
   const scale = van.state(1)
@@ -56,6 +65,7 @@ export const PlayingField = () => {
 
   return div(
     HUD({ items: [RoomIdHud(), NetStatusHud(), PlayerPositionHud()] }),
-    div({ ...classify(parent) }, fieldContainerElem)
+    div({ ...classify(parent) }, fieldContainerElem),
+    joystickInput.getComponent()
   )
 }

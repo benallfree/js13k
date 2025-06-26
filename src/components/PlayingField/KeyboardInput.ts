@@ -1,84 +1,93 @@
-import { InputState } from './MovementController'
+import { Player } from '@/types'
+import { IInputDevice, MovementConfig, MovementDelta, MovementState } from './MovementController'
 
-export const KeyboardInput = (getCurrentRotation: () => number = () => 0) => {
-  let pressedKeys = new Set<string>()
-  let currentInput: InputState = { force: 0, radians: 0 }
+export class KeyboardInputDevice implements IInputDevice {
+  private pressedKeys = new Set<string>()
+  private isListening = false
 
-  const isValidKey = (key: string): boolean => {
+  constructor() {
+    this.start()
+  }
+
+  start() {
+    if (this.isListening) return
+    this.isListening = true
+
+    window.addEventListener('keydown', this.handleKeyDown.bind(this))
+    window.addEventListener('keyup', this.handleKeyUp.bind(this))
+  }
+
+  stop() {
+    if (!this.isListening) return
+    this.isListening = false
+
+    window.removeEventListener('keydown', this.handleKeyDown.bind(this))
+    window.removeEventListener('keyup', this.handleKeyUp.bind(this))
+
+    this.pressedKeys.clear()
+  }
+
+  private handleKeyDown(event: KeyboardEvent) {
+    const key = event.key.toLowerCase()
+    if (this.isValidKey(key)) {
+      this.pressedKeys.add(key)
+    }
+  }
+
+  private handleKeyUp(event: KeyboardEvent) {
+    const key = event.key.toLowerCase()
+    this.pressedKeys.delete(key)
+  }
+
+  private isValidKey(key: string): boolean {
     return ['w', 's', 'a', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(key)
   }
 
-  const updateInput = () => {
-    let force = 0
-    let relativeRadians = 0
+  getDelta(currentPlayer: Player, state: MovementState, config: MovementConfig, deltaTime: number): MovementDelta {
+    let deltaX = 0
+    let deltaY = 0
+    let deltaRotation = 0
+    let newSpeed = state.currentSpeed
 
-    // Check for key combinations to determine direction
-    const up = pressedKeys.has('w') || pressedKeys.has('arrowup')
-    const down = pressedKeys.has('s') || pressedKeys.has('arrowdown')
-    const left = pressedKeys.has('a') || pressedKeys.has('arrowleft')
-    const right = pressedKeys.has('d') || pressedKeys.has('arrowright')
+    // Handle speed buildup/decay
+    const isAccelerating = this.pressedKeys.has('w') || this.pressedKeys.has('arrowup')
+    const isReversing = this.pressedKeys.has('s') || this.pressedKeys.has('arrowdown')
 
-    // Calculate input relative to car's forward direction
-    // Force is only applied for forward/backward movement
-    if (up && right) {
-      // Forward-right: 45 degrees relative to car
-      force = 1
-      relativeRadians = Math.PI / 4
-    } else if (up && left) {
-      // Forward-left: -45 degrees relative to car
-      force = 1
-      relativeRadians = -Math.PI / 4
-    } else if (down && right) {
-      // Backward-right: 135 degrees relative to car
-      force = 1
-      relativeRadians = (3 * Math.PI) / 4
-    } else if (down && left) {
-      // Backward-left: -135 degrees relative to car
-      force = 1
-      relativeRadians = -(3 * Math.PI) / 4
-    } else if (up) {
-      // Forward: 0 degrees relative to car
-      force = 1
-      relativeRadians = 0
-    } else if (down) {
-      // Backward: 180 degrees relative to car
-      force = 1
-      relativeRadians = Math.PI
-    } else if (left) {
-      // Left steering only: no force, just rotation
-      force = 0
-      relativeRadians = -Math.PI / 2
-    } else if (right) {
-      // Right steering only: no force, just rotation
-      force = 0
-      relativeRadians = Math.PI / 2
+    if (isAccelerating) {
+      // Build up forward speed
+      newSpeed = Math.min(config.maxSpeed, newSpeed + config.acceleration * deltaTime)
+    } else if (isReversing) {
+      // Build up reverse speed (negative)
+      newSpeed = Math.max(-config.maxSpeed, newSpeed - config.acceleration * deltaTime)
+    } else {
+      // Decay speed toward zero
+      if (newSpeed > 0) {
+        newSpeed = Math.max(0, newSpeed - config.deceleration * deltaTime)
+      } else if (newSpeed < 0) {
+        newSpeed = Math.min(0, newSpeed + config.deceleration * deltaTime)
+      }
     }
 
-    // Convert relative radians to world radians by adding current car rotation
-    const currentCarRotation = getCurrentRotation()
-    const worldRadians = currentCarRotation + relativeRadians
-
-    currentInput = { force, radians: worldRadians }
-  }
-
-  const handleKeyDown = (event: KeyboardEvent) => {
-    const key = event.key.toLowerCase()
-    if (isValidKey(key)) {
-      pressedKeys.add(key)
-      updateInput()
+    // Apply movement based on current speed
+    if (newSpeed !== 0) {
+      deltaX += Math.sin(currentPlayer.rotation.z) * newSpeed * deltaTime
+      deltaY += -Math.cos(currentPlayer.rotation.z) * newSpeed * deltaTime
     }
-  }
 
-  const handleKeyUp = (event: KeyboardEvent) => {
-    const key = event.key.toLowerCase()
-    pressedKeys.delete(key)
-    updateInput()
-  }
+    // Handle rotation - works both when moving and when stationary (turning in place)
+    if (this.pressedKeys.has('a') || this.pressedKeys.has('arrowleft')) {
+      deltaRotation -= config.maxRotationSpeed * deltaTime
+    }
 
-  window.addEventListener('keydown', handleKeyDown)
-  window.addEventListener('keyup', handleKeyUp)
+    if (this.pressedKeys.has('d') || this.pressedKeys.has('arrowright')) {
+      deltaRotation += config.maxRotationSpeed * deltaTime
+    }
 
-  return {
-    getInput: () => currentInput,
+    return {
+      deltaX,
+      deltaY,
+      deltaRotation,
+      newSpeed,
+    }
   }
 }
