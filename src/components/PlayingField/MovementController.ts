@@ -46,6 +46,7 @@ export const MovementController = ({ inputs, room, config: configOverride }: Mov
     ...configOverride,
   }
 
+  console.log('MovementController initialized')
   // Collision debouncing per remote player
   const isCollisionAllowed = new Map<string, boolean>()
   const collisionSeparationDistance = 60 // One car length (30px) separation required
@@ -131,8 +132,6 @@ export const MovementController = ({ inputs, room, config: configOverride }: Mov
       let constrainedY = Math.max(-fieldHalfHeight + carHalfHeight, Math.min(fieldHalfHeight - carHalfHeight, newY))
 
       // Check for collisions with other players
-      let collisionPlayerId: string | undefined = undefined
-
       if (delta.deltaX !== 0 || delta.deltaY !== 0) {
         const testPlayer: Player = {
           ...localPlayer,
@@ -147,8 +146,9 @@ export const MovementController = ({ inputs, room, config: configOverride }: Mov
               Math.pow(localPlayer.position.x - otherPlayer.position.x, 2) +
                 Math.pow(localPlayer.position.y - otherPlayer.position.y, 2)
             )
-            if (distance >= collisionSeparationDistance) {
+            if (distance >= collisionSeparationDistance && !isCollisionAllowed.get(otherPlayer.id)) {
               isCollisionAllowed.set(otherPlayer.id, true)
+              console.log(`Reset: ${otherPlayer.id} @ ${distance}`)
             }
 
             if (checkCollision(testPlayer, otherPlayer)) {
@@ -164,9 +164,11 @@ export const MovementController = ({ inputs, room, config: configOverride }: Mov
                 const collisionAllowed = isCollisionAllowed.get(otherPlayer.id) ?? true
 
                 if (collisionAllowed) {
-                  // Moving towards or maintaining collision - handle it
-                  collisionPlayerId = otherPlayer.id
-                  console.log(`Player ${localPlayer.id} hit player ${otherPlayer.id} from distance ${distance}`)
+                  // Send collision mutation immediately - one per collision
+                  room.mutatePlayer((draft) => {
+                    draft.collision = otherPlayer.id
+                  })
+                  console.log(`Hit: ${otherPlayer.id} @ ${distance}`)
                   isCollisionAllowed.set(otherPlayer.id, false)
                 }
 
@@ -202,7 +204,6 @@ export const MovementController = ({ inputs, room, config: configOverride }: Mov
         draft.position.x = constrainedX
         draft.position.y = constrainedY
         draft.rotation.z = draft.rotation.z + delta.deltaRotation
-        draft.collision = collisionPlayerId
       })
     }
   }

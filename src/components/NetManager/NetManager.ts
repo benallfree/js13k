@@ -14,7 +14,7 @@ import {
 } from '@van13k'
 
 export type NetManagerService = {
-  room: Room
+  room: Room<Player>
   isConnected: State<boolean>
   localPlayer: State<Player | null>
   otherPlayers: Map<PlayerId, State<Player>>
@@ -99,6 +99,11 @@ export const NetManager = () => {
   })
 
   room.on(RoomEventType.PlayerMutated, ({ data: player }) => {
+    updatePlayer(player)
+  })
+
+  room.on(RoomEventType.AfterPlayerMutated, ({ data: player }) => {
+    player.collision = undefined
     updatePlayer(player)
   })
 

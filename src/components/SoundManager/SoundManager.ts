@@ -50,10 +50,6 @@ export const SoundManager = () => {
   // Listener position for spatial audio
   let listenerPosition = { x: 0, y: 0 }
 
-  // Collision debouncing
-  const lastCollisionTimes = new Map<string, number>()
-  const collisionDebounceMs = 500
-
   // Initialize AudioContext lazily - only when not muted
   const getAudioContext = (): AudioContext | null => {
     if (!audioContext && !isMuted.val) {
@@ -364,6 +360,7 @@ export const SoundManager = () => {
   }
 
   const playCollisionSound = () => {
+    // console.log('playCollisionSound')
     if (isMuted.val || activeSounds >= maxConcurrentSounds) return
 
     // Play a random collision sound
@@ -401,40 +398,26 @@ export const SoundManager = () => {
   van.derive(() => {
     if (!room) return
 
+    const handleCollision = (player: Player) => {
+      if (player.collision) {
+        // console.log('handleCollision', player.collision)
+        playCollisionSound()
+      }
+    }
+
     // Handle collision sounds from player updates
     room.on(RoomEventType.PlayerUpdated, ({ data: player }) => {
-      const typedPlayer = player as Player
-      if (typedPlayer.collision) {
-        const now = Date.now()
-        const lastCollisionTime = lastCollisionTimes.get(typedPlayer.id) || 0
-        const shouldPlaySound = now - lastCollisionTime > collisionDebounceMs
-
-        if (shouldPlaySound) {
-          playCollisionSound()
-          lastCollisionTimes.set(typedPlayer.id, now)
-        }
-      }
+      handleCollision(player)
     })
 
     // Handle collision sounds from player mutations
     room.on(RoomEventType.PlayerMutated, ({ data: player }) => {
-      const typedPlayer = player as Player
-      if (typedPlayer.collision) {
-        const now = Date.now()
-        const lastCollisionTime = lastCollisionTimes.get(typedPlayer.id) || 0
-        const shouldPlaySound = now - lastCollisionTime > collisionDebounceMs
-
-        if (shouldPlaySound) {
-          playCollisionSound()
-          lastCollisionTimes.set(typedPlayer.id, now)
-        }
-      }
+      handleCollision(player)
     })
 
     // Handle player leaving
     room.on(RoomEventType.PlayerLeft, ({ data: player }) => {
       stopCarSound(player.id)
-      lastCollisionTimes.delete(player.id)
     })
 
     // Handle player joining - start their car sound
