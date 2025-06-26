@@ -14,7 +14,6 @@
     "css:strip": "bun run scripts/stripcss.ts",
     "bump-build": "bun run scripts/bump-build.ts",
     "zip": "rimraf ${npm_package_name}-${npm_package_version}.zip && cd dist && zip -i index.html -i 'assets/*' -9 -r ../${npm_package_name}-${npm_package_version}.zip . && ls -l ../${npm_package_name}-${npm_package_version}.zip",
-    "predeploy": "bun run build && bun run bump-build",
     "deploy": "bun run build && wrangler deploy"
   },
   "devDependencies": {

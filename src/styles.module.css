@@ -651,4 +651,17 @@
 /* Transform Utilities */
 .transform {
   transform-origin: center;
+  will-change: transform;
+}
+
+.bottom8 {
+  bottom: 2rem;
+}
+
+.left8 {
+  left: 2rem;
+}
+
+.z10 {
+  z-index: 10;
 }
