@@ -13,6 +13,10 @@ export class KeyboardController {
   private readonly deceleration = 600 // Speed decay rate in pixels per second squared
   private readonly rotationSpeed = 6 // radians per second
 
+  // Collision debouncing per remote player
+  private isCollisionAllowed = new Map<string, boolean>()
+  private readonly collisionSeparationDistance = 60 // One car length (30px) separation required
+
   constructor(room: Room<Player>) {
     this.room = room
   }
@@ -41,6 +45,7 @@ export class KeyboardController {
 
     this.pressedKeys.clear()
     this.currentSpeed = 0 // Reset speed when stopping
+    this.isCollisionAllowed.clear() // Clear collision debounce on stop
   }
 
   private handleKeyDown(event: KeyboardEvent) {
@@ -182,6 +187,15 @@ export class KeyboardController {
         const allPlayers = this.room.getAllPlayers()
         for (const otherPlayer of allPlayers) {
           if (otherPlayer.id !== localPlayer.id && otherPlayer.isConnected) {
+            // Check if players are far enough to reset collision flag
+            const distance = Math.sqrt(
+              Math.pow(localPlayer.position.x - otherPlayer.position.x, 2) +
+                Math.pow(localPlayer.position.y - otherPlayer.position.y, 2)
+            )
+            if (distance >= this.collisionSeparationDistance) {
+              this.isCollisionAllowed.set(otherPlayer.id, true)
+            }
+
             if (this.checkCollision(testPlayer, otherPlayer)) {
               // Check if we're moving away from the collision
               const currentPos = { x: localPlayer.position.x, y: localPlayer.position.y }
@@ -192,9 +206,15 @@ export class KeyboardController {
                 // Moving away from collision - allow the movement
                 break // Don't set collision, allow movement
               } else {
-                // Moving towards or maintaining collision - handle it
-                collisionPlayerId = otherPlayer.id
-                console.log(`Player ${localPlayer.id} hit player ${otherPlayer.id}`)
+                // Check if collision is allowed for this player
+                const collisionAllowed = this.isCollisionAllowed.get(otherPlayer.id) ?? true
+
+                if (collisionAllowed) {
+                  // Moving towards or maintaining collision - handle it
+                  collisionPlayerId = otherPlayer.id
+                  console.log(`Player ${localPlayer.id} hit player ${otherPlayer.id} from distance ${distance}`)
+                  this.isCollisionAllowed.set(otherPlayer.id, false)
+                }
 
                 // Allow sliding - try movement in individual axes
                 const testPlayerX: Player = {
