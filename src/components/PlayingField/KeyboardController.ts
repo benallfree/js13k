@@ -8,9 +8,10 @@ export class KeyboardController {
   private pressedKeys = new Set<string>()
   private lastFrameTime = 0
   private currentSpeed = 0 // Current forward/backward speed
-  private readonly maxSpeed = 300 // Maximum speed in pixels per second
-  private readonly acceleration = 600 // Speed buildup rate in pixels per second squared
-  private readonly deceleration = 300 // Speed decay rate in pixels per second squared
+  private readonly maxSpeed = 600 // Maximum speed in pixels per second
+  private readonly acceleration = 1200 // Speed buildup rate in pixels per second squared
+  private readonly deceleration = 600 // Speed decay rate in pixels per second squared
+  private readonly rotationSpeed = 6 // radians per second
 
   constructor(room: Room<Player>) {
     this.room = room
@@ -111,8 +112,6 @@ export class KeyboardController {
     // Skip if delta time is too large (e.g., tab was inactive)
     if (deltaTime > 0.1) return
 
-    const rotationSpeed = 3 // radians per second
-
     let deltaX = 0
     let deltaY = 0
     let deltaRotation = 0
@@ -142,16 +141,13 @@ export class KeyboardController {
       deltaY += -Math.cos(localPlayer.rotation.z) * this.currentSpeed * deltaTime
     }
 
-    // Handle rotation keys - only allow turning when moving
-    if (Math.abs(this.currentSpeed) > 10) {
-      // Only turn when speed is significant
-      if (this.pressedKeys.has('a') || this.pressedKeys.has('arrowleft')) {
-        deltaRotation -= rotationSpeed * deltaTime
-      }
+    // Only turn when speed is significant
+    if (this.pressedKeys.has('a') || this.pressedKeys.has('arrowleft')) {
+      deltaRotation -= this.rotationSpeed * deltaTime
+    }
 
-      if (this.pressedKeys.has('d') || this.pressedKeys.has('arrowright')) {
-        deltaRotation += rotationSpeed * deltaTime
-      }
+    if (this.pressedKeys.has('d') || this.pressedKeys.has('arrowright')) {
+      deltaRotation += this.rotationSpeed * deltaTime
     }
 
     // console.log('applyMovement', JSON.stringify({ deltaX, deltaY, deltaRotation, currentSpeed: this.currentSpeed }))

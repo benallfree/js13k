@@ -13,7 +13,7 @@ export const Car = ({ player }: { player: State<Player | null> }) => {
         {
           ...classify(absolute, transform, relative, carBody),
           style: () => {
-            console.log('rendering car', player.val)
+            // console.log('rendering car', player.val)
             const p = player.val
             if (!p) return 'display: none;'
 

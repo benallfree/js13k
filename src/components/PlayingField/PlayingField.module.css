@@ -1,6 +1,23 @@
+.parent {
+  width: 100%;
+  max-width: 100vw;
+  overflow: hidden; /* Prevent scroll overflow */
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.fieldContainer {
+  width: min(100vw, 640px); /* Physical size: viewport width, max 640px */
+  height: min(100vw, 640px); /* Keep square */
+}
+
 .playingField {
-  width: 640px;
+  width: 640px; /* Virtual size */
   height: 640px;
   border: 2px solid #333;
   background-color: #1a1a1a;
+  transform-origin: 0px 0px; /* Scale from top-left */
+  transition: transform 0.3s ease; /* Smooth scaling on resize */
 }
