@@ -148,7 +148,7 @@ export const MovementController = ({ inputs, room, config: configOverride }: Mov
             )
             if (distance >= collisionSeparationDistance && !isCollisionAllowed.get(otherPlayer.id)) {
               isCollisionAllowed.set(otherPlayer.id, true)
-              console.log(`Reset: ${otherPlayer.id} @ ${distance}`)
+              // console.log(`Reset: ${otherPlayer.id} @ ${distance}`)
             }
 
             if (checkCollision(testPlayer, otherPlayer)) {
@@ -168,7 +168,7 @@ export const MovementController = ({ inputs, room, config: configOverride }: Mov
                   room.mutateLocalPlayer((draft) => {
                     draft.collision = otherPlayer.id
                   })
-                  console.log(`Hit: ${otherPlayer.id} @ ${distance}`)
+                  // console.log(`Hit: ${otherPlayer.id} @ ${distance}`)
                   isCollisionAllowed.set(otherPlayer.id, false)
                 }
 
@@ -196,6 +196,7 @@ export const MovementController = ({ inputs, room, config: configOverride }: Mov
           }
         }
       }
+      // console.log({ newX, newY, deltaX: delta.deltaX, deltaY: delta.deltaY, constrainedX, constrainedY })
 
       // Update movement state
       movementState.currentSpeed = delta.newSpeed

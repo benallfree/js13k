@@ -56,20 +56,20 @@ export const PlayingField = () => {
   const updateScale = () => {
     if (!fieldContainerElem.clientWidth || !fieldContainerElem.clientHeight) return
 
-    console.log(fieldContainerElem)
-    console.log('resize', fieldContainerElem.clientWidth, fieldContainerElem.clientHeight)
+    // console.log(fieldContainerElem)
+    // console.log('resize', fieldContainerElem.clientWidth, fieldContainerElem.clientHeight)
 
     const availableWidth = fieldContainerElem.clientWidth
     const availableHeight = fieldContainerElem.clientHeight
     const fieldSize = Math.min(availableWidth, availableHeight)
     scale.val = Math.min(fieldSize / FIELD_SIZE, 1)
 
-    console.log({
-      availableWidth,
-      availableHeight,
-      scale: scale.val,
-      fieldSize,
-    })
+    // console.log({
+    //   availableWidth,
+    //   availableHeight,
+    //   scale: scale.val,
+    //   fieldSize,
+    // })
   }
 
   window.addEventListener('resize', updateScale)

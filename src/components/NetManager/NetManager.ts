@@ -67,7 +67,7 @@ export const NetManager = () => {
 
   const updatePlayer = (player: Player) => {
     if (player.isLocal) {
-      // console.log('Local player updated:', player)
+      // console.log('Local player updated:', JSON.stringify(player))
       localPlayer.val = player
     } else {
       const otherPlayer = otherPlayers.get(player.id)
