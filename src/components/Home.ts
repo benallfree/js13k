@@ -6,8 +6,8 @@ import { PlayingField } from './PlayingField/PlayingField'
 export const Home = () => {
   return div(
     { ...classify(app) },
-    div({ ...classify(header, text3xl, fontBold, textCenter, py4) }, `CRAZ 2D`),
-    div({ ...classify(textCenter, textGray, mb4, textSm) }, `JS13K Edition`),
+    div({ ...classify(header, text3xl, fontBold, textCenter, py4) }, `CRAZ`),
+    div({ ...classify(textCenter, textGray, mb4, textSm) }, `2D JS13K Edition`),
     PlayingField()
   )
 }
