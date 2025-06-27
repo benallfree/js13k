@@ -1,9 +1,10 @@
-import { readFileSync, statSync, writeFileSync } from 'fs'
+import { readFileSync, writeFileSync } from 'fs'
+
 // Bump the build number
-console.log(`Updating build info`)
+console.log(`Bumping build number`)
 const BUILDINFO = './buildInfo.json'
 const buildInfo = JSON.parse(readFileSync(BUILDINFO).toString())
-buildInfo.bytes = statSync(`./out.zip`).size
+buildInfo.build++
 writeFileSync(BUILDINFO, JSON.stringify(buildInfo, null, 2))
 
 const readme = readFileSync('./README.md').toString()

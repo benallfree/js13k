@@ -129,15 +129,24 @@ const tags = [
 ]
 
 const purgeFromJs = (content: string): ExtractorResultDetailed => {
-  const regex = /"([A-Za-z_-]{1,2})"/g
   const matches: string[] = []
+
+  // Match class: prefixed strings (can contain multiple classes)
+  const classRegex = /class:"([A-Za-z_-]{1,2}(?:\s+[A-Za-z_-]{1,2})*)"/g
   let match: RegExpExecArray | null
 
-  while ((match = regex.exec(content)) !== null) {
+  while ((match = classRegex.exec(content)) !== null) {
+    const classNames = match[1].split(/\s+/)
+    matches.push(...classNames)
+  }
+
+  // Match regular quoted strings (single classes only)
+  const singleRegex = /"([A-Za-z_-]{1,2})"/g
+  while ((match = singleRegex.exec(content)) !== null) {
     matches.push(match[1])
   }
 
-  // console.log(`Possible classes (${matches.length}): ${matches.join(', ')}`)
+  console.log(`Possible classes (${matches.length}): ${matches.join(', ')}`)
   return {
     attributes: {
       names: [],
