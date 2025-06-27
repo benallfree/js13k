@@ -1,4 +1,4 @@
-import van from 'vanjs-core'
+import van, { State } from 'vanjs-core'
 
 // Components
 export * from './BottomTray'
@@ -13,6 +13,9 @@ export * from './ShareModal'
 export * from './Splash'
 export * from './StatusBar'
 
+// Vibescale
+export * from 'vibescale'
+
 // Utilities
 export * from './util'
 
@@ -24,3 +27,4 @@ export * from './tags'
 
 // VanJS
 export { van }
+export type { State }
