@@ -4,7 +4,7 @@ import { Car } from './Car'
 
 export const RemoteCars = () => {
   const nm = useNetManager()
-  const { otherPlayers, otherPlayerIds } = nm
+  const { remotePlayers, remotePlayerIds } = nm
 
   const container = van.tags.div()
 
@@ -13,7 +13,7 @@ export const RemoteCars = () => {
 
   // Watch for changes in otherPlayerIds and update the container
   van.derive(() => {
-    const currentPlayerIds = new Set(otherPlayerIds.val)
+    const currentPlayerIds = new Set(remotePlayerIds.val)
     const renderedIds = new Set(renderedCars.keys())
 
     // Remove cars for players who left
@@ -30,7 +30,7 @@ export const RemoteCars = () => {
     // Add cars for new players
     for (const playerId of currentPlayerIds) {
       if (!renderedIds.has(playerId)) {
-        const playerState = otherPlayers.get(playerId)
+        const playerState = remotePlayers.get(playerId)
         if (playerState) {
           const carElement = Car({ player: playerState })
           container.appendChild(carElement)

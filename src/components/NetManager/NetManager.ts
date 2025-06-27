@@ -4,6 +4,7 @@ import {
   createRoom,
   createStateChangeDetector,
   flash,
+  normalizePlayerBase,
   PlayerId,
   Room,
   RoomEventType,
@@ -17,8 +18,8 @@ export type NetManagerService = {
   room: Room<Player>
   isConnected: State<boolean>
   localPlayer: State<Player | null>
-  otherPlayers: Map<PlayerId, State<Player>>
-  otherPlayerIds: State<Set<string>>
+  remotePlayers: Map<PlayerId, State<Player>>
+  remotePlayerIds: State<Set<string>>
 }
 
 export const NetManager = () => {
@@ -40,8 +41,18 @@ export const NetManager = () => {
     stateChangeDetectorFn: createStateChangeDetector({
       positionDistance: 3,
       rotationAngle: 0.05,
+      customChecker: (currentState: Player, nextState: Player) => {
+        return currentState.points !== nextState.points || currentState.collision !== nextState.collision
+      },
     }),
     coordinateConverter,
+    normalizePlayerState: (state) => {
+      return {
+        ...normalizePlayerBase(state),
+        points: state.points || 0,
+        collision: state.collision || undefined,
+      }
+    },
   })
 
   // Connect to the room (must be called explicitly)
@@ -49,8 +60,8 @@ export const NetManager = () => {
 
   const isConnected = van.state(false)
   const localPlayer = van.state<Player | null>(room.getLocalPlayer())
-  const otherPlayers = new Map<PlayerId, State<Player>>()
-  const otherPlayerIds = van.state<Set<string>>(new Set())
+  const remotePlayers = new Map<PlayerId, State<Player>>()
+  const remotePlayerIds = van.state<Set<string>>(new Set())
 
   // Listen for connection events
   room.on(RoomEventType.Connected, ({ data }) => {
@@ -70,15 +81,15 @@ export const NetManager = () => {
       // console.log('Local player updated:', JSON.stringify(player))
       localPlayer.val = player
     } else {
-      const otherPlayer = otherPlayers.get(player.id)
+      const otherPlayer = remotePlayers.get(player.id)
       if (otherPlayer) {
         console.log('Other player updated:', player)
         otherPlayer.val = player
       } else {
         console.log('New other player:', player)
-        otherPlayers.set(player.id, van.state(player))
+        remotePlayers.set(player.id, van.state(player))
         // Trigger reactivity for player list changes
-        otherPlayerIds.val = new Set(otherPlayers.keys())
+        remotePlayerIds.val = new Set(remotePlayers.keys())
       }
     }
   }
@@ -94,8 +105,8 @@ export const NetManager = () => {
   })
 
   room.on(RoomEventType.RemotePlayerLeft, ({ data: player }) => {
-    otherPlayers.delete(player.id)
-    otherPlayerIds.val = new Set(otherPlayers.keys())
+    remotePlayers.delete(player.id)
+    remotePlayerIds.val = new Set(remotePlayers.keys())
   })
 
   room.on(RoomEventType.LocalPlayerMutated, ({ data: player }) => {
@@ -107,7 +118,13 @@ export const NetManager = () => {
     updatePlayer(player)
   })
 
-  service<NetManagerService>('net', { room, isConnected, localPlayer, otherPlayers, otherPlayerIds })
+  service<NetManagerService>('net', {
+    room,
+    isConnected,
+    localPlayer,
+    remotePlayers,
+    remotePlayerIds,
+  })
 }
 
 export const useNetManager = () => {
