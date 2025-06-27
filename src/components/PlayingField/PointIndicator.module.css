@@ -1,0 +1,54 @@
+.pointIndicator {
+  animation: floatUp 5s ease-out forwards;
+}
+
+.pointIndicator > div:first-child {
+  margin-bottom: 2px;
+}
+
+.low {
+  animation: floatUp 5s ease-out forwards;
+}
+
+.medium {
+  animation: floatUp 5s ease-out forwards;
+}
+
+.high {
+  animation: floatUp 5s ease-out forwards;
+}
+
+.critical {
+  animation: floatUpCritical 5s ease-out forwards;
+}
+
+@keyframes floatUp {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  20% {
+    transform: translateY(-10px) scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-60px) scale(0.8);
+  }
+}
+
+@keyframes floatUpCritical {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  10% {
+    transform: translateY(-5px) scale(1.3);
+  }
+  20% {
+    transform: translateY(-15px) scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-80px) scale(0.8);
+  }
+}

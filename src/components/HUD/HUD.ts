@@ -36,13 +36,14 @@ export const HUD = ({ items = [] }: { items?: HudItem[] }) => {
             {
               ...classify(flex, flexCol, gapSmall, itemsCenter),
             },
+
+            div(...items.map((item) => item({ debug: isDebugActive.val }))),
             Button({
               onClick: toggleDebug,
               variant: ButtonVariant.Secondary,
               isActive: isDebugActive.val,
               children: 'Debug',
-            }),
-            div(...items.map((item) => item({ debug: isDebugActive.val })))
+            })
           )
   )
 }

@@ -24,13 +24,29 @@ export interface IInputDevice {
   getDelta(currentPlayer: Player, state: MovementState, config: MovementConfig, deltaTime: number): MovementDelta
 }
 
+export interface CollisionResult {
+  totalPoints: number
+  breakdown: {
+    base: number
+    zone?: number
+    rotation?: number
+    zoneType?: string
+  }
+}
+
 export interface MovementControllerOptions {
   inputs: IInputDevice[]
   room: Room<Player>
   config?: Partial<MovementConfig>
+  onCollision?: (result: CollisionResult, x: number, y: number) => void
 }
 
-export const MovementController = ({ inputs, room, config: configOverride }: MovementControllerOptions) => {
+export const MovementController = ({
+  inputs,
+  room,
+  config: configOverride,
+  onCollision,
+}: MovementControllerOptions) => {
   let rafId: number | null = null
   let lastFrameTime = 0
   let movementState: MovementState = {
@@ -79,6 +95,80 @@ export const MovementController = ({ inputs, room, config: configOverride }: Mov
     const currentDistance = Math.sqrt(Math.pow(currentPos.x - otherPos.x, 2) + Math.pow(currentPos.y - otherPos.y, 2))
     const newDistance = Math.sqrt(Math.pow(newPos.x - otherPos.x, 2) + Math.pow(newPos.y - otherPos.y, 2))
     return newDistance > currentDistance
+  }
+
+  const calculateCollisionPoints = (
+    currentPlayer: Player,
+    otherPlayer: Player,
+    movementDelta: MovementDelta,
+    currentSpeed: number
+  ): CollisionResult => {
+    // Base score is speed-based (10-30 points based on speed)
+    const speedFactor = Math.min(currentSpeed / config.maxSpeed, 1)
+    const basePoints = Math.floor(10 + speedFactor * 20) // 10-30 points based on speed
+
+    // Calculate impact zone relative to victim's orientation
+    // We want the direction FROM attacker TO victim (direction of impact)
+    // atan2 gives 0° = east, but cars face north by default (0° = north)
+    // So we adjust by -π/2 to align coordinate systems
+    const impactAngle =
+      Math.atan2(otherPlayer.position.y - currentPlayer.position.y, otherPlayer.position.x - currentPlayer.position.x) -
+      Math.PI / 2
+
+    const victimRotation = otherPlayer.rotation.z
+
+    // Normalize angle difference
+    let angleDiff = impactAngle - victimRotation
+    while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI
+    while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI
+
+    // Determine impact zone
+    const absAngleDiff = Math.abs(angleDiff)
+    let zoneMultiplier = 0
+    let zoneType = ''
+
+    if (absAngleDiff < Math.PI / 4) {
+      // Front impact (0° ± 45°)
+      zoneMultiplier = 1.0
+      zoneType = 'front'
+    } else if (absAngleDiff > (3 * Math.PI) / 4) {
+      // Rear impact (180° ± 45°)
+      zoneMultiplier = 0.5
+      zoneType = 'rear'
+    } else {
+      // Side impact
+      zoneMultiplier = 0
+      zoneType = 'side'
+    }
+
+    // Zone bonus points
+    const zoneBonus = zoneMultiplier > 0 ? Math.floor(basePoints * zoneMultiplier) : 0
+
+    // Rotation bonus: 0-1x of base points based on rotation speed
+    const rotationFactor = Math.min(Math.abs(movementDelta.deltaRotation) / 1, 1) // Cap at 1 rad/s (lowered)
+    const rotationBonus = rotationFactor > 0.05 ? Math.floor(basePoints * rotationFactor) : 0 // Lowered threshold
+
+    const totalPoints = basePoints + zoneBonus + rotationBonus
+
+    // Debug logging
+    // console.log(`Collision: speed=${speedFactor.toFixed(2)} zone=${zoneType} rotation=${rotationFactor.toFixed(3)}`)
+    // console.log(
+    //   `Raw rotation: ${movementDelta.deltaRotation.toFixed(4)} rad/s (${((movementDelta.deltaRotation * 180) / Math.PI).toFixed(1)}°/s)`
+    // )
+    // console.log(
+    //   `Impact angle: ${((impactAngle * 180) / Math.PI).toFixed(1)}° Victim facing: ${((victimRotation * 180) / Math.PI).toFixed(1)}° Diff: ${((angleDiff * 180) / Math.PI).toFixed(1)}°`
+    // )
+    // console.log(`Points: base=${basePoints} ${zoneType}=${zoneBonus} rotation=${rotationBonus} total=${totalPoints}`)
+
+    return {
+      totalPoints: Math.min(totalPoints, 50),
+      breakdown: {
+        base: basePoints,
+        zone: zoneBonus > 0 ? zoneBonus : undefined,
+        rotation: rotationBonus > 0 ? rotationBonus : undefined,
+        zoneType: zoneMultiplier > 0 ? zoneType : undefined,
+      },
+    }
   }
 
   const getCombinedDelta = (currentPlayer: Player, deltaTime: number): MovementDelta => {
@@ -164,12 +254,29 @@ export const MovementController = ({ inputs, room, config: configOverride }: Mov
                 const collisionAllowed = isCollisionAllowed.get(otherPlayer.id) ?? true
 
                 if (collisionAllowed) {
+                  // Calculate collision points based on severity
+                  const collisionResult = calculateCollisionPoints(
+                    localPlayer,
+                    otherPlayer,
+                    delta,
+                    movementState.currentSpeed
+                  )
+
                   // Send collision mutation immediately - one per collision
                   room.mutateLocalPlayer((draft) => {
                     draft.collision = otherPlayer.id
+                    draft.points += collisionResult.totalPoints
+                    // console.log(`draft right inside mutator`, JSON.stringify(draft))
                   })
-                  // console.log(`Hit: ${otherPlayer.id} @ ${distance}`)
+                  // console.log(`Hit: ${otherPlayer.id} @ ${distance} (+${collisionResult.totalPoints} points)`)
                   isCollisionAllowed.set(otherPlayer.id, false)
+
+                  // Trigger point indicator at collision location
+                  if (onCollision) {
+                    const collisionX = (localPlayer.position.x + otherPlayer.position.x) / 2
+                    const collisionY = (localPlayer.position.y + otherPlayer.position.y) / 2
+                    onCollision(collisionResult, collisionX, collisionY)
+                  }
                 }
 
                 // Allow sliding - try movement in individual axes

@@ -81,12 +81,12 @@ export const NetManager = () => {
       // console.log('Local player updated:', JSON.stringify(player))
       localPlayer.val = player
     } else {
-      const otherPlayer = remotePlayers.get(player.id)
-      if (otherPlayer) {
-        console.log('Other player updated:', player)
-        otherPlayer.val = player
+      const remotePlayer = remotePlayers.get(player.id)
+      if (remotePlayer) {
+        console.log('Remote player updated:', player)
+        remotePlayer.val = player
       } else {
-        console.log('New other player:', player)
+        console.log('New remote player:', player)
         remotePlayers.set(player.id, van.state(player))
         // Trigger reactivity for player list changes
         remotePlayerIds.val = new Set(remotePlayers.keys())

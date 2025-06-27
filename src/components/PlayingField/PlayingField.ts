@@ -7,8 +7,10 @@ import {
   pointerAuto,
   relative,
   right0,
+  right14,
   right8,
   top0,
+  top55,
   zIndexHigh,
 } from '@/styles.module.css'
 import { classify, div, van } from '@van13k'
@@ -20,13 +22,19 @@ import { useSoundManager } from '../SoundManager/SoundManager'
 import { Car } from './Car'
 import { JoystickInputDevice } from './JoystickInput'
 import { KeyboardInputDevice } from './KeyboardInput'
+import { LeaderboardHudItem } from './LeaderboardHudItem'
 import { MovementController } from './MovementController'
 import { fieldContainer, parent, playingField } from './PlayingField.module.css'
+import { usePointIndicators } from './PointIndicator'
 import { RemoteCars } from './RemoteCars'
+import { ScoreDisplay } from './ScoreDisplay'
 
 export const PlayingField = () => {
   const nm = useNetManager()
   const { localPlayer, room } = nm
+
+  // Create point indicators
+  const pointIndicators = usePointIndicators()
 
   // Create input devices
   const keyboardInput = new KeyboardInputDevice()
@@ -36,6 +44,13 @@ export const PlayingField = () => {
   const controller = MovementController({
     inputs: [keyboardInput, joystickInput],
     room,
+    onCollision: (result, x: number, y: number) => {
+      // Convert from field coordinates to screen coordinates
+      // Field coordinates are centered at (0,0), but DOM is top-left origin
+      const screenX = x + 320 // 320 is half field width
+      const screenY = y + 320 // 320 is half field height
+      pointIndicators.addIndicator(result, screenX, screenY)
+    },
   })
 
   const FIELD_SIZE = 640
@@ -49,7 +64,8 @@ export const PlayingField = () => {
         style: () => `transform: scale(${scale.val});`,
       },
       Car({ player: localPlayer }),
-      RemoteCars()
+      RemoteCars(),
+      pointIndicators.component()
     )
   )
 
@@ -82,10 +98,11 @@ export const PlayingField = () => {
     div(
       { ...classify(fixed, top0, left0, p4, zIndexHigh, pointerAuto, opacity80) },
       HUD({
-        items: [NetStatusHud(), PlayerPositionHud()],
+        items: [LeaderboardHudItem(), NetStatusHud(), PlayerPositionHud()],
       })
     ),
     div({ ...classify(fixed, top0, right0, p4, zIndexHigh, pointerAuto) }, SoundManager.component()),
+    div({ ...classify(fixed, top55, right14, zIndexHigh, pointerAuto) }, ScoreDisplay()),
 
     div({ ...classify(parent) }, fieldContainerElem),
     div({ ...classify(fixed, bottom8, right8) }, joystickInput.getComponent())
