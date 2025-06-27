@@ -84,25 +84,25 @@ export const NetManager = () => {
   }
 
   // Handle player updates
-  room.on(RoomEventType.PlayerUpdated, ({ data: player }) => {
+  room.on(RoomEventType.RemotePlayerUpdated, ({ data: player }) => {
     updatePlayer(player)
   })
 
   // Handle player joins/leaves
-  room.on(RoomEventType.PlayerJoined, ({ data: player }) => {
+  room.on(RoomEventType.RemotePlayerJoined, ({ data: player }) => {
     updatePlayer(player)
   })
 
-  room.on(RoomEventType.PlayerLeft, ({ data: player }) => {
+  room.on(RoomEventType.RemotePlayerLeft, ({ data: player }) => {
     otherPlayers.delete(player.id)
     otherPlayerIds.val = new Set(otherPlayers.keys())
   })
 
-  room.on(RoomEventType.PlayerMutated, ({ data: player }) => {
+  room.on(RoomEventType.LocalPlayerMutated, ({ data: player }) => {
     updatePlayer(player)
   })
 
-  room.on(RoomEventType.AfterPlayerMutated, ({ data: player }) => {
+  room.on(RoomEventType.AfterLocalPlayerMutated, ({ data: player }) => {
     player.collision = undefined
     updatePlayer(player)
   })

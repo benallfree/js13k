@@ -165,7 +165,7 @@ export const MovementController = ({ inputs, room, config: configOverride }: Mov
 
                 if (collisionAllowed) {
                   // Send collision mutation immediately - one per collision
-                  room.mutatePlayer((draft) => {
+                  room.mutateLocalPlayer((draft) => {
                     draft.collision = otherPlayer.id
                   })
                   console.log(`Hit: ${otherPlayer.id} @ ${distance}`)
@@ -200,7 +200,7 @@ export const MovementController = ({ inputs, room, config: configOverride }: Mov
       // Update movement state
       movementState.currentSpeed = delta.newSpeed
 
-      room.mutatePlayer((draft) => {
+      room.mutateLocalPlayer((draft) => {
         draft.position.x = constrainedX
         draft.position.y = constrainedY
         draft.rotation.z = draft.rotation.z + delta.deltaRotation

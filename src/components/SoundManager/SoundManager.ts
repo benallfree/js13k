@@ -406,22 +406,22 @@ export const SoundManager = (): SoundManagerService => {
     }
 
     // Handle collision sounds from player updates
-    room.on(RoomEventType.PlayerUpdated, ({ data: player }) => {
+    room.on(RoomEventType.RemotePlayerUpdated, ({ data: player }) => {
       handleCollision(player)
     })
 
     // Handle collision sounds from player mutations
-    room.on(RoomEventType.PlayerMutated, ({ data: player }) => {
+    room.on(RoomEventType.LocalPlayerMutated, ({ data: player }) => {
       handleCollision(player)
     })
 
     // Handle player leaving
-    room.on(RoomEventType.PlayerLeft, ({ data: player }) => {
+    room.on(RoomEventType.RemotePlayerLeft, ({ data: player }) => {
       stopCarSound(player.id)
     })
 
     // Handle player joining - start their car sound
-    room.on(RoomEventType.PlayerJoined, ({ data: player }) => {
+    room.on(RoomEventType.RemotePlayerJoined, ({ data: player }) => {
       if (!isMuted.val && player.isConnected) {
         setTimeout(() => startCarSound(player.id, player.isLocal), 100)
       }
