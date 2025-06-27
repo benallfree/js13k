@@ -7,7 +7,7 @@
     "skipLibCheck": true,
 
     /* Bundler mode */
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
@@ -24,8 +24,7 @@
     "baseUrl": "src",
     "paths": {
       "@/*": ["./*"],
-      "@van13k": ["./van13k/index.ts"],
-      "@styles": ["./styles.module.css"]
+      "@van13k": ["./van13k/index.ts"]
     },
     "plugins": [
       {
