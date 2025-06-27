@@ -1,5 +1,5 @@
 import { Icon, div } from '@van13k'
-import styles from './BottomTray.module.css'
+import { bottomTray } from './BottomTray.module.css'
 
 export interface BottomTrayIconConfig {
   children: string | (() => string)
@@ -11,5 +11,5 @@ interface BottomTrayProps {
 }
 
 export const BottomTray = ({ icons }: BottomTrayProps) => {
-  return div({ class: styles.bottomTray }, ...icons.map((iconConfig) => Icon(iconConfig)))
+  return div({ class: bottomTray }, ...icons.map((iconConfig) => Icon(iconConfig)))
 }

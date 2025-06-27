@@ -1,6 +1,43 @@
-import globalStyles from '@styles'
 import { Button, ButtonVariant, classify, clickify, div, VanValue } from '@van13k'
 import van, { State } from 'vanjs-core'
+import {
+  bgGray200,
+  bgOverlay,
+  border2,
+  borderGray400,
+  borderGray500,
+  borderT,
+  bottom0,
+  fixed,
+  flex,
+  flex1,
+  flexCol,
+  fontBold,
+  gap4,
+  itemsCenter,
+  justifyCenter,
+  justifyEnd,
+  left0,
+  lineHeightNormal,
+  maxH90vh,
+  maxW600,
+  overflowHidden,
+  overflowYAuto,
+  p6,
+  pb5,
+  pointerAuto,
+  px6,
+  relative,
+  right0,
+  roundedLg,
+  shadowLg,
+  textCcc,
+  textLg,
+  textWhite,
+  top0,
+  w90vw,
+  zIndexHighest,
+} from '../styles.module.css'
 
 /**
  * Modal state management utility
@@ -65,7 +102,7 @@ export const Modal = <TOpenParams extends Record<string, any>>({
   const isOpen = van.state(false)
   const handleOutsideClick = (e: Event) => {
     const target = e.target as HTMLElement
-    if (target.classList.contains(globalStyles.bgOverlay)) {
+    if (target.classList.contains(bgOverlay)) {
       const cancelButton = buttons?.find((button) => button.variant === ButtonVariant.Cancel)
       cancelButton?.onClick?.()
       isOpen.val = false
@@ -97,62 +134,49 @@ export const Modal = <TOpenParams extends Record<string, any>>({
       return div(
         {
           ...classify(
-            globalStyles.fixed,
-            globalStyles.top0,
-            globalStyles.left0,
-            globalStyles.right0,
-            globalStyles.bottom0,
-            globalStyles.bgOverlay,
-            globalStyles.flex,
-            globalStyles.itemsCenter,
-            globalStyles.justifyCenter,
-            globalStyles.zIndexHighest,
-            globalStyles.overflowHidden,
-            globalStyles.pointerAuto
+            fixed,
+            top0,
+            left0,
+            right0,
+            bottom0,
+            bgOverlay,
+            flex,
+            itemsCenter,
+            justifyCenter,
+            zIndexHighest,
+            overflowHidden,
+            pointerAuto
           ),
           ...clickify(handleOutsideClick),
         },
         div(
           {
             ...classify(
-              globalStyles.bgGray200,
-              globalStyles.border2,
-              globalStyles.borderGray500,
-              globalStyles.roundedLg,
-              globalStyles.w90vw,
-              globalStyles.maxW600,
-              globalStyles.maxH90vh,
-              globalStyles.flex,
-              globalStyles.flexCol,
-              globalStyles.relative,
-              globalStyles.shadowLg,
-              globalStyles.overflowHidden,
-              globalStyles.pointerAuto
+              bgGray200,
+              border2,
+              borderGray500,
+              roundedLg,
+              w90vw,
+              maxW600,
+              maxH90vh,
+              flex,
+              flexCol,
+              relative,
+              shadowLg,
+              overflowHidden,
+              pointerAuto
             ),
           },
           title &&
             div(
               {
-                ...classify(
-                  globalStyles.textLg,
-                  globalStyles.fontBold,
-                  globalStyles.p6,
-                  globalStyles.pb5,
-                  globalStyles.textWhite
-                ),
+                ...classify(textLg, fontBold, p6, pb5, textWhite),
               },
               title
             ),
           div(
             {
-              ...classify(
-                globalStyles.px6,
-                globalStyles.overflowYAuto,
-                globalStyles.flex1,
-                globalStyles.textCcc,
-                globalStyles.lineHeightNormal,
-                globalStyles.pb5
-              ),
+              ...classify(px6, overflowYAuto, flex1, textCcc, lineHeightNormal, pb5),
             },
             content
           ),
@@ -160,15 +184,7 @@ export const Modal = <TOpenParams extends Record<string, any>>({
             buttons?.length &&
             div(
               {
-                ...classify(
-                  globalStyles.flex,
-                  globalStyles.gap4,
-                  globalStyles.justifyEnd,
-                  globalStyles.p6,
-                  globalStyles.borderT,
-                  globalStyles.borderGray400,
-                  globalStyles.bgGray200
-                ),
+                ...classify(flex, gap4, justifyEnd, p6, borderT, borderGray400, bgGray200),
               },
               buttons?.map((button) =>
                 Button({

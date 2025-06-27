@@ -1,5 +1,5 @@
-import styles from '@styles'
 import { ButtonVariant, classify, div, generateGuid, input, Modal, van, VanValue } from '@van13k'
+import { input as inputStyle } from '../styles.module.css'
 
 export interface InputModalProps {
   title: VanValue
@@ -44,7 +44,7 @@ export const InputModal = ({
           autofocus: true,
           placeholder,
           value: () => inputValue.val,
-          ...classify(styles.input),
+          ...classify(inputStyle),
           oninput: (e: Event) => {
             inputValue.val = (e.target as HTMLInputElement).value
           },

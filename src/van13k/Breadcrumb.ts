@@ -1,5 +1,5 @@
 import { classify, clickify, div, Link, span, VanValue } from '@van13k'
-import styles from './Breadcrumb.module.css'
+import { breadcrumb, breadcrumbTitle } from './Breadcrumb.module.css'
 
 export interface BreadcrumbItem {
   label: VanValue
@@ -13,7 +13,7 @@ export interface BreadcrumbProps {
 
 export const Breadcrumb = ({ items }: BreadcrumbProps) => {
   return div(
-    { class: styles.breadcrumb },
+    { class: breadcrumb },
     ...items.flatMap((item, index) => {
       const elements = []
 
@@ -36,7 +36,7 @@ export const Breadcrumb = ({ items }: BreadcrumbProps) => {
         elements.push(
           span(
             {
-              ...classify(styles.breadcrumbTitle),
+              ...classify(breadcrumbTitle),
               ...clickify(item.onClick),
             },
             item.label

@@ -47,6 +47,10 @@
   position: relative;
 }
 
+.absolute {
+  position: absolute;
+}
+
 .top0 {
   top: 0;
 }
@@ -55,12 +59,32 @@
   top: -100%;
 }
 
+.top32 {
+  top: 32px;
+}
+
+.top55 {
+  top: 55px;
+}
+
 .left0 {
   left: 0;
 }
 
 .right0 {
   right: 0;
+}
+
+.left8 {
+  left: 8px;
+}
+
+.right8 {
+  right: 8px;
+}
+
+.right14 {
+  right: 14px;
 }
 
 .bottom0 {
@@ -185,6 +209,10 @@
 
 .lineHeightNormal {
   line-height: 1.4;
+}
+
+.opacity80 {
+  opacity: 0.8;
 }
 
 /* Spacing */
@@ -641,5 +669,154 @@
 }
 
 .transitionSlow {
-  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s ease;
+}
+
+/* Transform Utilities */
+.transform {
+  transform-origin: center;
+  will-change: transform;
+}
+
+.bottom8 {
+  bottom: 2rem;
+}
+
+.left8 {
+  left: 2rem;
+}
+
+.z10 {
+  z-index: 10;
+}
+
+.w30 {
+  width: 30px;
+}
+
+.h15 {
+  height: 15px;
+}
+
+.inline {
+  display: inline-block;
+}
+
+.alignTop {
+  vertical-align: top;
+}
+
+.mr1 {
+  margin-right: 4px;
+}
+
+.mr3 {
+  margin-right: 12px;
+}
+
+.ml1 {
+  margin-left: 4px;
+}
+
+.ml2 {
+  margin-left: 8px;
+}
+
+.roundedSm {
+  border-radius: 2px;
+}
+
+.minW20 {
+  min-width: 20px;
+}
+
+.minW50 {
+  min-width: 50px;
+}
+
+/* Additional utilities extracted from component modules */
+
+/* Opacity utilities */
+.opacity90 {
+  opacity: 0.9;
+}
+
+/* Line height utilities */
+.lineHeight12 {
+  line-height: 1.2;
+}
+
+/* Color utilities */
+.textYellowBright {
+  color: #ffeb3b;
+}
+
+.textOrange {
+  color: #ff9800;
+}
+
+.textRed {
+  color: #f44336;
+}
+
+.textPink {
+  color: #e91e63;
+}
+
+.textGreen {
+  color: #4caf50;
+}
+
+.textGrayLight {
+  color: #aaa;
+}
+
+/* Font size utilities */
+.text16 {
+  font-size: 16px;
+}
+
+.text22 {
+  font-size: 22px;
+}
+
+.text24 {
+  font-size: 24px;
+}
+
+/* Text shadow utilities */
+.textShadowDark {
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.textShadowRedGlow {
+  text-shadow: 0 0 8px rgba(244, 67, 54, 0.6);
+}
+
+.textShadowPinkGlow {
+  text-shadow: 0 0 12px rgba(233, 30, 99, 0.8);
+}
+
+.textShadowGreenGlow {
+  text-shadow: 0 0 4px rgba(76, 175, 80, 0.4);
+}
+
+/* Min-width utilities */
+.minW100 {
+  min-width: 100px;
+}
+
+/* Background with specific opacity */
+.bgBlackAlpha80 {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+/* Border color utilities */
+.borderGray333 {
+  border-color: #333;
+}
+
+/* Padding utilities for custom combinations */
+.px4py3 {
+  padding: 12px 16px;
 }
