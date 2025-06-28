@@ -1,6 +1,7 @@
-import { Home } from './components/Home'
-import './global.css'
+import van from 'vanjs-core'
+
+const { div } = van.tags
 
 export const App = () => {
-  return Home()
+  return div(`So empty`)
 }
