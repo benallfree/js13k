@@ -1,6 +1,6 @@
 # Van13k - the js13k Starter Kit 🚀
 
-## 📊 Build size <!-- BYTES -->3941
+## 📊 Build size <!-- BYTES -->2655
 
 
 A **2.6k** production-ready starter template for js13k game development featuring modern tooling, aggressive optimization, real-time size monitoring, and a comprehensive UI component library.
