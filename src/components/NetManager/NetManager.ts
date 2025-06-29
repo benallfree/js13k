@@ -1,6 +1,7 @@
 import { Player } from '@/types'
 import {
   createCoordinateConverter,
+  createHook,
   createRoom,
   createStateChangeDetector,
   flash,
@@ -15,6 +16,14 @@ import {
 } from '@van13k'
 
 export type NetManagerService = {
+  room: Room<Player>
+  isConnected: State<boolean>
+  localPlayer: State<Player | null>
+  remotePlayers: Map<PlayerId, State<Player>>
+  remotePlayerIds: State<Set<string>>
+}
+
+export type INetManager = {
   room: Room<Player>
   isConnected: State<boolean>
   localPlayer: State<Player | null>
@@ -118,7 +127,7 @@ export const NetManager = () => {
     updatePlayer(player)
   })
 
-  service<NetManagerService>('net', {
+  service<INetManager>('netManager', {
     room,
     isConnected,
     localPlayer,
@@ -127,7 +136,4 @@ export const NetManager = () => {
   })
 }
 
-export const useNetManager = () => {
-  const netManager = service<NetManagerService>('net')
-  return netManager
-}
+export const useNetManager = createHook<INetManager>('netManager')

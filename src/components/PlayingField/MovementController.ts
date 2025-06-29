@@ -1,6 +1,9 @@
 import { Player } from '@/types'
-import { Room } from '@van13k'
+import { Room, VanJsComponent } from '@van13k'
 
+export type IDeviceUI = {
+  getComponent: VanJsComponent
+}
 export interface MovementConfig {
   maxSpeed: number // 600 px/s (unified)
   acceleration: number // 1200 px/s²
@@ -333,8 +336,4 @@ export const MovementController = ({
   }
 
   startRafLoop()
-
-  return {
-    stop,
-  }
 }

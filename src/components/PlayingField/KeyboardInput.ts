@@ -1,57 +1,41 @@
 import { Player } from '@/types'
+import { createHook, service } from '@/van13k'
 import { IInputDevice, MovementConfig, MovementDelta, MovementState } from './MovementController'
 
-export class KeyboardInputDevice implements IInputDevice {
-  private pressedKeys = new Set<string>()
-  private isListening = false
+export type IKeyboardInputDevice = IInputDevice
 
-  constructor() {
-    this.start()
-  }
+export const KeyboardInputDevice = () => {
+  const pressedKeys = new Set<string>()
 
-  start() {
-    if (this.isListening) return
-    this.isListening = true
-
-    window.addEventListener('keydown', this.handleKeyDown.bind(this))
-    window.addEventListener('keyup', this.handleKeyUp.bind(this))
-  }
-
-  stop() {
-    if (!this.isListening) return
-    this.isListening = false
-
-    window.removeEventListener('keydown', this.handleKeyDown.bind(this))
-    window.removeEventListener('keyup', this.handleKeyUp.bind(this))
-
-    this.pressedKeys.clear()
-  }
-
-  private handleKeyDown(event: KeyboardEvent) {
+  window.addEventListener('keydown', (event: KeyboardEvent) => {
     const key = event.key.toLowerCase()
-    if (this.isValidKey(key)) {
-      this.pressedKeys.add(key)
+    if (isValidKey(key)) {
+      pressedKeys.add(key)
     }
-  }
-
-  private handleKeyUp(event: KeyboardEvent) {
+  })
+  window.addEventListener('keyup', (event: KeyboardEvent) => {
     const key = event.key.toLowerCase()
-    this.pressedKeys.delete(key)
-  }
+    pressedKeys.delete(key)
+  })
 
-  private isValidKey(key: string): boolean {
+  const isValidKey = (key: string): boolean => {
     return ['w', 's', 'a', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(key)
   }
 
-  getDelta(currentPlayer: Player, state: MovementState, config: MovementConfig, deltaTime: number): MovementDelta {
+  const getDelta = (
+    currentPlayer: Player,
+    state: MovementState,
+    config: MovementConfig,
+    deltaTime: number
+  ): MovementDelta => {
     let deltaX = 0
     let deltaY = 0
     let deltaRotation = 0
     let newSpeed = state.currentSpeed
 
     // Handle speed buildup/decay
-    const isAccelerating = this.pressedKeys.has('w') || this.pressedKeys.has('arrowup')
-    const isReversing = this.pressedKeys.has('s') || this.pressedKeys.has('arrowdown')
+    const isAccelerating = pressedKeys.has('w') || pressedKeys.has('arrowup')
+    const isReversing = pressedKeys.has('s') || pressedKeys.has('arrowdown')
 
     if (isAccelerating) {
       // Build up forward speed
@@ -75,11 +59,11 @@ export class KeyboardInputDevice implements IInputDevice {
     }
 
     // Handle rotation - works both when moving and when stationary (turning in place)
-    if (this.pressedKeys.has('a') || this.pressedKeys.has('arrowleft')) {
+    if (pressedKeys.has('a') || pressedKeys.has('arrowleft')) {
       deltaRotation -= config.maxRotationSpeed * deltaTime
     }
 
-    if (this.pressedKeys.has('d') || this.pressedKeys.has('arrowright')) {
+    if (pressedKeys.has('d') || pressedKeys.has('arrowright')) {
       deltaRotation += config.maxRotationSpeed * deltaTime
     }
 
@@ -90,4 +74,10 @@ export class KeyboardInputDevice implements IInputDevice {
       newSpeed,
     }
   }
+
+  service<IKeyboardInputDevice>('keyboardInput', {
+    getDelta,
+  })
 }
+
+export const useKeyboardInput = createHook<IKeyboardInputDevice>('keyboardInput')

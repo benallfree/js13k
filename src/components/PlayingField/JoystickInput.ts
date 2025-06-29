@@ -1,23 +1,23 @@
 import { Player } from '@/types'
-import { classify, div, van } from '@van13k'
+import { classify, createHook, div, service, van } from '@van13k'
 import { joystickActive, joystickContainer, joystickKnob } from './JoystickInput.module.css'
-import { IInputDevice, MovementConfig, MovementDelta, MovementState } from './MovementController'
+import { IDeviceUI, IInputDevice, MovementConfig, MovementDelta, MovementState } from './MovementController'
 
-export class JoystickInputDevice implements IInputDevice {
-  private currentInput = van.state({ force: 0, radians: 0 })
-  private centerX = 0
-  private centerY = 0
-  private readonly maxRadius = 40
-  private readonly isActive = van.state(false)
+export type IJoystickInputDevice = IInputDevice & IDeviceUI
 
-  constructor() {}
+export const JoystickInputDevice = () => {
+  const currentInput = van.state({ force: 0, radians: 0 })
+  let centerX = 0
+  let centerY = 0
+  const maxRadius = 40
+  const isActive = van.state(false)
 
-  private updateInputFromPosition = (clientX: number, clientY: number) => {
-    const deltaX = clientX - this.centerX
-    const deltaY = clientY - this.centerY
+  const updateInputFromPosition = (clientX: number, clientY: number) => {
+    const deltaX = clientX - centerX
+    const deltaY = clientY - centerY
     const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY)
-    const constrainedDistance = Math.min(distance, this.maxRadius)
-    const force = constrainedDistance / this.maxRadius
+    const constrainedDistance = Math.min(distance, maxRadius)
+    const force = constrainedDistance / maxRadius
 
     // Calculate angle: 0 = North, π/2 = East, π = South, 3π/2 = West
     // atan2(deltaX, -deltaY) gives us the correct orientation
@@ -28,39 +28,44 @@ export class JoystickInputDevice implements IInputDevice {
       radians += 2 * Math.PI
     }
 
-    this.currentInput.val = { force, radians }
+    currentInput.val = { force, radians }
   }
 
-  private handlePointerDown = (event: PointerEvent) => {
+  const handlePointerDown = (event: PointerEvent) => {
     const element = event.currentTarget as HTMLElement
-    this.isActive.val = true
+    isActive.val = true
     element.setPointerCapture(event.pointerId)
 
     const rect = element.getBoundingClientRect()
-    this.centerX = rect.left + rect.width / 2
-    this.centerY = rect.top + rect.height / 2
+    centerX = rect.left + rect.width / 2
+    centerY = rect.top + rect.height / 2
 
-    this.updateInputFromPosition(event.clientX, event.clientY)
+    updateInputFromPosition(event.clientX, event.clientY)
     event.preventDefault()
   }
 
-  private handlePointerMove = (event: PointerEvent) => {
-    if (!this.isActive.val) return
-    this.updateInputFromPosition(event.clientX, event.clientY)
+  const handlePointerMove = (event: PointerEvent) => {
+    if (!isActive.val) return
+    updateInputFromPosition(event.clientX, event.clientY)
     event.preventDefault()
   }
 
-  private handlePointerUp = (event: PointerEvent) => {
-    if (!this.isActive.val) return
+  const handlePointerUp = (event: PointerEvent) => {
+    if (!isActive.val) return
     const element = event.currentTarget as HTMLElement
-    this.isActive.val = false
+    isActive.val = false
     element.releasePointerCapture(event.pointerId)
-    this.currentInput.val = { force: 0, radians: 0 }
+    currentInput.val = { force: 0, radians: 0 }
     event.preventDefault()
   }
 
-  getDelta(currentPlayer: Player, state: MovementState, config: MovementConfig, deltaTime: number): MovementDelta {
-    const input = this.currentInput.val
+  const getDelta = (
+    currentPlayer: Player,
+    state: MovementState,
+    config: MovementConfig,
+    deltaTime: number
+  ): MovementDelta => {
+    const input = currentInput.val
     let deltaX = 0
     let deltaY = 0
     let deltaRotation = 0
@@ -113,25 +118,32 @@ export class JoystickInputDevice implements IInputDevice {
     }
   }
 
-  getComponent = () =>
+  const getComponent = () =>
     div(
       {
-        ...classify(joystickContainer, () => (this.isActive.val ? joystickActive : '')),
-        onpointerdown: this.handlePointerDown,
-        onpointermove: this.handlePointerMove,
-        onpointerup: this.handlePointerUp,
-        onpointercancel: this.handlePointerUp,
+        ...classify(joystickContainer, () => (isActive.val ? joystickActive : '')),
+        onpointerdown: handlePointerDown,
+        onpointermove: handlePointerMove,
+        onpointerup: handlePointerUp,
+        onpointercancel: handlePointerUp,
       },
       div({
         ...classify(joystickKnob),
         style: () => {
-          const x = Math.sin(this.currentInput.val.radians) * this.currentInput.val.force * this.maxRadius
-          const y = -Math.cos(this.currentInput.val.radians) * this.currentInput.val.force * this.maxRadius
+          const x = Math.sin(currentInput.val.radians) * currentInput.val.force * maxRadius
+          const y = -Math.cos(currentInput.val.radians) * currentInput.val.force * maxRadius
 
-          return this.currentInput.val.force === 0
+          return currentInput.val.force === 0
             ? `transform: translate(-50%, -50%);`
             : `transform: translate(calc(-50% + ${x}px), calc(-50% + ${y}px));`
         },
       })
     )
+
+  service<IJoystickInputDevice>('joystickInput', {
+    getComponent,
+    getDelta,
+  })
 }
+
+export const useJoystickInput = createHook<IJoystickInputDevice>('joystickInput')

@@ -1,11 +1,11 @@
 import { Player } from '@/types'
-import { Button, ButtonVariant, div, RoomEventType, service, State, van, VanJsComponent } from '@van13k'
+import { Button, ButtonVariant, createHook, div, RoomEventType, service, State, van, VanJsComponent } from '@van13k'
 import { useNetManager } from '../NetManager/NetManager'
 
 export type SoundManagerService = {
   playCollisionSound: () => void
   isMuted: State<boolean>
-  component: VanJsComponent
+  getComponent: VanJsComponent
 }
 
 type CarTrackingData = {
@@ -407,7 +407,7 @@ export const SoundManager = (): SoundManagerService => {
   })
 
   // Return UI component
-  const component = () =>
+  const getComponent = () =>
     div(() =>
       Button({
         onClick: toggleMute,
@@ -420,7 +420,7 @@ export const SoundManager = (): SoundManagerService => {
   const soundService: SoundManagerService = {
     playCollisionSound,
     isMuted,
-    component,
+    getComponent,
   }
 
   service<SoundManagerService>('sound', soundService)
@@ -428,10 +428,4 @@ export const SoundManager = (): SoundManagerService => {
   return soundService
 }
 
-export const useSoundManager = () => {
-  const soundManager = service<SoundManagerService>('sound')
-  if (!soundManager) {
-    throw new Error('SoundManager not found')
-  }
-  return soundManager
-}
+export const useSoundManager = createHook<SoundManagerService>('sound')

@@ -20,8 +20,8 @@ import { NetStatusHud } from '../NetManager/NetStatusHud'
 import { PlayerPositionHud } from '../NetManager/PlayerPositionHud'
 import { useSoundManager } from '../SoundManager/SoundManager'
 import { Car } from './Car'
-import { JoystickInputDevice } from './JoystickInput'
-import { KeyboardInputDevice } from './KeyboardInput'
+import { useJoystickInput } from './JoystickInput'
+import { useKeyboardInput } from './KeyboardInput'
 import { LeaderboardHudItem } from './LeaderboardHudItem'
 import { MovementController } from './MovementController'
 import { fieldContainer, parent, playingField } from './PlayingField.module.css'
@@ -37,8 +37,8 @@ export const PlayingField = () => {
   const pointIndicators = usePointIndicators()
 
   // Create input devices
-  const keyboardInput = new KeyboardInputDevice()
-  const joystickInput = new JoystickInputDevice()
+  const keyboardInput = useKeyboardInput()
+  const joystickInput = useJoystickInput()
 
   // Create movement controller with both input devices
   const controller = MovementController({
@@ -101,7 +101,7 @@ export const PlayingField = () => {
         items: [LeaderboardHudItem(), NetStatusHud(), PlayerPositionHud()],
       })
     ),
-    div({ ...classify(fixed, top0, right0, p4, zIndexHigh, pointerAuto) }, SoundManager.component()),
+    div({ ...classify(fixed, top0, right0, p4, zIndexHigh, pointerAuto) }, SoundManager.getComponent()),
     div({ ...classify(fixed, top55, right14, zIndexHigh, pointerAuto) }, ScoreDisplay()),
 
     div({ ...classify(parent) }, fieldContainerElem),
