@@ -14,7 +14,7 @@ type CarTrackingData = {
   rumbleOscillator: OscillatorNode
   gainNode: GainNode
   rumbleGain: GainNode
-  pannerNode?: PannerNode // Only for remote cars
+  stereoPannerNode?: StereoPannerNode // Only for remote cars
 
   // Movement tracking
   lastPosition: { x: number; y: number }
@@ -54,18 +54,6 @@ export const SoundManager = (): SoundManagerService => {
   const getAudioContext = (): AudioContext | null => {
     if (!audioContext && !isMuted.val) {
       audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
-      // Set up spatial audio listener
-      if (audioContext.listener) {
-        audioContext.listener.positionX?.setValueAtTime(0, audioContext.currentTime)
-        audioContext.listener.positionY?.setValueAtTime(0, audioContext.currentTime)
-        audioContext.listener.positionZ?.setValueAtTime(0, audioContext.currentTime)
-        audioContext.listener.forwardX?.setValueAtTime(0, audioContext.currentTime)
-        audioContext.listener.forwardY?.setValueAtTime(-1, audioContext.currentTime)
-        audioContext.listener.forwardZ?.setValueAtTime(0, audioContext.currentTime)
-        audioContext.listener.upX?.setValueAtTime(0, audioContext.currentTime)
-        audioContext.listener.upY?.setValueAtTime(0, audioContext.currentTime)
-        audioContext.listener.upZ?.setValueAtTime(1, audioContext.currentTime)
-      }
     }
     return audioContext
   }
@@ -144,7 +132,7 @@ export const SoundManager = (): SoundManagerService => {
     const rumbleOscillator = ctx.createOscillator()
     const gainNode = ctx.createGain()
     const rumbleGain = ctx.createGain()
-    let pannerNode: PannerNode | undefined
+    let stereoPannerNode: StereoPannerNode | undefined
 
     // Set up audio routing
     if (isLocal) {
@@ -154,19 +142,14 @@ export const SoundManager = (): SoundManagerService => {
       rumbleGain.connect(gainNode.gain) // Modulate main volume
       gainNode.connect(ctx.destination)
     } else {
-      // Remote car: spatial audio
-      pannerNode = ctx.createPanner()
-      pannerNode.panningModel = 'HRTF'
-      pannerNode.distanceModel = 'exponential'
-      pannerNode.refDistance = 100
-      pannerNode.maxDistance = 1000
-      pannerNode.rolloffFactor = 2
+      // Remote car: stereo panning
+      stereoPannerNode = ctx.createStereoPanner()
 
       oscillator.connect(gainNode)
       rumbleOscillator.connect(rumbleGain)
       rumbleGain.connect(gainNode.gain)
-      gainNode.connect(pannerNode)
-      pannerNode.connect(ctx.destination)
+      gainNode.connect(stereoPannerNode)
+      stereoPannerNode.connect(ctx.destination)
     }
 
     oscillator.type = 'sawtooth'
@@ -189,7 +172,7 @@ export const SoundManager = (): SoundManagerService => {
       rumbleOscillator,
       gainNode,
       rumbleGain,
-      pannerNode,
+      stereoPannerNode,
       lastPosition: initialPosition,
       lastUpdateTime: performance.now(),
       currentSpeed: 0,
@@ -250,14 +233,9 @@ export const SoundManager = (): SoundManagerService => {
     const allPlayers = room.getAllPlayers()
     const localPlayer = room.getLocalPlayer()
 
-    // Update listener position based on local player
+    // Update listener position for reference (not used in stereo panning)
     if (localPlayer) {
       listenerPosition = localPlayer.position
-      const ctx = getAudioContext()
-      if (ctx && ctx.listener) {
-        ctx.listener.positionX?.setValueAtTime(localPlayer.position.x * 0.01, ctx.currentTime)
-        ctx.listener.positionZ?.setValueAtTime(-localPlayer.position.y * 0.01, ctx.currentTime)
-      }
     }
 
     // Track all connected players
@@ -294,16 +272,16 @@ export const SoundManager = (): SoundManagerService => {
         car.lastUpdateTime = currentTime
       }
 
-      // Update spatial position for remote cars
-      if (!player.isLocal && car.pannerNode) {
-        const relativeX = player.position.x - listenerPosition.x
-        const relativeY = player.position.y - listenerPosition.y
-
+      // Update stereo panning for remote cars
+      if (!player.isLocal && car.stereoPannerNode) {
         const ctx = getAudioContext()
         if (ctx) {
-          car.pannerNode.positionX?.setValueAtTime(relativeX * 0.01, ctx.currentTime)
-          car.pannerNode.positionY?.setValueAtTime(0, ctx.currentTime)
-          car.pannerNode.positionZ?.setValueAtTime(-relativeY * 0.01, ctx.currentTime)
+          // Map game coordinates (-320 to +320) to a more subtle pan range (-0.6 to +0.6)
+          const normalizedX = player.position.x / 320 // -1 to +1
+          const panValue = Math.max(-0.6, Math.min(0.6, normalizedX * 0.6))
+
+          // Use smooth transitions to avoid abrupt panning
+          car.stereoPannerNode.pan.linearRampToValueAtTime(panValue, ctx.currentTime + 0.05)
         }
       }
     }
