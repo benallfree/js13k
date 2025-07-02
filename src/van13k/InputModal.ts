@@ -1,5 +1,5 @@
+import { input as inputStyle } from '@/styles.module.css'
 import { ButtonVariant, classify, div, generateGuid, input, Modal, van, VanValue } from '@van13k'
-import { input as inputStyle } from '../styles.module.css'
 
 export interface InputModalProps {
   title: VanValue
