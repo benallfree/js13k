@@ -2,8 +2,8 @@ import { Splash } from '@van13k'
 
 export const SplashPage = () => {
   return Splash({
-    title: 'Van13k Starter',
-    storageKey: 'van13k-splash-dismissed',
+    title: 'Fabletop',
+    storageKey: 'fabletop-splash-dismissed',
     sections: [
       {
         title: 'Features',
