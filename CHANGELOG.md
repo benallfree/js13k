@@ -1,5 +1,20 @@
 # van13k
 
+## 0.2.0
+
+### Minor Changes
+
+- 2a6098c: Introduce @van13k pathing
+
+### Patch Changes
+
+- 8c0899d: Update to vibescale@3.0.0
+- e6653ad: Update build scripts & CSS shaker
+- 01fc712: Remove VSCode snippets
+- 67b2891: Enhance index.ts by importing State from vanjs-core and exporting vibescale, along with the State type
+- 7dfda3b: Refactor type definitions in classify.ts to improve component and attribute handling
+- c132917: Update cursor rules
+
 ## 0.1.0
 
 ### Minor Changes
