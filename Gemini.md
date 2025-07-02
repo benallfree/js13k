@@ -45,7 +45,7 @@ The project uses `van.js`, a minimal reactive framework, and a custom UI compone
 - **Imports:** Use path aliases for clean imports:
   - `@/` for `src/`
   - `@van13k` for `src/van13k/index.ts`
-- **Styling:** Use CSS Modules for component-level styling. The `classify()` utility from `@van13k` should be used for composing class names.
+- **Styling:** Use CSS Modules for component-level styling. The `classify()` utility from `@van13k` should be used for composing class names. A global utility stylesheet is located at `src/styles.module.css` and provides a set of reusable utility classes for layout, typography, and more. When appropriate, prefer using these utility classes over creating new component-specific styles.
 - **State Management:** Use `van.state()` for reactive state.
 - **Components:** Follow the structure of existing components in `src/van13k`.
 
