@@ -20,6 +20,7 @@
     "strictNullChecks": true,
 
     "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
 
     "baseUrl": "src",
     "paths": {
