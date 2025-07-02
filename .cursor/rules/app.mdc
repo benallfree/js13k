@@ -3,34 +3,6 @@ description:
 globs: 
 alwaysApply: true
 ---
-# Overview
-
-* this is a JS13K game and must be approached as minimally as possible when writing code
-* Do NOT run the application
-* We are using Bun
-
-# Tool/cli rules
-
-* Never git commit
-* Never start a server
-
-# VanJS Rules
-
-* Van.js
-* VanJS State Reactivity: Whenever you reference `.val` of a state variable, the enclosing function will automatically re-execute when that state changes. This can cause bugs where initialization functions run repeatedly. To limit the re-rendering scope, wrap state access in a nested function - this confines the reactivity to just that inner function rather than the entire enclosing function.
-* Vanjs-routing (@router)
+Always read [llm.md](mdc:llm.md) and [llm.md](mdc:src/van13k/llm.md) first.
 
 
-# CSS Rules
-
-* Use CSS modules always. 
-* Always use named imports
-* never use inline styles unless they are dynamic
-* Utility classes should be used and added to [styles.module.css](mdc:src/styles.module.css).
-* Import [styles.module.css](mdc:src/styles.module.css) as `@/styles.module.css`
-* Component-specific styling which cannot be generalized should be added to a CSS module at the component level
-* [styles.module.css](mdc:src/styles.module.css) should be for utility classes only. For all else, use custom css modules 
-* Always use [classify.ts](mdc:src/van13k/util/classify.ts). Never use raw `class` attributes.
-
-# Helpers
-* We have a [classify.ts](mdc:src/van13k/util/classify.ts) that returns { class: ... }. Use only CSS Module symbols in classify() 
