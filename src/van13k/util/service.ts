@@ -4,5 +4,11 @@ export const service = <TService>(name: string, setter?: TService): TService => 
     services.set(name, setter)
   }
 
-  return services.get(name) as TService
+  const service = services.get(name)
+
+  if (!service) {
+    throw new Error(`Service ${name} not found`)
+  }
+
+  return service
 }

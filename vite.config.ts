@@ -1,4 +1,5 @@
 import { cloudflare } from '@cloudflare/vite-plugin'
+import tailwindcss from '@tailwindcss/vite'
 import { defineConfig } from 'vite'
 import { optimizeCssModules } from 'vite-plugin-optimize-css-modules'
 import tsconfigPaths from 'vite-tsconfig-paths'
@@ -43,5 +44,5 @@ export default defineConfig({
       },
     },
   },
-  plugins: [tsconfigPaths(), optimizeCssModules(), cloudflare()],
+  plugins: [tailwindcss(), tsconfigPaths(), optimizeCssModules(), cloudflare()],
 })

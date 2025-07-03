@@ -1,4 +1,4 @@
-@import './reset.css';
+@import 'tailwindcss';
 body {
   font-family: monospace;
   background: #111;

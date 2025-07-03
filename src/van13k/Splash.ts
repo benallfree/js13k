@@ -1,24 +1,24 @@
-import { Button, ButtonVariant, Modal, classify, div, h1, h2, p, van } from '@van13k'
 import {
-  fixed,
   maxW600,
   mb5,
   mb7,
   mxAuto,
   my5,
   p5,
-  pointerAuto,
-  right0,
   text3xl,
   textCcc,
   textCenter,
   textLeft,
   textPrimary,
-  top0,
-  zIndexHigh,
-} from '../styles.module.css'
+} from '@/styles.module.css'
+import { ButtonVariant, Icon, Modal, classify, div, h1, h2, p, service, van } from '@van13k'
 
 import { content } from './Splash.module.css'
+
+export type SplashService = {
+  modal: () => ReturnType<typeof Modal>
+  icon: () => ReturnType<typeof Icon>
+}
 
 export interface SplashProps {
   title: string
@@ -28,7 +28,7 @@ export interface SplashProps {
   }[]
   storageKey?: string
   primaryButtonText?: string
-  helpButtonText?: string
+  splashIcon?: string
 }
 
 export const Splash = ({
@@ -36,7 +36,7 @@ export const Splash = ({
   sections,
   storageKey = 'splash-dismissed',
   primaryButtonText = 'Get Started',
-  helpButtonText = '?',
+  splashIcon = '💡',
 }: SplashProps) => {
   const isOpen = van.state(!localStorage.getItem(storageKey))
 
@@ -46,19 +46,12 @@ export const Splash = ({
     SplashModal.close()
   }
 
-  const HelpButton = () =>
-    div(
-      {
-        ...classify(fixed, top0, right0, p5, pointerAuto, zIndexHigh),
-      },
-      Button({
-        onClick: () => {
-          SplashModal.open()
-        },
-        variant: ButtonVariant.Secondary,
-        children: helpButtonText,
-      })
-    )
+  const SplashIcon = Icon({
+    onClick: () => {
+      SplashModal.open()
+    },
+    children: splashIcon,
+  })
 
   const SplashModal = Modal({
     content: () =>
@@ -87,5 +80,16 @@ export const Splash = ({
     ],
   })
 
-  return div(HelpButton(), SplashModal())
+  const api: SplashService = {
+    modal: () => SplashModal,
+    icon: () => SplashIcon,
+  }
+
+  service<SplashService>(`splash`, api)
+
+  return api
+}
+
+export const useSplash = () => {
+  return service<SplashService>(`splash`)
 }
