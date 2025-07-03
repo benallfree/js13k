@@ -1,4 +1,4 @@
-import { div, Icon, useSplash } from '@van13k'
+import { a, div, Icon, useSplash } from '@van13k'
 import { HostModal } from './HostModal'
 import { JoinModal } from './JoinModal'
 
@@ -19,7 +19,7 @@ export const Layout = (...children: HTMLElement[]) => {
   return div(
     div(
       { class: 'flex justify-between items-center m-2' },
-      div({ class: 'flex-shrink-0' }, '🎲 Fabletop 🎲'),
+      div({ class: 'flex-shrink-0' }, a({ href: '/' }, '🎲 Fabletop 🎲')),
       div(
         { class: 'flex gap-2 flex-shrink-0' },
         Icon({ onClick: showHostUI, children: '🏠' }),
