@@ -4,13 +4,28 @@ import { _routerBasename, _routerParams, _routerPathname, _routerQuery } from '.
 
 const _PATH_PARAM_REGEX = /:([^\\d|^/]([^/]+)?)(\*)?/
 
-export interface Route {
+// Extract parameter names from path string
+export type ExtractRouteParams<T extends string> = T extends `${infer _Start}:${infer Param}/${infer Rest}`
+  ? { [K in Param | keyof ExtractRouteParams<`/${Rest}`>]: string }
+  : T extends `${infer _Start}:${infer Param}`
+    ? { [K in Param]: string }
+    : {}
+
+export interface RouteConfig {
   path: string | '*'
-  component: () => HTMLElement
+  component: (params: Record<string, string>) => HTMLElement
+}
+
+// Helper function for type-safe route creation
+export function Route<TPath extends string>(
+  path: TPath,
+  component: (params: ExtractRouteParams<TPath>) => HTMLElement
+): RouteConfig {
+  return { path, component: component as any }
 }
 
 export interface RouterProps extends Partial<HTMLDivElement> {
-  routes: Route[]
+  routes: RouteConfig[]
   basename?: string
 }
 
@@ -38,7 +53,7 @@ export function Router({ routes, basename, ...props }: RouterProps) {
 
     const pathParts = path.split('/')
     const params: Record<string, string> = {}
-    let matchedRoute: Route | null = null
+    let matchedRoute: RouteConfig | null = null
 
     for (const route of routes) {
       const routePathParts = sanitizePath(basename + route.path).split('/')
@@ -101,7 +116,7 @@ export function Router({ routes, basename, ...props }: RouterProps) {
     const { route, params } = routeMatcher(window.location.pathname, basename || '')
 
     if (route) {
-      rootElement.replaceChildren(route.component())
+      rootElement.replaceChildren(route.component(params))
       _routerQuery.val = parseQuery(window.location.search)
       _routerParams.val = params
     }
