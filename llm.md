@@ -25,6 +25,7 @@ The project uses `van.js`, a minimal reactive framework, and a custom UI compone
 - **Never git commit**
 - **Never start a server** (Do NOT run the application)
 - Use Bun as the package manager
+- **Build command:** Always use `bun run build`, never `bun build`
 
 ## Project Structure
 
