@@ -2,10 +2,15 @@ import { cloudflare } from '@cloudflare/vite-plugin'
 import tailwindcss from '@tailwindcss/vite'
 import { defineConfig } from 'vite'
 import { optimizeCssModules } from 'vite-plugin-optimize-css-modules'
+import { qrcode } from 'vite-plugin-qrcode'
 import tsconfigPaths from 'vite-tsconfig-paths'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  server: {
+    host: '0.0.0.0', // Bind to all network interfaces
+    port: 5173, // Default Vite port (optional)
+  },
   build: {
     minify: 'terser',
     modulePreload: {
@@ -44,5 +49,5 @@ export default defineConfig({
       },
     },
   },
-  plugins: [tailwindcss(), tsconfigPaths(), optimizeCssModules(), cloudflare()],
+  plugins: [tailwindcss(), tsconfigPaths(), optimizeCssModules(), qrcode(), cloudflare()],
 })

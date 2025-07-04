@@ -42,6 +42,7 @@
     "vite": "^6.3.5",
     "vite-bundle-visualizer": "^1.2.1",
     "vite-plugin-optimize-css-modules": "^1.2.0",
+    "vite-plugin-qrcode": "^0.3.0",
     "vite-tsconfig-paths": "^5.1.4",
     "wrangler": "^4.20.4"
   },
@@ -57,6 +58,8 @@
     ]
   },
   "dependencies": {
-    "qrcode-generator": "^2.0.2"
+    "@types/qs": "^6.14.0",
+    "qrcode-generator": "^2.0.2",
+    "qs": "^6.14.0"
   }
 }
