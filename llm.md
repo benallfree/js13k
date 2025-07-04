@@ -16,6 +16,7 @@ The project uses `van.js`, a minimal reactive framework, and a custom UI compone
 - **Language:** TypeScript
 - **Package Manager:** bun
 - **Build Tool:** Vite
+- **Realtime Multiplayer:** vibescale (https://npmjs.com/vibescale) - TypeScript client for multiplayer games with real-time state synchronization
 - **UI Components:** vibescale (https://npmjs.com/vibescale) and a custom library in `src/van13k`
 - **Styling:** CSS Modules with Sass
 - **Deployment:** Cloudflare Pages
