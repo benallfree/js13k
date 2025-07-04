@@ -7,6 +7,10 @@ export type PlayProps = {
 
 export type Player = PlayerBase & {
   playerType: 'host' | 'player'
+  deviceDimensions?: {
+    width: number
+    height: number
+  }
 }
 
 export type SearchParams = {

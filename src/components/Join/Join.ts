@@ -32,6 +32,11 @@ export const Join = (params: JoinParams) => {
     console.log('player joined', player)
     room.mutateLocalPlayer((player) => {
       player.playerType = 'player'
+      // Capture device dimensions
+      player.deviceDimensions = {
+        width: window.screen.width,
+        height: window.screen.height,
+      }
     })
     panel.set(
       `connection-status`,

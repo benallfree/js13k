@@ -1,4 +1,5 @@
-import { div, dragify, van, type DragState } from '@/van13k'
+import { div, van } from '@/van13k'
+import { gesture, type DragState } from '@/van13k/util/gesture'
 import type { Card, CardTransform } from './types'
 
 // Get card suit symbol
@@ -51,7 +52,7 @@ export const PlayingCard = (card: Card, transform: CardTransform, index: number,
     // Don't reset z-index - card stays on top after being dragged
   }
 
-  const dragEvents = dragify({
+  const dragEvents = gesture({
     onDragStart: handleDragStart,
     onDragMove: handleDragMove,
     onDragEnd: handleDragEnd,

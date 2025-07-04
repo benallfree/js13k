@@ -1,13 +1,15 @@
-import { div, dragify, van, type DragState } from '@/van13k'
+import { div, van } from '@/van13k'
+import { gesture, type DragState } from '@/van13k/util/gesture'
 import type { Player } from './types'
 
 export type PlayerPortalProps = {
   player: Player
   initialPosition: { x: number; y: number }
   onPositionChange: (playerId: string, x: number, y: number) => void
+  onTap?: (playerId: string) => void
 }
 
-export const PlayerPortal = ({ player, initialPosition, onPositionChange }: PlayerPortalProps) => {
+export const PlayerPortal = ({ player, initialPosition, onPositionChange, onTap }: PlayerPortalProps) => {
   // State for portal position
   const portalX = van.state(initialPosition.x)
   const portalY = van.state(initialPosition.y)
@@ -18,7 +20,14 @@ export const PlayerPortal = ({ player, initialPosition, onPositionChange }: Play
   let touchOffsetX = 0
   let touchOffsetY = 0
 
-  // Drag handlers
+  // Gesture handlers
+  const handleTap = () => {
+    if (onTap) {
+      console.log(`Tapped portal for player: ${player.username}`)
+      onTap(player.id)
+    }
+  }
+
   const handleDragStart = (dragState: DragState) => {
     console.log(`Started dragging portal for player: ${player.username}`)
     isDragging.val = true
@@ -46,7 +55,8 @@ export const PlayerPortal = ({ player, initialPosition, onPositionChange }: Play
     onPositionChange(player.id, portalX.val, portalY.val)
   }
 
-  const dragEvents = dragify({
+  const gestureEvents = gesture({
+    onTap: handleTap,
     onDragStart: handleDragStart,
     onDragMove: handleDragMove,
     onDragEnd: handleDragEnd,
@@ -69,7 +79,7 @@ export const PlayerPortal = ({ player, initialPosition, onPositionChange }: Play
         z-index: ${zIndex.val}; 
         user-select: none;
       `,
-      ...dragEvents,
+      ...gestureEvents,
     },
     // Player name display
     div(

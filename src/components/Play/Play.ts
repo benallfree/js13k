@@ -4,6 +4,7 @@ import { RoomEventType, vibescale } from 'vibescale/ts'
 import { CardPile } from './CardPile'
 import { InfoOverlay } from './InfoOverlay'
 import { PlayerPortal } from './PlayerPortal'
+import { PlayerScreen } from './PlayerScreen'
 import { Share } from './Share'
 import type { Player, PlayProps, SandboxArea } from './types'
 import { useInfoPanel } from './useInfoPanel'
@@ -32,6 +33,9 @@ export const Play = ({ game, joinCode }: PlayProps) => {
 
   // Track player portal positions (host only) - using vanX.reactive for object reactivity
   const playerPortalPositions = vanX.reactive<Record<string, { x: number; y: number }>>({})
+
+  // Track visible player screens
+  const visiblePlayerScreens = vanX.reactive<Record<string, boolean>>({})
 
   vanX.calc(() => {
     Object.entries(playerPortalPositions).forEach(([playerId, position]) => {
@@ -97,6 +101,23 @@ export const Play = ({ game, joinCode }: PlayProps) => {
     console.log(`Updated portal position for player ${playerId}:`, { x, y })
   }
 
+  // Handle portal tap to show/hide player screen
+  const handlePortalTap = (playerId: string) => {
+    const isVisible = visiblePlayerScreens[playerId]
+    if (isVisible) {
+      delete visiblePlayerScreens[playerId]
+    } else {
+      visiblePlayerScreens[playerId] = true
+    }
+    console.log(`Toggled screen visibility for player ${playerId}:`, !isVisible)
+  }
+
+  // Handle closing a player screen
+  const handlePlayerScreenClose = (playerId: string) => {
+    delete visiblePlayerScreens[playerId]
+    console.log(`Closed screen for player ${playerId}`)
+  }
+
   // Set up info panel items
 
   // Define sandbox area for cards (center area of screen)
@@ -114,21 +135,27 @@ export const Play = ({ game, joinCode }: PlayProps) => {
   }
 
   return div(
+    // Full screen parent container
     div(
       {
-        class: 'relative min-h-screen bg-green-800 overflow-hidden',
-        ...clickify((e) => {
-          adminModal.open()
-        }),
+        class: 'relative min-h-screen overflow-hidden',
       },
 
-      // Info overlay
-      InfoOverlay(),
+      // Table/game area
+      div(
+        {
+          class: 'absolute inset-0 bg-green-800',
+          ...clickify((e) => {
+            adminModal.open()
+          }),
+        },
+        // Info overlay
+        InfoOverlay(),
+        // Cards (only for host)
+        CardPile({ jokerCount: 2, sandbox, scatterPattern: 'random' })
+      ),
 
-      // Cards (only for host)
-      CardPile({ jokerCount: 2, sandbox, scatterPattern: 'random' }),
-
-      // Player portals (only for non-host players)
+      // Player portals (positioned relative to full screen)
       () => {
         return div(
           ...Object.entries(playerPortalPositions)
@@ -140,12 +167,36 @@ export const Play = ({ game, joinCode }: PlayProps) => {
                 player,
                 initialPosition: position,
                 onPositionChange: handlePortalPositionChange,
+                onTap: handlePortalTap,
+              })
+            })
+            .filter(Boolean)
+        )
+      },
+
+      // Player screens (positioned relative to full screen)
+      () => {
+        return div(
+          ...Object.entries(visiblePlayerScreens)
+            .map(([playerId, isVisible]) => {
+              if (!isVisible) return null
+
+              const player = room.getPlayer(playerId)
+              const position = playerPortalPositions[playerId]
+
+              if (!player || !position) return null
+
+              return PlayerScreen({
+                player,
+                position,
+                onClose: () => handlePlayerScreenClose(playerId),
               })
             })
             .filter(Boolean)
         )
       }
     ),
+
     adminModal()
   )
 }
