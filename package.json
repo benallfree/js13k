@@ -60,6 +60,7 @@
   "dependencies": {
     "@types/qs": "^6.14.0",
     "qrcode-generator": "^2.0.2",
-    "qs": "^6.14.0"
+    "qs": "^6.14.0",
+    "vanjs-ext": "^0.6.3"
   }
 }

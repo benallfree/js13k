@@ -9,6 +9,43 @@ export const useSearchParams = <T extends Record<string, any>>(): T => {
   }) as T
 }
 
+// Generate initial position around the perimeter of the screen for a player portal
+export const generatePerimeterPosition = (playerIndex: number, totalPlayers: number): { x: number; y: number } => {
+  const screenWidth = window.innerWidth
+  const screenHeight = window.innerHeight
+  const margin = 50 // Distance from screen edge
+  const portalRadius = 32 // Half the width/height of the portal (16 * 2)
+
+  // Calculate position around the perimeter
+  const perimeter = 2 * (screenWidth + screenHeight) - 8 * margin
+  const positionOnPerimeter = (playerIndex / Math.max(totalPlayers, 1)) * perimeter
+
+  let x: number, y: number
+
+  // Top edge
+  if (positionOnPerimeter <= screenWidth - 2 * margin) {
+    x = margin + positionOnPerimeter
+    y = margin
+  }
+  // Right edge
+  else if (positionOnPerimeter <= screenWidth - 2 * margin + screenHeight - 2 * margin) {
+    x = screenWidth - margin
+    y = margin + (positionOnPerimeter - (screenWidth - 2 * margin))
+  }
+  // Bottom edge
+  else if (positionOnPerimeter <= 2 * (screenWidth - 2 * margin) + screenHeight - 2 * margin) {
+    x = screenWidth - margin - (positionOnPerimeter - (screenWidth - 2 * margin + screenHeight - 2 * margin))
+    y = screenHeight - margin
+  }
+  // Left edge
+  else {
+    x = margin
+    y = screenHeight - margin - (positionOnPerimeter - (2 * (screenWidth - 2 * margin) + screenHeight - 2 * margin))
+  }
+
+  return { x, y }
+}
+
 // Constants for pseudo-random number generation
 const RANDOM_SEED_1 = 12.9898
 const RANDOM_SEED_2 = 78.233

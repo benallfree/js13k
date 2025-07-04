@@ -1,0 +1,86 @@
+import { div, dragify, van, type DragState } from '@/van13k'
+import type { Player } from './types'
+
+export type PlayerPortalProps = {
+  player: Player
+  initialPosition: { x: number; y: number }
+  onPositionChange: (playerId: string, x: number, y: number) => void
+}
+
+export const PlayerPortal = ({ player, initialPosition, onPositionChange }: PlayerPortalProps) => {
+  // State for portal position
+  const portalX = van.state(initialPosition.x)
+  const portalY = van.state(initialPosition.y)
+  const isDragging = van.state(false)
+  const zIndex = van.state(1000) // Higher than cards
+
+  // Track the offset from card position to initial touch point
+  let touchOffsetX = 0
+  let touchOffsetY = 0
+
+  // Drag handlers
+  const handleDragStart = (dragState: DragState) => {
+    console.log(`Started dragging portal for player: ${player.username}`)
+    isDragging.val = true
+    zIndex.val = 1001 // Bring to top when dragging
+
+    // Calculate offset from portal's RENDERED position to touch point
+    // The portal is rendered at (portalX.val - 32, portalY.val - 32) due to the transform
+    touchOffsetX = dragState.startX - (portalX.val - 32)
+    touchOffsetY = dragState.startY - (portalY.val - 32)
+  }
+
+  const handleDragMove = (dragState: DragState) => {
+    // Position portal so the original touch point stays under the finger
+    // We add 32 back because portalX/Y represent the center coordinates
+    portalX.val = dragState.currentX - touchOffsetX + 32
+    portalY.val = dragState.currentY - touchOffsetY + 32
+  }
+
+  const handleDragEnd = () => {
+    console.log(`Finished dragging portal for player: ${player.username} to position (${portalX.val}, ${portalY.val})`)
+    isDragging.val = false
+    zIndex.val = 1000 // Reset z-index but keep above cards
+
+    // Notify parent of position change
+    onPositionChange(player.id, portalX.val, portalY.val)
+  }
+
+  const dragEvents = dragify({
+    onDragStart: handleDragStart,
+    onDragMove: handleDragMove,
+    onDragEnd: handleDragEnd,
+  })
+
+  return div(
+    {
+      class: () => `
+        absolute w-16 h-16 rounded-full cursor-pointer
+        flex items-center justify-center
+        bg-gradient-to-br from-blue-400 to-blue-600
+        border-4 border-white
+        shadow-lg hover:shadow-xl
+        ${isDragging.val ? 'shadow-2xl' : 'hover:scale-105'}
+        ${isDragging.val ? '' : 'transition-all duration-300'}
+        ${isDragging.val ? '' : 'animate-pulse'}
+      `,
+      style: () => `
+        transform: translate(${portalX.val - 32}px, ${portalY.val - 32}px); 
+        z-index: ${zIndex.val}; 
+        user-select: none;
+      `,
+      ...dragEvents,
+    },
+    // Player name display
+    div(
+      {
+        class: 'text-white text-xs font-bold text-center px-1 truncate max-w-full',
+      },
+      player.username || 'Player'
+    ),
+    // Portal indicator dot
+    div({
+      class: 'absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-white animate-ping',
+    })
+  )
+}

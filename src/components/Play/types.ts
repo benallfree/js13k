@@ -10,7 +10,8 @@ export type Player = PlayerBase & {
 }
 
 export type SearchParams = {
-  p: boolean
+  game: string
+  joinCode: string
 }
 
 export type SandboxArea = {
