@@ -16,6 +16,9 @@ export const PlayerPortal = ({ player, initialPosition, onPositionChange, onTap 
   const isDragging = van.state(false)
   const zIndex = van.state(1000) // Higher than cards
 
+  // Store original z-index for restoration
+  let originalZIndex = 1000
+
   // Track the offset from card position to initial touch point
   let touchOffsetX = 0
   let touchOffsetY = 0
@@ -28,10 +31,22 @@ export const PlayerPortal = ({ player, initialPosition, onPositionChange, onTap 
     }
   }
 
+  const handleLongPress = () => {
+    console.log(`Long pressed portal for player: ${player.username}`)
+    // Boost z-index immediately on long press for visual feedback
+    originalZIndex = zIndex.val
+    zIndex.val = 10000
+  }
+
   const handleDragStart = (dragState: DragState) => {
     console.log(`Started dragging portal for player: ${player.username}`)
     isDragging.val = true
-    zIndex.val = 1001 // Bring to top when dragging
+
+    // If we haven't already boosted z-index via long press, do it now
+    if (zIndex.val < 10000) {
+      originalZIndex = zIndex.val
+      zIndex.val = 10000
+    }
 
     // Calculate offset from portal's RENDERED position to touch point
     // The portal is rendered at (portalX.val - 32, portalY.val - 32) due to the transform
@@ -49,7 +64,9 @@ export const PlayerPortal = ({ player, initialPosition, onPositionChange, onTap 
   const handleDragEnd = () => {
     console.log(`Finished dragging portal for player: ${player.username} to position (${portalX.val}, ${portalY.val})`)
     isDragging.val = false
-    zIndex.val = 1000 // Reset z-index but keep above cards
+
+    // Restore original z-index (from before long press/drag)
+    zIndex.val = originalZIndex
 
     // Notify parent of position change
     onPositionChange(player.id, portalX.val, portalY.val)
@@ -57,6 +74,7 @@ export const PlayerPortal = ({ player, initialPosition, onPositionChange, onTap 
 
   const gestureEvents = gesture({
     onTap: handleTap,
+    onLongPress: handleLongPress,
     onDragStart: handleDragStart,
     onDragMove: handleDragMove,
     onDragEnd: handleDragEnd,

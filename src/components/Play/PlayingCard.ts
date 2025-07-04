@@ -25,15 +25,32 @@ export const PlayingCard = (card: Card, transform: CardTransform, index: number,
   const isDragging = van.state(false)
   const zIndex = van.state(index + 1)
 
+  // Store original z-index for restoration
+  let originalZIndex = index + 1
+
   // Track the offset from card position to initial touch point
   let touchOffsetX = 0
   let touchOffsetY = 0
 
   // Drag handlers
+  const handleLongPress = () => {
+    console.log(`Long pressed card: ${card.rank} of ${card.suit}`)
+    // Boost z-index immediately on long press for visual feedback
+    originalZIndex = zIndex.val
+    const newZIndex = bringToTop()
+    zIndex.val = newZIndex
+    originalZIndex = newZIndex // Update stored original
+  }
+
   const handleDragStart = (dragState: DragState) => {
     console.log(`Started dragging card: ${card.rank} of ${card.suit}`)
     isDragging.val = true
-    zIndex.val = bringToTop() // Bring to top and keep it there
+
+    // If we haven't already boosted z-index via long press, do it now
+    if (zIndex.val < 10000) {
+      originalZIndex = zIndex.val
+      zIndex.val = 10000
+    }
 
     // Calculate offset from card position to ORIGINAL touch point (not current position)
     touchOffsetX = dragState.startX - cardX.val
@@ -49,10 +66,16 @@ export const PlayingCard = (card: Card, transform: CardTransform, index: number,
   const handleDragEnd = () => {
     console.log(`Finished dragging card: ${card.rank} of ${card.suit} to position (${cardX.val}, ${cardY.val})`)
     isDragging.val = false
-    // Don't reset z-index - card stays on top after being dragged
+
+    // Card should already be at a high z-index from long press or drag start
+    // Keep it there permanently
+    const newZIndex = bringToTop()
+    zIndex.val = newZIndex
+    originalZIndex = newZIndex // Update the stored original for future drags
   }
 
   const dragEvents = gesture({
+    onLongPress: handleLongPress,
     onDragStart: handleDragStart,
     onDragMove: handleDragMove,
     onDragEnd: handleDragEnd,

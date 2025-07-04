@@ -14,7 +14,7 @@ export const CardPile = ({ jokerCount = 0, sandbox, scatterPattern = 'random', s
   // Track the highest z-index used
   const maxZIndex = van.state(deck.length + 1)
 
-  // Function to bring a card to the top
+  // Function to bring a card to the top permanently (after dragging)
   const bringToTop = () => {
     const newZIndex = maxZIndex.val + 1
     maxZIndex.val = newZIndex
