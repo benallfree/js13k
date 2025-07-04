@@ -1,22 +1,14 @@
-import { div, h3, img, navigate, p } from '@van13k'
+import { div, generateGuid, h3, img, navigate, p } from '@van13k'
+import { Game } from '../games'
 
-export type Game = {
-  name: string
-  description: string
-  slug: string
-  image: string
-}
-
-const GAMES: Game[] = [
-  {
-    name: 'CardDemo',
-    description: 'A demo of the card component',
-    slug: 'card-demo',
-    image: `https://picsum.photos/seed/card-demo/200/200`,
-  },
-]
+export const useJoinCode = (() => {
+  const joinCode = generateGuid(4)
+  console.log('joinCode', joinCode)
+  return () => joinCode
+})()
 
 export const GameCard = (game: Game) => {
+  const joinCode = useJoinCode()
   return div(
     {
       class: `
@@ -29,7 +21,7 @@ export const GameCard = (game: Game) => {
       `,
       onclick: (e) => {
         e.preventDefault()
-        navigate(`/play/${game.slug}`)
+        navigate(`/play/${game.slug}/${joinCode}`)
       },
     },
     div(
@@ -47,17 +39,6 @@ export const GameCard = (game: Game) => {
       { class: 'p-6' },
       h3({ class: 'text-xl font-bold text-white mb-2 truncate' }, game.name),
       p({ class: 'text-gray-300 text-sm leading-relaxed line-clamp-2' }, game.description)
-    )
-  )
-}
-
-export const Home = () => {
-  return div(
-    { class: 'min-h-screen bg-gray-900 p-8' },
-    div(
-      { class: 'max-w-6xl mx-auto' },
-      h3({ class: 'text-3xl font-bold text-white mb-8 text-center' }, 'Available Games'),
-      div({ class: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' }, ...GAMES.map(GameCard))
     )
   )
 }
