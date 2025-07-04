@@ -8,14 +8,15 @@ export interface DragState {
   deltaY: number
 }
 
-export interface DragCallbacks {
+export interface GestureCallbacks {
+  onTap?: (e: TouchEvent | MouseEvent) => void
   onDragStart?: (state: DragState, e: TouchEvent | MouseEvent) => void
   onDragMove?: (state: DragState, e: TouchEvent | MouseEvent) => void
   onDragEnd?: (state: DragState, e: TouchEvent | MouseEvent) => void
 }
 
-export const dragify = ({ onDragStart, onDragMove, onDragEnd }: DragCallbacks) => {
-  let dragState: DragState = {
+export const gesture = ({ onTap, onDragStart, onDragMove, onDragEnd }: GestureCallbacks) => {
+  let gestureState: DragState = {
     isDragging: false,
     startX: 0,
     startY: 0,
@@ -25,8 +26,12 @@ export const dragify = ({ onDragStart, onDragMove, onDragEnd }: DragCallbacks) =
     deltaY: 0,
   }
 
-  const threshold = 5 // Reduced threshold for more responsive drag start
+  const tapThreshold = 10 // Pixels to allow minor movement for a tap
+  const dragThreshold = 5 // Pixels to start drag detection
+  const tapTimeThreshold = 300 // Max time for a tap in milliseconds
+
   let isMouseDown = false
+  let startTime = 0
   let rafId: number | null = null
   let pendingMove = false
 
@@ -39,7 +44,9 @@ export const dragify = ({ onDragStart, onDragMove, onDragEnd }: DragCallbacks) =
 
   const handleStart = (e: TouchEvent | MouseEvent) => {
     const coords = getEventCoordinates(e)
-    dragState = {
+    startTime = Date.now()
+
+    gestureState = {
       isDragging: false,
       startX: coords.x,
       startY: coords.y,
@@ -62,23 +69,23 @@ export const dragify = ({ onDragStart, onDragMove, onDragEnd }: DragCallbacks) =
 
   const performMove = (e: TouchEvent | MouseEvent) => {
     const coords = getEventCoordinates(e)
-    dragState.currentX = coords.x
-    dragState.currentY = coords.y
-    dragState.deltaX = coords.x - dragState.startX
-    dragState.deltaY = coords.y - dragState.startY
+    gestureState.currentX = coords.x
+    gestureState.currentY = coords.y
+    gestureState.deltaX = coords.x - gestureState.startX
+    gestureState.deltaY = coords.y - gestureState.startY
 
     // Check if we've moved enough to start dragging
-    if (!dragState.isDragging) {
-      const distance = Math.sqrt(dragState.deltaX ** 2 + dragState.deltaY ** 2)
-      if (distance > threshold) {
-        dragState.isDragging = true
-        onDragStart?.(dragState, e)
+    if (!gestureState.isDragging && (onDragStart || onDragMove || onDragEnd)) {
+      const distance = Math.sqrt(gestureState.deltaX ** 2 + gestureState.deltaY ** 2)
+      if (distance > dragThreshold) {
+        gestureState.isDragging = true
+        onDragStart?.(gestureState, e)
       }
     }
 
     // If we're dragging, call the move callback
-    if (dragState.isDragging) {
-      onDragMove?.(dragState, e)
+    if (gestureState.isDragging) {
+      onDragMove?.(gestureState, e)
     }
 
     pendingMove = false
@@ -91,8 +98,8 @@ export const dragify = ({ onDragStart, onDragMove, onDragEnd }: DragCallbacks) =
       rafId = requestAnimationFrame(() => performMove(e))
     }
 
-    // Prevent scrolling immediately
-    if (dragState.isDragging) {
+    // Prevent scrolling immediately if we're dragging
+    if (gestureState.isDragging) {
       e.preventDefault()
     }
   }
@@ -104,8 +111,19 @@ export const dragify = ({ onDragStart, onDragMove, onDragEnd }: DragCallbacks) =
       rafId = null
     }
 
-    if (dragState.isDragging) {
-      onDragEnd?.(dragState, e)
+    const timeDiff = Date.now() - startTime
+    const distance = Math.sqrt(gestureState.deltaX ** 2 + gestureState.deltaY ** 2)
+
+    // Determine if this was a tap or drag
+    const wasTap = !gestureState.isDragging && distance <= tapThreshold && timeDiff <= tapTimeThreshold
+
+    if (wasTap && onTap) {
+      // Prevent event from bubbling up to parent elements
+      e.stopPropagation()
+      e.preventDefault()
+      onTap(e)
+    } else if (gestureState.isDragging && onDragEnd) {
+      onDragEnd(gestureState, e)
     }
 
     if (e instanceof MouseEvent) {
@@ -115,8 +133,8 @@ export const dragify = ({ onDragStart, onDragMove, onDragEnd }: DragCallbacks) =
       document.removeEventListener('mouseup', handleDocumentMouseUp)
     }
 
-    // Reset drag state
-    dragState = {
+    // Reset gesture state
+    gestureState = {
       isDragging: false,
       startX: 0,
       startY: 0,
@@ -141,16 +159,32 @@ export const dragify = ({ onDragStart, onDragMove, onDragEnd }: DragCallbacks) =
     }
   }
 
+  // For simple clicks (mouse events only, for compatibility with existing clickify usage)
+  const handleClick = (e: Event) => {
+    if (onTap && !onDragStart && !onDragMove && !onDragEnd) {
+      e.stopPropagation()
+      e.preventDefault()
+      onTap(e as MouseEvent)
+    }
+  }
+
   return {
     // Touch events
     ontouchstart: handleStart,
     ontouchmove: handleMove,
     ontouchend: handleEnd,
-    // Mouse events (only mousedown on element, move/up handled on document)
+    // Mouse events
     onmousedown: handleStart,
+    // Simple click handler for tap-only scenarios (only include if not undefined)
+    ...(onTap && !onDragStart && !onDragMove && !onDragEnd ? { onclick: handleClick } : {}),
     // Prevent context menu on long press
     oncontextmenu: (e: Event) => e.preventDefault(),
     // Prevent default drag behavior
     ondragstart: (e: Event) => e.preventDefault(),
   }
+}
+
+// Legacy compatibility function for existing clickify usage
+export const clickify = (onClick: (e: Event) => void) => {
+  return gesture({ onTap: onClick })
 }
