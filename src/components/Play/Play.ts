@@ -53,6 +53,12 @@ export const Play = ({ game, joinCode }: PlayProps) => {
     console.log('connected')
   })
 
+  room.on(RoomEventType.PlayerLeft, (e) => {
+    const player = e.data
+    console.log('player left', player)
+    delete playerPortalPositions[player.id]
+  })
+
   room.on(RoomEventType.LocalPlayerJoined, (e) => {
     const player = e.data
     console.log('host joined', player)
