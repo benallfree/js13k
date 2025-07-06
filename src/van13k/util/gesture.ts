@@ -10,12 +10,21 @@ export interface DragState {
 
 export interface GestureCallbacks {
   onTap?: (e: TouchEvent | MouseEvent) => void
+  onLongPress?: (e: TouchEvent | MouseEvent) => void
   onDragStart?: (state: DragState, e: TouchEvent | MouseEvent) => void
   onDragMove?: (state: DragState, e: TouchEvent | MouseEvent) => void
   onDragEnd?: (state: DragState, e: TouchEvent | MouseEvent) => void
+  longPressDelay?: number // Milliseconds to wait for long press (default: 500)
 }
 
-export const gesture = ({ onTap, onDragStart, onDragMove, onDragEnd }: GestureCallbacks) => {
+export const gesture = ({
+  onTap,
+  onLongPress,
+  onDragStart,
+  onDragMove,
+  onDragEnd,
+  longPressDelay = 500,
+}: GestureCallbacks) => {
   let gestureState: DragState = {
     isDragging: false,
     startX: 0,
@@ -34,6 +43,8 @@ export const gesture = ({ onTap, onDragStart, onDragMove, onDragEnd }: GestureCa
   let startTime = 0
   let rafId: number | null = null
   let pendingMove = false
+  let longPressTriggered = false
+  let longPressTimer: ReturnType<typeof setTimeout> | null = null
 
   const getEventCoordinates = (e: TouchEvent | MouseEvent) => {
     if (e instanceof TouchEvent) {
@@ -45,6 +56,7 @@ export const gesture = ({ onTap, onDragStart, onDragMove, onDragEnd }: GestureCa
   const handleStart = (e: TouchEvent | MouseEvent) => {
     const coords = getEventCoordinates(e)
     startTime = Date.now()
+    longPressTriggered = false
 
     gestureState = {
       isDragging: false,
@@ -54,6 +66,18 @@ export const gesture = ({ onTap, onDragStart, onDragMove, onDragEnd }: GestureCa
       currentY: coords.y,
       deltaX: 0,
       deltaY: 0,
+    }
+
+    // Start long press timer
+    if (onLongPress) {
+      longPressTimer = setTimeout(() => {
+        // Check if we haven't moved too much and haven't started dragging
+        const distance = Math.sqrt(gestureState.deltaX ** 2 + gestureState.deltaY ** 2)
+        if (!gestureState.isDragging && distance <= tapThreshold) {
+          longPressTriggered = true
+          onLongPress(e)
+        }
+      }, longPressDelay)
     }
 
     if (e instanceof MouseEvent) {
@@ -74,11 +98,25 @@ export const gesture = ({ onTap, onDragStart, onDragMove, onDragEnd }: GestureCa
     gestureState.deltaX = coords.x - gestureState.startX
     gestureState.deltaY = coords.y - gestureState.startY
 
+    const distance = Math.sqrt(gestureState.deltaX ** 2 + gestureState.deltaY ** 2)
+
+    // Cancel long press if we've moved too much
+    if (distance > tapThreshold && longPressTimer) {
+      clearTimeout(longPressTimer)
+      longPressTimer = null
+    }
+
     // Check if we've moved enough to start dragging
     if (!gestureState.isDragging && (onDragStart || onDragMove || onDragEnd)) {
-      const distance = Math.sqrt(gestureState.deltaX ** 2 + gestureState.deltaY ** 2)
       if (distance > dragThreshold) {
         gestureState.isDragging = true
+
+        // Cancel long press timer if dragging starts
+        if (longPressTimer) {
+          clearTimeout(longPressTimer)
+          longPressTimer = null
+        }
+
         onDragStart?.(gestureState, e)
       }
     }
@@ -111,11 +149,18 @@ export const gesture = ({ onTap, onDragStart, onDragMove, onDragEnd }: GestureCa
       rafId = null
     }
 
+    // Cancel long press timer
+    if (longPressTimer) {
+      clearTimeout(longPressTimer)
+      longPressTimer = null
+    }
+
     const timeDiff = Date.now() - startTime
     const distance = Math.sqrt(gestureState.deltaX ** 2 + gestureState.deltaY ** 2)
 
-    // Determine if this was a tap or drag
-    const wasTap = !gestureState.isDragging && distance <= tapThreshold && timeDiff <= tapTimeThreshold
+    // Determine if this was a tap (not long press, not drag)
+    const wasTap =
+      !gestureState.isDragging && !longPressTriggered && distance <= tapThreshold && timeDiff <= tapTimeThreshold
 
     if (wasTap && onTap) {
       // Prevent event from bubbling up to parent elements
@@ -144,6 +189,7 @@ export const gesture = ({ onTap, onDragStart, onDragMove, onDragEnd }: GestureCa
       deltaY: 0,
     }
     pendingMove = false
+    longPressTriggered = false
   }
 
   // Document-level mouse event handlers
