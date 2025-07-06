@@ -63,8 +63,12 @@ export const Play = ({ game, joinCode }: PlayProps) => {
     delete playerPortalPositions[player.id]
   })
 
-  room.on(RoomEventType.LocalPlayerJoined, (e) => {
+  // Update local player to host
+  room.on(RoomEventType.PlayerJoined, (e) => {
     const player = e.data
+    if (!player.isLocal) {
+      return
+    }
     console.log('host joined', player)
     room.mutateLocalPlayer((player) => {
       player.playerType = 'host'
@@ -72,6 +76,7 @@ export const Play = ({ game, joinCode }: PlayProps) => {
     })
   })
 
+  // Update info panel
   room.on(RoomEventType.PlayerUpdated, (e) => {
     panel.set(
       `players`,
@@ -79,6 +84,7 @@ export const Play = ({ game, joinCode }: PlayProps) => {
     )
   })
 
+  // Update player portal positions
   room.on(RoomEventType.PlayerJoined, (e) => {
     const player = e.data
     console.log('player joined', player)
