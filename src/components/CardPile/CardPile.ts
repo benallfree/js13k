@@ -1,7 +1,28 @@
-import { div, van } from '@/van13k'
-import { PlayingCard } from './PlayingCard'
-import type { CardPileProps } from './types'
-import { generateCardTransform, generateDeck } from './utils'
+import { PlayingCard } from '@/components/PlayingCard/PlayingCard'
+import { generateCardTransform, generateDeck } from '@/pages/Play/utils'
+import { div, van } from '@van13k'
+
+export type SandboxArea = {
+  x1: number
+  y1: number
+  x2: number
+  y2: number
+}
+
+export type ScatterPattern = 'random' | 'spiral' | 'circular' | 'cluster' | 'fan'
+
+export type CardPileProps = {
+  jokerCount?: number
+  sandbox: SandboxArea
+  scatterPattern?: ScatterPattern
+  scatterSeed?: number
+}
+
+export type CardTransform = {
+  x: number
+  y: number
+  rotation: number
+}
 
 // CardPile component for rendering scattered cards
 export const CardPile = ({ jokerCount = 0, sandbox, scatterPattern = 'random', scatterSeed }: CardPileProps) => {

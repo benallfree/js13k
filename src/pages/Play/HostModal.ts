@@ -1,4 +1,4 @@
-import { Modal } from '@/van13k'
+import { Modal } from '@van13k'
 import { Share } from './Share'
 
 export const HostModal = ({ joinCode }: { joinCode: string }) => {

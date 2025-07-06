@@ -1,5 +1,5 @@
-import { div } from '@/van13k'
-import { useInfoPanel } from './useInfoPanel'
+import { useInfoPanel } from '@/hooks/useInfoPanel'
+import { div } from '@van13k'
 
 export const InfoOverlay = () => {
   const panel = useInfoPanel()

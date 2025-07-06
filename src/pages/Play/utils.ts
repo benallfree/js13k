@@ -1,5 +1,6 @@
+import type { CardTransform, SandboxArea, ScatterPattern } from '@/components/CardPile/CardPile'
+import type { Card, Rank, Suit } from '@/components/PlayingCard/Suit'
 import qs from 'qs'
-import type { Card, CardTransform, Rank, SandboxArea, ScatterPattern, Suit } from './types'
 
 export const useSearchParams = <T extends Record<string, any>>(): T => {
   return qs.parse(window.location.search, {

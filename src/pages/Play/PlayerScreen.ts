@@ -1,5 +1,5 @@
-import { clickify, div } from '@/van13k'
-import type { Player } from './types'
+import { clickify, div } from '@van13k'
+import type { Player } from '../../types'
 
 export type PlayerScreenProps = {
   player: Player

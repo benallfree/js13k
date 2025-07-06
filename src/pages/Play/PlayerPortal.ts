@@ -1,6 +1,5 @@
-import { div, van } from '@/van13k'
-import { gesture, type DragState } from '@/van13k/util/gesture'
-import type { Player } from './types'
+import type { Player } from '@/types'
+import { div, gesture, van, type DragState } from '@van13k'
 
 export type PlayerPortalProps = {
   player: Player

@@ -1,4 +1,4 @@
-import { div, h1, img, p } from '@/van13k'
+import { div, h1, img, p } from '@van13k'
 import qrcode from 'qrcode-generator'
 
 export const Share = (joinCode: string) => {

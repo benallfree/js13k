@@ -1,6 +1,6 @@
-import { div, van } from '@/van13k'
-import { gesture, type DragState } from '@/van13k/util/gesture'
-import type { Card, CardTransform } from './types'
+import { CardTransform } from '@/components/CardPile/CardPile'
+import { div, gesture, van, type DragState } from '@van13k'
+import type { Card } from './Suit'
 
 // Get card suit symbol
 const getSuitSymbol = (suit: string): string => {

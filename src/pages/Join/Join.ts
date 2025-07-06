@@ -1,6 +1,7 @@
+import { InfoOverlay } from '@/components/InfoOverlay'
+import { useInfoPanel } from '@/hooks/useInfoPanel'
+import type { Player } from '@/types'
 import { div, RoomEventType, vibescale } from '@van13k'
-import { InfoOverlay, useInfoPanel } from '../Play'
-import { Player } from '../Play/types'
 
 export type JoinParams = {
   joinCode: string

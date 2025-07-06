@@ -1,5 +1,5 @@
+import { Game } from '@/games'
 import { div, generateGuid, h3, img, navigate, p } from '@van13k'
-import { Game } from '../games'
 
 export const useJoinCode = (() => {
   const joinCode = generateGuid(4)

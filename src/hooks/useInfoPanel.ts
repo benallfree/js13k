@@ -1,20 +1,18 @@
-import { van } from '@/van13k'
-import { service } from '@/van13k/util/service'
-import type { State } from 'vanjs-core'
+import { service, van, type ChildDom, type State } from '@van13k'
 
-type VanComponent = ReturnType<typeof van.tags.div>
+export type InfoItemKey = string
 
 interface InfoPanelService {
-  items: State<Record<string, VanComponent>>
-  set: (key: string, component: VanComponent) => void
+  items: State<Record<InfoItemKey, ChildDom>>
+  set: (key: string, component: ChildDom) => void
   remove: (key: string) => void
   clear: () => void
 }
 
 const createInfoPanelService = (): InfoPanelService => {
-  const items = van.state<Record<string, VanComponent>>({})
+  const items = van.state<Record<string, ChildDom>>({})
 
-  const set = (key: string, component: VanComponent) => {
+  const set = (key: string, component: ChildDom) => {
     items.val = { ...items.val, [key]: component }
   }
 

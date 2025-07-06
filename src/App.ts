@@ -1,8 +1,8 @@
+import { Home } from '@/pages/Home/Home'
+import { Join } from '@/pages/Join/Join'
+import { Play } from '@/pages/Play/Play'
 import { div, Route, Router, StatusBar } from '@van13k'
-import { Home } from './components/Home/Home'
-import { Join } from './components/Join/Join'
 import { Layout } from './components/Layout'
-import { Play } from './components/Play/Play'
 import { SplashPage } from './components/SplashPage'
 import './global.css'
 

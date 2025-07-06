@@ -1,4 +1,4 @@
-import { InputModal } from '@/van13k'
+import { InputModal } from '@van13k'
 
 export const JoinModal = () => {
   const joinModal = InputModal({

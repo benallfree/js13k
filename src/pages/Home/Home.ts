@@ -1,6 +1,6 @@
+import { NavBar } from '@/components/NavBar'
+import { GAMES } from '@/games'
 import { div, h3 } from '@van13k'
-import { GAMES } from '../games'
-import { NavBar } from '../NavBar'
 import { GameCard } from './GameCard'
 
 export const Home = () => {

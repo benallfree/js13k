@@ -1,14 +1,24 @@
-import { clickify, div, Link, Modal } from '@/van13k'
+import { CardPile, SandboxArea } from '@/components/CardPile/CardPile'
+import { InfoOverlay } from '@/components/InfoOverlay'
+import { useInfoPanel } from '@/hooks/useInfoPanel'
+import type { Player } from '@/types'
+import { clickify, div, Link, Modal } from '@van13k'
 import * as vanX from 'vanjs-ext'
 import { RoomEventType, vibescale } from 'vibescale/ts'
-import { CardPile } from './CardPile'
-import { InfoOverlay } from './InfoOverlay'
 import { PlayerPortal } from './PlayerPortal'
 import { PlayerScreen } from './PlayerScreen'
 import { Share } from './Share'
-import type { Player, PlayProps, SandboxArea } from './types'
-import { useInfoPanel } from './useInfoPanel'
 import { generatePerimeterPosition } from './utils'
+
+export type PlayProps = {
+  game: string
+  joinCode: string
+}
+
+export type SearchParams = {
+  game: string
+  joinCode: string
+}
 
 export const Play = ({ game, joinCode }: PlayProps) => {
   const adminModal = Modal({
